@@ -28,6 +28,7 @@ public class StructFieldDefaultValue {
 
     private int valueCPIndex = -1;
     private long intValue;
+//    private char charValue;
     private double floatValue;
     private String stringValue;
     private boolean booleanValue;
@@ -84,4 +85,12 @@ public class StructFieldDefaultValue {
     public void setBooleanValue(boolean booleanValue) {
         this.booleanValue = booleanValue;
     }
+
+//    public char getCharValue() {
+//        return charValue;
+//    }
+//
+//    public void setCharValue(char charValue) {
+//        this.charValue = charValue;
+//    }
 }

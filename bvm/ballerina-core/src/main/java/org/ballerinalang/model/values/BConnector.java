@@ -35,6 +35,7 @@ public final class BConnector implements BRefType, StructureType {
     private double[] doubleFields;
     private String[] stringFields;
     private int[] intFields;
+//    private char[] charFields;
     private byte[][] byteFields;
     private BRefType[] refFields;
 
@@ -55,7 +56,18 @@ public final class BConnector implements BRefType, StructureType {
         intFields = new int[fieldIndexes[3]];
         byteFields = new byte[fieldIndexes[4]][];
         refFields = new BRefType[fieldIndexes[5]];
+//        charFields = new char[fieldIndexes[6]];
     }
+
+//    @Override
+//    public char getCharField(int index) {
+//        return charFields[index];
+//    }
+//
+//    @Override
+//    public void setCharField(int index, char value) {
+//        charFields[index] = value;
+//    }
 
     public BType getConnectorType() {
         return connectorType;

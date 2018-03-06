@@ -26,6 +26,10 @@ public interface StructureType {
 
     void setIntField(int index, long value);
 
+//    char getCharField(int index);
+//
+//    void setCharField(int index, char value);
+
     double getFloatField(int index);
 
     void setFloatField(int index, double value);

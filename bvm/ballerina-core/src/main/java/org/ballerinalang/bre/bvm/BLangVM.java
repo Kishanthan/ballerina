@@ -43,6 +43,7 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BCharacter;
 import org.ballerinalang.model.values.BCollection;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BFloat;
@@ -99,6 +100,7 @@ import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
+import org.ballerinalang.util.codegen.cpentries.CharacterCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
@@ -257,6 +259,11 @@ public class BLangVM {
                     cpIndex = operands[0];
                     i = operands[1];
                     sf.longRegs[i] = ((IntegerCPEntry) constPool[cpIndex]).getValue();
+                    break;
+                case InstructionCodes.CCONST:
+                    cpIndex = operands[0];
+                    i = operands[1];
+                    sf.charRegs[i] = ((CharacterCPEntry) constPool[cpIndex]).getValue();
                     break;
                 case InstructionCodes.FCONST:
                     cpIndex = operands[0];
@@ -551,6 +558,7 @@ public class BLangVM {
                     break;
 
                 case InstructionCodes.I2ANY:
+                case InstructionCodes.C2ANY:
                 case InstructionCodes.F2ANY:
                 case InstructionCodes.S2ANY:
                 case InstructionCodes.B2ANY:
@@ -1220,6 +1228,11 @@ public class BLangVM {
                 lvIndex = operands[1];
                 sf.longRegs[lvIndex] = sf.longRegs[i];
                 break;
+//            case InstructionCodes.CSTORE:
+//                i = operands[0];
+//                lvIndex = operands[1];
+//                sf.longRegs[lvIndex] = sf.longRegs[i];
+//                break;
             case InstructionCodes.FSTORE:
                 i = operands[0];
                 lvIndex = operands[1];
@@ -1844,6 +1857,11 @@ public class BLangVM {
                 i = operands[0];
                 j = operands[1];
                 sf.refRegs[j] = new BInteger(sf.longRegs[i]);
+                break;
+            case InstructionCodes.C2ANY:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = new BCharacter(sf.charRegs[i]);
                 break;
             case InstructionCodes.F2ANY:
                 i = operands[0];
@@ -2639,6 +2657,7 @@ public class BLangVM {
 
         // Populate default values
         int longRegIndex = -1;
+        int charRegIndex = -1;
         int doubleRegIndex = -1;
         int stringRegIndex = -1;
         int booleanRegIndex = -1;
@@ -2652,6 +2671,12 @@ public class BLangVM {
                         bStruct.setIntField(longRegIndex, defaultValueInfo.getDefaultValue().getIntValue());
                     }
                     break;
+//                case TypeTags.CHAR_TAG:
+//                    charRegIndex++;
+//                    if (defaultValueInfo != null) {
+//                        bStruct.setCharField(charRegIndex, defaultValueInfo.getDefaultValue().getCharValue());
+//                    }
+//                    break;
                 case TypeTags.FLOAT_TAG:
                     doubleRegIndex++;
                     if (defaultValueInfo != null) {

@@ -74,6 +74,7 @@ public class SymbolTable {
 
     public final BType noType = new BNoType(TypeTags.NONE);
     public final BType intType = new BType(TypeTags.INT, null);
+    public final BType charType = new BType(TypeTags.CHAR, null);
     public final BType floatType = new BType(TypeTags.FLOAT, null);
     public final BType stringType = new BType(TypeTags.STRING, null);
     public final BType booleanType = new BType(TypeTags.BOOLEAN, null);
@@ -124,6 +125,7 @@ public class SymbolTable {
 
         // Initialize built-in types in Ballerina
         initializeType(intType, TypeKind.INT.typeName());
+        initializeType(charType, TypeKind.CHAR.typeName());
         initializeType(floatType, TypeKind.FLOAT.typeName());
         initializeType(stringType, TypeKind.STRING.typeName());
         initializeType(booleanType, TypeKind.BOOLEAN.typeName());
@@ -157,6 +159,8 @@ public class SymbolTable {
         switch (tag) {
             case TypeTags.INT:
                 return intType;
+            case TypeTags.CHAR:
+                return charType;
             case TypeTags.FLOAT:
                 return floatType;
             case TypeTags.STRING:
@@ -318,6 +322,7 @@ public class SymbolTable {
         // Define both implicit and explicit cast operators
         defineCastOperator(intType, jsonType, true, InstructionCodes.I2JSON);
         defineCastOperator(intType, anyType, true, InstructionCodes.I2ANY);
+        defineCastOperator(charType, anyType, true, InstructionCodes.C2ANY);
         defineCastOperator(intType, floatType, true, InstructionCodes.I2F);
         defineCastOperator(floatType, jsonType, true, InstructionCodes.F2JSON);
         defineCastOperator(floatType, anyType, true, InstructionCodes.F2ANY);

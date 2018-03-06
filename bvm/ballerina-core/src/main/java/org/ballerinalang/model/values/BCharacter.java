@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -21,48 +21,36 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
 /**
- * The {@code BBoolean} represents a boolean value in Ballerina.
+ * The {@code BCharacter} represents a char value in Ballerina.
  *
- * @since 0.8.0
+ * @since 0.964
  */
-public final class BBoolean extends BValueType implements BRefType<Boolean> {
+public final class BCharacter extends BValueType implements BRefType<Character> {
 
-    /**
-     * The {@code BBoolean} object corresponding to the primitive.
-     * value {@code true}.
-     */
-    public static final BBoolean TRUE = new BBoolean(true);
+    private char value;
 
-    /**
-     * The {@code BBoolean} object corresponding to the primitive.
-     * value {@code true}.
-     */
-    public static final BBoolean FALSE = new BBoolean(false);
-
-    private boolean value;
-
-    public BBoolean(boolean value) {
+    public BCharacter(char value) {
         this.value = value;
     }
 
     @Override
     public long intValue() {
-        return 0;
+        return this.value;
     }
 
     @Override
     public char charValue() {
-        return 0;
+        return this.value;
     }
 
     @Override
     public double floatValue() {
-        return 0;
+        return (double) this.value;
     }
 
     @Override
     public boolean booleanValue() {
-        return this.value;
+        return false;
     }
 
     @Override
@@ -72,25 +60,26 @@ public final class BBoolean extends BValueType implements BRefType<Boolean> {
 
     @Override
     public String stringValue() {
-        return Boolean.toString(value);
+        return String.valueOf(value);
     }
 
     @Override
     public BType getType() {
-        return BTypes.typeBoolean;
+        return BTypes.typeChar;
     }
 
     @Override
     public boolean equals(Object obj) {
-        return ((BBoolean) obj).booleanValue() == value;
+        return ((BCharacter) obj).charValue() == value;
     }
 
     @Override
-    public Boolean value() {
+    public Character value() {
         return value;
     }
 
+    @Override
     public BValue copy() {
-        return new BBoolean(value);
+        return new BCharacter(value);
     }
 }

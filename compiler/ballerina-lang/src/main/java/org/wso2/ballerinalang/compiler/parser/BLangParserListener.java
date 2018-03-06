@@ -1805,6 +1805,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         Set<Whitespace> ws = getWS(ctx);
         if ((node = ctx.IntegerLiteral()) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node)));
+        } else if ((node = ctx.CharacterLiteral()) != null) {
+            //TODO whats the equivalent for getNodeValue(ctx, node) for char?
+            String text = node.getText();
+            text = text.substring(1, text.length() - 1);
+            text = StringEscapeUtils.unescapeJava(text);
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.CHAR, text.charAt(0));
         } else if ((node = ctx.FloatingPointLiteral()) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getNodeValue(ctx, node)));
         } else if ((node = ctx.BooleanLiteral()) != null) {

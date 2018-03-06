@@ -285,5 +285,18 @@ public interface InstructionCodes {
     int TEQ = 252;
     int TNE = 253;
 
-    int INSTRUCTION_CODE_COUNT = 254;
+    int CCONST = 254;
+    int C2ANY = 255;
+//    int CMOVE = 254;
+//    int CSTORE = 255;
+//    int CALOAD = 256;
+//    int CASTORE = 257;
+//    int CGLOAD = 258;
+//    int CGSTORE = 259;
+//    int CNEWARRAY = 260;
+//    int CFIELDLOAD = 261;
+//    int CFIELDSTORE = 263;
+//    int CRET = 264;
+
+    int INSTRUCTION_CODE_COUNT = 256;
 }

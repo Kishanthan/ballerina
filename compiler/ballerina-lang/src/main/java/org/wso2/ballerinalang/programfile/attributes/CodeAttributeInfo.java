@@ -29,6 +29,7 @@ public class CodeAttributeInfo implements AttributeInfo {
 
     public int maxLongLocalVars;
     public int maxDoubleLocalVars;
+    public int maxCharLocalVars;
     public int maxStringLocalVars;
     public int maxIntLocalVars;
     public int maxByteLocalVars;
@@ -38,6 +39,7 @@ public class CodeAttributeInfo implements AttributeInfo {
 
     public int maxLongRegs;
     public int maxDoubleRegs;
+    public int maxCharRegs;
     public int maxStringRegs;
     public int maxIntRegs;
     public int maxByteRegs;

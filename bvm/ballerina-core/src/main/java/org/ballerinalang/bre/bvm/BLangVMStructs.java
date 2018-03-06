@@ -66,6 +66,7 @@ public class BLangVMStructs {
                     }
                 }
                 break;
+            //TODO for TypeTags.CHAR_TAG
             case TypeTags.FLOAT_TAG:
                 ++doubleRegIndex;
                 if (values[i] != null) {
