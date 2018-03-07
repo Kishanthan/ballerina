@@ -29,6 +29,11 @@ public enum TypeKind {
     INT("int"),
 
     /**
+     * The <em>character</em> value type.
+     */
+    CHAR("char"),
+
+    /**
      * The <em>float</em> value type.
      */
     FLOAT("float"),

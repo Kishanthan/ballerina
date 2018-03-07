@@ -275,6 +275,9 @@ public class JSONUtils {
                     case TypeTags.INT_TAG:
                         jsonNode.set(key, struct.getIntField(++longRegIndex));
                         break;
+                    case TypeTags.CHAR_TAG:
+                        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
+                                BTypes.typeJSON, BTypes.typeChar);
                     case TypeTags.FLOAT_TAG:
                         jsonNode.set(key, struct.getFloatField(++doubleRegIndex));
                         break;
@@ -920,6 +923,8 @@ public class JSONUtils {
                 return "int";
             case DOUBLE:
                 return "float";
+            case CHAR:
+                return "char";
             case ARRAY:
                 /* falling through */
             case OBJECT:

@@ -333,6 +333,7 @@ public class JsonNode {
         ARRAY,
         STRING,
         LONG,
+        CHAR,
         DOUBLE,
         BOOLEAN,
         NULL

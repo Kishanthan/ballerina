@@ -51,6 +51,11 @@ public final class BBoolean extends BValueType implements BRefType<Boolean> {
     }
 
     @Override
+    public int charValue() {
+        return 0;
+    }
+
+    @Override
     public double floatValue() {
         return 0;
     }

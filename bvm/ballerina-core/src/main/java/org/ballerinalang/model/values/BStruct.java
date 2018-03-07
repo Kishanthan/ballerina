@@ -21,6 +21,7 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BStructType.StructField;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -45,6 +46,7 @@ public final class BStruct implements BRefType, LockableStructureType {
     private VarLock[] stringLocks;
     private int[] intFields;
     private VarLock[] intLocks;
+    private int[] charFields;
     private byte[][] byteFields;
     private VarLock[] byteLocks;
     private BRefType[] refFields;
@@ -62,12 +64,13 @@ public final class BStruct implements BRefType, LockableStructureType {
 
         int[] fieldCount = this.structType.getFieldTypeCount();
         longFields = new long[fieldCount[0]];
-        doubleFields = new double[fieldCount[1]];
-        stringFields = new String[fieldCount[2]];
+        charFields = new int[fieldCount[1]];
+        doubleFields = new double[fieldCount[2]];
+        stringFields = new String[fieldCount[3]];
         Arrays.fill(stringFields, "");
-        intFields = new int[fieldCount[3]];
-        byteFields = new byte[fieldCount[4]][];
-        refFields = new BRefType[fieldCount[5]];
+        intFields = new int[fieldCount[4]];
+        byteFields = new byte[fieldCount[5]][];
+        refFields = new BRefType[fieldCount[6]];
     }
 
     /**
@@ -85,6 +88,7 @@ public final class BStruct implements BRefType, LockableStructureType {
     public String stringValue() {
         int stringIndex = 0,
                 intIndex = 0,
+                charIndex = 0,
                 longIndex = 0,
                 doubleIndex = 0,
                 byteIndex = 0,
@@ -99,6 +103,8 @@ public final class BStruct implements BRefType, LockableStructureType {
                 fieldVal = "\"" + stringFields[stringIndex++] + "\"";
             } else if (fieldType == BTypes.typeInt) {
                 fieldVal = longFields[longIndex++];
+            } else if (fieldType == BTypes.typeChar) {
+                fieldVal = (char) charFields[charIndex++];
             } else if (fieldType == BTypes.typeFloat) {
                 fieldVal = doubleFields[doubleIndex++];
             } else if (fieldType == BTypes.typeBoolean) {
@@ -128,6 +134,16 @@ public final class BStruct implements BRefType, LockableStructureType {
     @Override
     public void setIntField(int index, long value) {
         longFields[index] = value;
+    }
+
+    @Override
+    public int getCharField(int index) {
+        return charFields[index];
+    }
+
+    @Override
+    public void setCharField(int index, int value) {
+        charFields[index] = value;
     }
 
     @Override
@@ -210,6 +226,18 @@ public final class BStruct implements BRefType, LockableStructureType {
     public void unlockIntField(int index) {
         longLocks[index].unlock();
     }
+
+//    @Override
+//    public void lockCharField(int index) {
+//        //TODO
+//        throw new NotImplementedException();
+//    }
+//
+//    @Override
+//    public void unlockCharField(int index) {
+//        //TODO
+//        throw new NotImplementedException();
+//    }
 
     @Override
     public void lockFloatField(int index) {
@@ -369,6 +397,7 @@ public final class BStruct implements BRefType, LockableStructureType {
         bStruct.doubleFields = Arrays.copyOf(doubleFields, doubleFields.length);
         bStruct.stringFields = Arrays.copyOf(stringFields, stringFields.length);
         bStruct.intFields = Arrays.copyOf(intFields, intFields.length);
+        bStruct.charFields = Arrays.copyOf(charFields, charFields.length);
         bStruct.byteFields = Arrays.copyOf(byteFields, byteFields.length);
         bStruct.refFields = Arrays.copyOf(refFields, refFields.length);
         return bStruct;

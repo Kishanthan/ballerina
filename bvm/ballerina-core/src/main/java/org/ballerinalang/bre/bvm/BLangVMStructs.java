@@ -44,6 +44,7 @@ public class BLangVMStructs {
         BStruct bStruct = new BStruct(structType);
 
         int longRegIndex = -1;
+        int charRegIndex = -1;
         int doubleRegIndex = -1;
         int stringRegIndex = -1;
         int booleanRegIndex = -1;
@@ -66,6 +67,16 @@ public class BLangVMStructs {
                     }
                 }
                 break;
+                case TypeTags.CHAR_TAG:
+                    ++charRegIndex;
+                    if (values[i] != null) {
+                        if (values[i] instanceof Character) {
+                            bStruct.setCharField(charRegIndex, (Character) values[i]);
+                        } else if (values[i] instanceof Integer) {
+                            bStruct.setCharField(charRegIndex, (Integer) values[i]);
+                        }
+                    }
+                    break;
             case TypeTags.FLOAT_TAG:
                 ++doubleRegIndex;
                 if (values[i] != null) {
