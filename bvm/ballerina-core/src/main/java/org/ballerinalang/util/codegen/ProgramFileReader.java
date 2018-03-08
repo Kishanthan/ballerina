@@ -1535,6 +1535,7 @@ public class ProgramFileReader {
                 case InstructionCodes.BEQ:
                 case InstructionCodes.REQ:
                 case InstructionCodes.INE:
+                case InstructionCodes.CNE:
                 case InstructionCodes.FNE:
                 case InstructionCodes.SNE:
                 case InstructionCodes.BNE:
@@ -1578,7 +1579,6 @@ public class ProgramFileReader {
                 case InstructionCodes.F2B:
                 case InstructionCodes.F2JSON:
                 case InstructionCodes.S2I:
-                case InstructionCodes.S2C:
                 case InstructionCodes.S2F:
                 case InstructionCodes.S2B:
                 case InstructionCodes.S2JSON:

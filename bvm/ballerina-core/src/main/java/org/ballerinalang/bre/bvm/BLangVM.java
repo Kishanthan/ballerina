@@ -428,6 +428,7 @@ public class BLangVM {
                 case InstructionCodes.REQ:
                 case InstructionCodes.TEQ:
                 case InstructionCodes.INE:
+                case InstructionCodes.CNE:
                 case InstructionCodes.FNE:
                 case InstructionCodes.SNE:
                 case InstructionCodes.BNE:
@@ -610,7 +611,6 @@ public class BLangVM {
                 case InstructionCodes.F2B:
                 case InstructionCodes.F2JSON:
                 case InstructionCodes.S2I:
-                case InstructionCodes.S2C:
                 case InstructionCodes.S2F:
                 case InstructionCodes.S2B:
                 case InstructionCodes.S2JSON:
@@ -1793,6 +1793,12 @@ public class BLangVM {
                 k = operands[2];
                 sf.intRegs[k] = sf.longRegs[i] != sf.longRegs[j] ? 1 : 0;
                 break;
+            case InstructionCodes.CNE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.charRegs[i] != sf.charRegs[j] ? 1 : 0;
+                break;
             case InstructionCodes.FNE:
                 i = operands[0];
                 j = operands[1];
@@ -2253,26 +2259,6 @@ public class BLangVM {
                 } catch (NumberFormatException e) {
                     sf.longRegs[j] = 0;
                     handleTypeConversionError(sf, k, TypeConstants.STRING_TNAME, TypeConstants.INT_TNAME);
-                }
-                break;
-            case InstructionCodes.S2C:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-
-                str = sf.stringRegs[i];
-                if (str == null) {
-                    sf.charRegs[j] = 0;
-                    handleTypeConversionError(sf, k, null, TypeConstants.CHAR_TNAME);
-                    break;
-                }
-
-                try {
-                    sf.charRegs[j] = (int) str.charAt(0);
-                    sf.refRegs[k] = null;
-                } catch (NumberFormatException e) {
-                    sf.charRegs[j] = 0;
-                    handleTypeConversionError(sf, k, TypeConstants.STRING_TNAME, TypeConstants.CHAR_TNAME);
                 }
                 break;
             case InstructionCodes.S2F:

@@ -138,6 +138,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.REQ] = "req";
         mnemonics[InstructionCodes.TEQ] = "teq";
         mnemonics[InstructionCodes.INE] = "ine";
+        mnemonics[InstructionCodes.CNE] = "cne";
         mnemonics[InstructionCodes.FNE] = "fne";
         mnemonics[InstructionCodes.SNE] = "sne";
         mnemonics[InstructionCodes.BNE] = "bne";
@@ -181,6 +182,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.C2S] = "c2s";
         mnemonics[InstructionCodes.C2ANY] = "c2any";
         mnemonics[InstructionCodes.F2I] = "f2i";
+        mnemonics[InstructionCodes.F2C] = "f2c";
         mnemonics[InstructionCodes.F2S] = "f2s";
         mnemonics[InstructionCodes.F2B] = "f2b";
         mnemonics[InstructionCodes.F2ANY] = "f2any";

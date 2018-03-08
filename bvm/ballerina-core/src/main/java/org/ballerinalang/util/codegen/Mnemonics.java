@@ -136,6 +136,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.REQ] = "req";
         mnemonics[InstructionCodes.TEQ] = "teq";
         mnemonics[InstructionCodes.INE] = "ine";
+        mnemonics[InstructionCodes.CNE] = "cne";
         mnemonics[InstructionCodes.FNE] = "fne";
         mnemonics[InstructionCodes.SNE] = "sne";
         mnemonics[InstructionCodes.BNE] = "bne";
@@ -185,7 +186,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.F2ANY] = "f2any";
         mnemonics[InstructionCodes.F2JSON] = "f2json";
         mnemonics[InstructionCodes.S2I] = "s2i";
-        mnemonics[InstructionCodes.S2C] = "s2c";
         mnemonics[InstructionCodes.S2F] = "s2f";
         mnemonics[InstructionCodes.S2B] = "s2b";
         mnemonics[InstructionCodes.S2ANY] = "s2any";
@@ -235,7 +235,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.WRKRETURN] = "wrkreturn";
 
         mnemonics[InstructionCodes.INEWARRAY] = "inewarray";
-//        mnemonics[InstructionCodes.CNEWARRAY] = "cnewarray";
+        mnemonics[InstructionCodes.CNEWARRAY] = "cnewarray";
         mnemonics[InstructionCodes.FNEWARRAY] = "fnewarray";
         mnemonics[InstructionCodes.SNEWARRAY] = "snewarray";
         mnemonics[InstructionCodes.BNEWARRAY] = "bnewarray";

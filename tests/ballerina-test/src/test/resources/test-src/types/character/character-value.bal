@@ -44,11 +44,6 @@ function testCharArrayToAny(char[] caIn) (any, any) {
     return typeOfca, caOut;
 }
 
-function testCharToVar() {
-    char a = 'H';
-    var charVar, _ = (char)a;
-}
-
 function testIntToCharExplicitCast(int b) (char) {
     char a = (char)b;
     return a;
@@ -59,15 +54,19 @@ function testIntToCharConversion(int b) (char){
     return c;
 }
 
+function testCharToIntConversion(char b) (int){
+    char c = <int>b;
+    return c;
+}
+
 function testFloatToCharConversion(float f) (char) {
     var c = <char>f;
     return c;
 }
 
-function testStringToCharConvError(string strVal) (error){
-    char charVal = 'D';
-    var charVal, conversionErr = <char>strVal;
-    return conversionErr;
+function testCharToFloatConversion(char f) (float) {
+    var c = <float>f;
+    return c;
 }
 
 
@@ -111,6 +110,11 @@ function testCharBinaryOperation(char a, char b, char c) (boolean, boolean) {
     return b1, b2;
 }
 
+function testCharBinaryNotEqualOperation(char a, char b, char c) (boolean, boolean) {
+    boolean b1 = (a != b);
+    boolean b2 = (a != c);
+    return b1, b2;
+}
 
 function testCharMapValues() (map){
     map m = {};

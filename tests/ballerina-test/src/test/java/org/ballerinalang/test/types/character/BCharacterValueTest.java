@@ -168,6 +168,17 @@ public class BCharacterValueTest {
         Assert.assertEquals(bCharacter.charValue(), (char) input, "Invalid character value returned.");
     }
 
+    @Test(description = "Test character to integer conversion")
+    public void testCharToIntConversion() {
+        char input = 'D';
+        BValue[] args = {new BCharacter(input)};
+        BValue[] returns = BRunUtil.invoke(result, "testCharToIntConversion", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        BInteger bInteger = (BInteger) returns[0];
+        Assert.assertEquals(bInteger.intValue(), (long) input, "Invalid integer value returned.");
+    }
+
     @Test(description = "Test float to character conversion")
     public void testFloatToCharConversion() {
         float input = 12.3f;
@@ -179,16 +190,15 @@ public class BCharacterValueTest {
         Assert.assertEquals(bCharacter.charValue(), (char) input, "Invalid character value returned.");
     }
 
-    @Test(description = "Test string to character conversion with error")
-    public void testStringToCharConversionWithError() {
-        String input = "Hello !!!";
-        BValue[] args = {new BString(input)};
-        BValue[] returns = BRunUtil.invoke(result, "testStringToCharConvError", args);
+    @Test(description = "Test float to character conversion")
+    public void testCharToFloatConversion() {
+        char input = 'D';
+        BValue[] args = {new BCharacter(input)};
+        BValue[] returns = BRunUtil.invoke(result, "testCharToFloatConversion", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStruct.class);
-        BStruct bStruct = (BStruct) returns[0];
-        Assert.assertTrue(bStruct.stringValue().contains("'string' cannot be converted to 'char'"),
-                "Invalid error message returned.");
+        Assert.assertSame(returns[0].getClass(), BFloat.class);
+        BFloat bFloat = (BFloat) returns[0];
+        Assert.assertEquals(bFloat.floatValue(), (double) input, "Invalid float value returned.");
     }
 
     @Test(description = "Test character array value")
@@ -274,6 +284,20 @@ public class BCharacterValueTest {
         Assert.assertFalse(boolean1.booleanValue(), "Invalid result");
         Assert.assertTrue(boolean2.booleanValue(), "Invalid result");
     }
+
+    @Test(description = "Test character not equal operation")
+    public void testCharacterNotEqual() {
+        BValue[] args = {new BCharacter('A'), new BCharacter('B'), new BCharacter('A')};
+        BValue[] returns = BRunUtil.invoke(result, "testCharBinaryNotEqualOperation", args);
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        BBoolean boolean1 = (BBoolean) returns[0];
+        BBoolean boolean2 = (BBoolean) returns[1];
+        Assert.assertTrue(boolean1.booleanValue(), "Invalid result");
+        Assert.assertFalse(boolean2.booleanValue(), "Invalid result");
+    }
+
 
     @Test
     public void simpleWorkerMessagePassingTest() {
