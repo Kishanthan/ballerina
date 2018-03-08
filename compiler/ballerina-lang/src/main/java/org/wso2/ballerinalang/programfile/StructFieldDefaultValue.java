@@ -28,6 +28,7 @@ public class StructFieldDefaultValue {
 
     public int valueCPIndex = -1;
     public long intValue;
+    public char charValue;
     public double floatValue;
     public String stringValue;
     public boolean booleanValue;

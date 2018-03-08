@@ -24,6 +24,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BCharacter;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
@@ -86,6 +87,7 @@ public class BLangVMWorkers {
         controlStack.pushFrame(startSF);
 
         startSF.setLongRegs(new long[returnIndex.longRegCount]);
+        startSF.setCharRegs(new int[returnIndex.charRegCount]);
         startSF.setDoubleRegs(new double[returnIndex.doubleRegCount]);
         startSF.setStringRegs(new String[returnIndex.stringRegCount]);
         startSF.setIntRegs(new int[returnIndex.intRegCount]);
@@ -107,6 +109,9 @@ public class BLangVMWorkers {
             switch (retType.getTag()) {
                 case TypeTags.INT_TAG:
                     index.retRegs[i] = index.longRegCount++;
+                    break;
+                case TypeTags.CHAR_TAG:
+                    index.retRegs[i] = index.charRegCount++;
                     break;
                 case TypeTags.FLOAT_TAG:
                     index.retRegs[i] = index.doubleRegCount++;
@@ -165,6 +170,9 @@ public class BLangVMWorkers {
                         case TypeTags.INT_TAG:
                             bRefValueArray.add(i, ((BInteger) results[i]));
                             break;
+                        case TypeTags.CHAR_TAG:
+                            bRefValueArray.add(i, ((BCharacter) results[i]));
+                            break;
                         case TypeTags.FLOAT_TAG:
                             bRefValueArray.add(i, ((BFloat) results[i]));
                             break;
@@ -198,6 +206,7 @@ public class BLangVMWorkers {
     static class WorkerReturnIndex {
         int[] retRegs;
         int longRegCount = 0;
+        int charRegCount = 0;
         int doubleRegCount = 0;
         int stringRegCount = 0;
         int intRegCount = 0;

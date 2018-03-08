@@ -52,6 +52,7 @@ import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ParamAnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.CharacterCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPool;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
@@ -187,6 +188,10 @@ public class ProgramFileReader {
             case CP_ENTRY_INTEGER:
                 long longVal = dataInStream.readLong();
                 return new IntegerCPEntry(longVal);
+
+            case CP_ENTRY_CHARACTER:
+                int charValue = dataInStream.readInt();
+                return new CharacterCPEntry((char) charValue);
 
             case CP_ENTRY_FLOAT:
                 double doubleVal = dataInStream.readDouble();
@@ -830,6 +835,9 @@ public class ProgramFileReader {
             case 'I':
                 typeStack.push(BTypes.typeInt);
                 return index + 1;
+            case 'X':
+                typeStack.push(BTypes.typeChar);
+                return index + 1;
             case 'F':
                 typeStack.push(BTypes.typeFloat);
                 return index + 1;
@@ -930,6 +938,8 @@ public class ProgramFileReader {
         switch (ch) {
             case 'I':
                 return BTypes.typeInt;
+            case 'X':
+                return BTypes.typeChar;
             case 'F':
                 return BTypes.typeFloat;
             case 'S':
@@ -1112,6 +1122,7 @@ public class ProgramFileReader {
 
                 codeAttributeInfo.setMaxLongLocalVars(dataInStream.readUnsignedShort());
                 codeAttributeInfo.setMaxDoubleLocalVars(dataInStream.readShort());
+                codeAttributeInfo.setMaxCharLocalVars(dataInStream.readShort());
                 codeAttributeInfo.setMaxStringLocalVars(dataInStream.readShort());
                 codeAttributeInfo.setMaxIntLocalVars(dataInStream.readShort());
                 codeAttributeInfo.setMaxByteLocalVars(dataInStream.readShort());
@@ -1119,6 +1130,7 @@ public class ProgramFileReader {
 
                 codeAttributeInfo.setMaxLongRegs(dataInStream.readShort());
                 codeAttributeInfo.setMaxDoubleRegs(dataInStream.readShort());
+                codeAttributeInfo.setMaxCharRegs(dataInStream.readShort());
                 codeAttributeInfo.setMaxStringRegs(dataInStream.readShort());
                 codeAttributeInfo.setMaxIntRegs(dataInStream.readShort());
                 codeAttributeInfo.setMaxByteRegs(dataInStream.readShort());
@@ -1130,6 +1142,7 @@ public class ProgramFileReader {
                         new VarTypeCountAttributeInfo(attribNameCPIndex);
                 varCountAttributeInfo.setMaxLongVars(dataInStream.readShort());
                 varCountAttributeInfo.setMaxDoubleVars(dataInStream.readShort());
+                varCountAttributeInfo.setMaxCharVars(dataInStream.readShort());
                 varCountAttributeInfo.setMaxStringVars(dataInStream.readShort());
                 varCountAttributeInfo.setMaxIntVars(dataInStream.readShort());
                 varCountAttributeInfo.setMaxByteVars(dataInStream.readShort());
@@ -1323,6 +1336,8 @@ public class ProgramFileReader {
                 attributeValue = new AnnAttributeValue(typeDescCPIndex, typeDesc);
                 attributeValue.setIntValue(integerCPEntry.getValue());
                 break;
+             //TODO char
+//            case TypeSignature.SIG_CHAR:
             case TypeSignature.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) constantPool.getCPEntry(valueCPIndex);
@@ -1390,27 +1405,32 @@ public class ProgramFileReader {
                     break;
 
                 case InstructionCodes.ICONST:
+                case InstructionCodes.CCONST:
                 case InstructionCodes.FCONST:
                 case InstructionCodes.SCONST:
                 case InstructionCodes.IMOVE:
+                case InstructionCodes.CMOVE:
                 case InstructionCodes.FMOVE:
                 case InstructionCodes.SMOVE:
                 case InstructionCodes.BMOVE:
                 case InstructionCodes.LMOVE:
                 case InstructionCodes.RMOVE:
                 case InstructionCodes.IGLOAD:
+                case InstructionCodes.CGLOAD:
                 case InstructionCodes.FGLOAD:
                 case InstructionCodes.SGLOAD:
                 case InstructionCodes.BGLOAD:
                 case InstructionCodes.LGLOAD:
                 case InstructionCodes.RGLOAD:
                 case InstructionCodes.ISTORE:
+                case InstructionCodes.CSTORE:
                 case InstructionCodes.FSTORE:
                 case InstructionCodes.SSTORE:
                 case InstructionCodes.BSTORE:
                 case InstructionCodes.LSTORE:
                 case InstructionCodes.RSTORE:
                 case InstructionCodes.IGSTORE:
+                case InstructionCodes.CGSTORE:
                 case InstructionCodes.FGSTORE:
                 case InstructionCodes.SGSTORE:
                 case InstructionCodes.BGSTORE:
@@ -1428,6 +1448,7 @@ public class ProgramFileReader {
                 case InstructionCodes.FPLOAD:
                 case InstructionCodes.ARRAYLEN:
                 case InstructionCodes.INEWARRAY:
+                case InstructionCodes.CNEWARRAY:
                 case InstructionCodes.FNEWARRAY:
                 case InstructionCodes.SNEWARRAY:
                 case InstructionCodes.BNEWARRAY:
@@ -1439,6 +1460,7 @@ public class ProgramFileReader {
                 case InstructionCodes.ITR_NEW:
                 case InstructionCodes.ITR_HAS_NEXT:
                 case InstructionCodes.IRET:
+                case InstructionCodes.CRET:
                 case InstructionCodes.FRET:
                 case InstructionCodes.SRET:
                 case InstructionCodes.BRET:
@@ -1460,6 +1482,7 @@ public class ProgramFileReader {
                     break;
 
                 case InstructionCodes.IALOAD:
+                case InstructionCodes.CALOAD:
                 case InstructionCodes.FALOAD:
                 case InstructionCodes.SALOAD:
                 case InstructionCodes.BALOAD:
@@ -1467,6 +1490,7 @@ public class ProgramFileReader {
                 case InstructionCodes.RALOAD:
                 case InstructionCodes.JSONALOAD:
                 case InstructionCodes.IASTORE:
+                case InstructionCodes.CASTORE:
                 case InstructionCodes.FASTORE:
                 case InstructionCodes.SASTORE:
                 case InstructionCodes.BASTORE:
@@ -1474,12 +1498,14 @@ public class ProgramFileReader {
                 case InstructionCodes.RASTORE:
                 case InstructionCodes.JSONASTORE:
                 case InstructionCodes.IFIELDLOAD:
+                case InstructionCodes.CFIELDLOAD:
                 case InstructionCodes.FFIELDLOAD:
                 case InstructionCodes.SFIELDLOAD:
                 case InstructionCodes.BFIELDLOAD:
                 case InstructionCodes.LFIELDLOAD:
                 case InstructionCodes.RFIELDLOAD:
                 case InstructionCodes.IFIELDSTORE:
+                case InstructionCodes.CFIELDSTORE:
                 case InstructionCodes.FFIELDSTORE:
                 case InstructionCodes.SFIELDSTORE:
                 case InstructionCodes.BFIELDSTORE:
@@ -1503,6 +1529,7 @@ public class ProgramFileReader {
                 case InstructionCodes.IMOD:
                 case InstructionCodes.FMOD:
                 case InstructionCodes.IEQ:
+                case InstructionCodes.CEQ:
                 case InstructionCodes.FEQ:
                 case InstructionCodes.SEQ:
                 case InstructionCodes.BEQ:
@@ -1521,11 +1548,13 @@ public class ProgramFileReader {
                 case InstructionCodes.ILE:
                 case InstructionCodes.FLE:
                 case InstructionCodes.I2ANY:
+                case InstructionCodes.C2ANY:
                 case InstructionCodes.F2ANY:
                 case InstructionCodes.S2ANY:
                 case InstructionCodes.B2ANY:
                 case InstructionCodes.L2ANY:
                 case InstructionCodes.ANY2I:
+                case InstructionCodes.ANY2C:
                 case InstructionCodes.ANY2F:
                 case InstructionCodes.ANY2S:
                 case InstructionCodes.ANY2B:
@@ -1536,14 +1565,20 @@ public class ProgramFileReader {
                 case InstructionCodes.ANY2TYPE:
                 case InstructionCodes.NULL2JSON:
                 case InstructionCodes.I2F:
+                case InstructionCodes.I2C:
                 case InstructionCodes.I2S:
                 case InstructionCodes.I2B:
                 case InstructionCodes.I2JSON:
+                case InstructionCodes.C2I:
+                case InstructionCodes.C2F:
+                case InstructionCodes.C2S:
                 case InstructionCodes.F2I:
+                case InstructionCodes.F2C:
                 case InstructionCodes.F2S:
                 case InstructionCodes.F2B:
                 case InstructionCodes.F2JSON:
                 case InstructionCodes.S2I:
+                case InstructionCodes.S2C:
                 case InstructionCodes.S2F:
                 case InstructionCodes.S2B:
                 case InstructionCodes.S2JSON:
@@ -1582,7 +1617,7 @@ public class ProgramFileReader {
                     break;
                 case InstructionCodes.ANY2E:
                 case InstructionCodes.ANY2T:
-                case InstructionCodes.ANY2C:
+                case InstructionCodes.ANY2CN:
                 case InstructionCodes.CHECKCAST:
                 case InstructionCodes.MAP2T:
                 case InstructionCodes.JSON2T:
@@ -1807,6 +1842,12 @@ public class ProgramFileReader {
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) constantPool.getCPEntry(valueCPIndex);
                 defaultValue = new StructFieldDefaultValue(typeDescCPIndex, typeDesc);
                 defaultValue.setIntValue(integerCPEntry.getValue());
+                break;
+            case TypeSignature.SIG_CHAR:
+                valueCPIndex = dataInStream.readInt();
+                CharacterCPEntry characterCPEntry = (CharacterCPEntry) constantPool.getCPEntry(valueCPIndex);
+                defaultValue = new StructFieldDefaultValue(typeDescCPIndex, typeDesc);
+                defaultValue.setCharValue(characterCPEntry.getValue());
                 break;
             case TypeSignature.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();

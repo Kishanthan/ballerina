@@ -23,5 +23,5 @@ package org.ballerinalang.connector.api;
  * @since 0.94
  */
 public enum AnnotationValueType {
-    INT, FLOAT, STRING, BOOLEAN, ARRAY, ANNOTATION
+    INT, CHAR, FLOAT, STRING, BOOLEAN, ARRAY, ANNOTATION
 }

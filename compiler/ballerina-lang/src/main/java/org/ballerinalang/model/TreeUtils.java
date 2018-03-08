@@ -31,6 +31,7 @@ public class TreeUtils {
     
     static {
         stringTypeKindMap.put("int", TypeKind.INT);
+        stringTypeKindMap.put("char", TypeKind.CHAR);
         stringTypeKindMap.put("float", TypeKind.FLOAT);
         stringTypeKindMap.put("boolean", TypeKind.BOOLEAN);
         stringTypeKindMap.put("string", TypeKind.STRING);

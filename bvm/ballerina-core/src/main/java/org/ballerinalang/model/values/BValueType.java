@@ -34,6 +34,15 @@ public abstract class BValueType implements BValue {
     public abstract long intValue();
 
     /**
+     * Returns the value of the specified number as an {@code char},
+     *
+     *
+     * @return  the numeric value represented by this object after conversion
+     *          to type {@code char}.
+     */
+    public abstract int charValue();
+
+    /**
      * Returns the value of the specified number as a {@code float},
      * which may involve rounding.
      *

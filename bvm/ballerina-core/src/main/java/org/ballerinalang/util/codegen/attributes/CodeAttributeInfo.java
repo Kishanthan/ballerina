@@ -31,6 +31,7 @@ public class CodeAttributeInfo implements AttributeInfo {
     private int maxDoubleLocalVars;
     private int maxStringLocalVars;
     private int maxIntLocalVars;
+    private int maxCharLocalVars;
     private int maxByteLocalVars;
     private int maxBValueLocalVars;
 
@@ -40,6 +41,7 @@ public class CodeAttributeInfo implements AttributeInfo {
     private int maxDoubleRegs;
     private int maxStringRegs;
     private int maxIntRegs;
+    private int maxCharRegs;
     private int maxByteRegs;
     private int maxBValueRegs;
 
@@ -164,4 +166,19 @@ public class CodeAttributeInfo implements AttributeInfo {
         return attributeNameIndex;
     }
 
+    public int getMaxCharLocalVars() {
+        return maxCharLocalVars;
+    }
+
+    public void setMaxCharLocalVars(int maxCharLocalVars) {
+        this.maxCharLocalVars = maxCharLocalVars;
+    }
+
+    public int getMaxCharRegs() {
+        return maxCharRegs;
+    }
+
+    public void setMaxCharRegs(int maxCharRegs) {
+        this.maxCharRegs = maxCharRegs;
+    }
 }

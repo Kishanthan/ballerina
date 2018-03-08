@@ -40,6 +40,13 @@ public interface AnnAttrValue {
     long getIntValue();
 
     /**
+     * This method returns char attribute value.
+     *
+     * @return char value.
+     */
+    int getCharValue();
+
+    /**
      * This method returns float attribute value.
      *
      * @return float value.

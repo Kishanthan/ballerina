@@ -26,6 +26,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BCharacter;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
@@ -120,6 +121,7 @@ public class BLangFunctions {
         // TODO Create registers to hold return values
 
         int longRegCount = 0;
+        int charRegCount = 0;
         int doubleRegCount = 0;
         int stringRegCount = 0;
         int intRegCount = 0;
@@ -134,6 +136,9 @@ public class BLangFunctions {
             switch (retType.getTag()) {
                 case TypeTags.INT_TAG:
                     retRegs[i] = longRegCount++;
+                    break;
+                case TypeTags.CHAR_TAG:
+                    retRegs[i] = charRegCount++;
                     break;
                 case TypeTags.FLOAT_TAG:
                     retRegs[i] = doubleRegCount++;
@@ -154,6 +159,7 @@ public class BLangFunctions {
         }
 
         callerSF.setLongRegs(new long[longRegCount]);
+        callerSF.setCharRegs(new int[charRegCount]);
         callerSF.setDoubleRegs(new double[doubleRegCount]);
         callerSF.setStringRegs(new String[stringRegCount]);
         callerSF.setIntRegs(new int[intRegCount]);
@@ -166,6 +172,7 @@ public class BLangFunctions {
         controlStack.pushFrame(calleeSF);
 
         int longParamCount = 0;
+        int charParamCount = 0;
         int doubleParamCount = 0;
         int stringParamCount = 0;
         int intParamCount = 0;
@@ -175,6 +182,7 @@ public class BLangFunctions {
         CodeAttributeInfo codeAttribInfo = defaultWorkerInfo.getCodeAttributeInfo();
 
         long[] longRegs = new long[codeAttribInfo.getMaxLongRegs()];
+        int[] charRegs = new int[codeAttribInfo.getMaxCharRegs()];
         double[] doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
         String[] stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         // Setting the zero values for strings
@@ -190,6 +198,10 @@ public class BLangFunctions {
                 case TypeTags.INT_TAG:
                     longRegs[longParamCount] = ((BInteger) args[i]).intValue();
                     longParamCount++;
+                    break;
+                case TypeTags.CHAR_TAG:
+                    charRegs[charParamCount] = ((BCharacter) args[i]).charValue();
+                    charParamCount++;
                     break;
                 case TypeTags.FLOAT_TAG:
                     doubleRegs[doubleParamCount] = ((BFloat) args[i]).floatValue();
@@ -215,6 +227,7 @@ public class BLangFunctions {
         }
 
         calleeSF.setLongRegs(longRegs);
+        calleeSF.setCharRegs(charRegs);
         calleeSF.setDoubleRegs(doubleRegs);
         calleeSF.setStringRegs(stringRegs);
         calleeSF.setIntRegs(intRegs);
@@ -234,6 +247,7 @@ public class BLangFunctions {
         }
 
         longRegCount = 0;
+        charRegCount = 0;
         doubleRegCount = 0;
         stringRegCount = 0;
         intRegCount = 0;
@@ -245,6 +259,9 @@ public class BLangFunctions {
             switch (retType.getTag()) {
                 case TypeTags.INT_TAG:
                     returnValues[i] = new BInteger(callerSF.getLongRegs()[longRegCount++]);
+                    break;
+                case TypeTags.CHAR_TAG:
+                    returnValues[i] = new BCharacter(callerSF.getCharRegs()[charRegCount++]);
                     break;
                 case TypeTags.FLOAT_TAG:
                     returnValues[i] = new BFloat(callerSF.getDoubleRegs()[doubleRegCount++]);
@@ -304,6 +321,10 @@ public class BLangFunctions {
                     break;
                 case TypeTags.INT_TAG:
                     a.setIntValue(programFile.getGlobalMemoryBlock().getIntField(localVariableInfo
+                            .getVariableIndex()));
+                    break;
+                case TypeTags.CHAR_TAG:
+                    a.setCharValue(programFile.getGlobalMemoryBlock().getCharField(localVariableInfo
                             .getVariableIndex()));
                     break;
                 case TypeTags.FLOAT_TAG:

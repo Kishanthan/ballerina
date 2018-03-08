@@ -25,12 +25,13 @@ public class ProgramFileConstants {
     public static final int MAGIC_NUMBER = 0xBA1DA4CE;
     public static final short VERSION_NUMBER = 16;
 
-    // int, float, string, boolean, blob, reference type
-    public static final int NO_OF_VAR_TYPE_CATEGORIES = 6;
+    // int, float, char, string, boolean, blob, reference type
+    public static final int NO_OF_VAR_TYPE_CATEGORIES = 7;
     public static final int INT_OFFSET = 0;
-    public static final int FLOAT_OFFSET = 1;
-    public static final int STRING_OFFSET = 2;
-    public static final int BOOL_OFFSET = 3;
-    public static final int BLOB_OFFSET = 4;
-    public static final int REF_OFFSET = 5;
+    public static final int CHAR_OFFSET = 1;
+    public static final int FLOAT_OFFSET = 2;
+    public static final int STRING_OFFSET = 3;
+    public static final int BOOL_OFFSET = 4;
+    public static final int BLOB_OFFSET = 5;
+    public static final int REF_OFFSET = 6;
 }
