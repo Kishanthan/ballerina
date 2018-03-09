@@ -39,13 +39,14 @@ public final class BStruct implements BRefType, LockableStructureType {
 
     private long[] longFields;
     private VarLock[] longLocks;
+    private int[] charFields;
+    private VarLock[] charLocks;
     private double[] doubleFields;
     private VarLock[] doubleLocks;
     private String[] stringFields;
     private VarLock[] stringLocks;
     private int[] intFields;
     private VarLock[] intLocks;
-    private int[] charFields;
     private byte[][] byteFields;
     private VarLock[] byteLocks;
     private BRefType[] refFields;
@@ -226,17 +227,36 @@ public final class BStruct implements BRefType, LockableStructureType {
         longLocks[index].unlock();
     }
 
-//    @Override
-//    public void lockCharField(int index) {
-//        //TODO
-//        throw new NotImplementedException();
-//    }
-//
-//    @Override
-//    public void unlockCharField(int index) {
-//        //TODO
-//        throw new NotImplementedException();
-//    }
+    @Override
+    public void lockCharField(int index) {
+        /*
+        TODO below synchronization is done on non final variable(which is getting changed in copy method)
+        This is ok for the time being as below synchronizations are only valid for global memory block which is
+        not getting copied, even in that case there shouldn't be a problem as synchronization always happens after
+        copying, but look into that when implementing locking support for struct fields and connector variables.
+         */
+        if (charLocks == null) {
+            synchronized (charFields) {
+                if (charLocks == null) {
+                    charLocks = new VarLock[charFields.length];
+                }
+            }
+        }
+        if (charLocks[index] == null) {
+            //locking the whole field array
+            synchronized (charFields) {
+                if (charLocks[index] == null) {
+                    charLocks[index] = new VarLock();
+                }
+            }
+        }
+        charLocks[index].lock();
+    }
+
+    @Override
+    public void unlockCharField(int index) {
+        charLocks[index].unlock();
+    }
 
     @Override
     public void lockFloatField(int index) {

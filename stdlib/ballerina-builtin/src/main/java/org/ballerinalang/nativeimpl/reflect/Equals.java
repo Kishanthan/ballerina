@@ -102,6 +102,7 @@ public class Equals extends AbstractNativeFunction {
         switch (lhsValue.getType().getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.INT_TAG:
+            case TypeTags.CHAR_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.TYPE_TAG:

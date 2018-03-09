@@ -28,9 +28,9 @@ public interface LockableStructureType extends StructureType {
 
     void unlockIntField(int index);
 
-//    void lockCharField(int index);
-//
-//    void unlockCharField(int index);
+    void lockCharField(int index);
+
+    void unlockCharField(int index);
 
     void lockFloatField(int index);
 
