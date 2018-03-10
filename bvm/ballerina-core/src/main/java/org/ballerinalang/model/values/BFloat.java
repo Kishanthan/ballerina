@@ -39,6 +39,11 @@ public final class BFloat extends BValueType implements BRefType<Double> {
     }
 
     @Override
+    public int charValue() {
+        return (char) this.value;
+    }
+
+    @Override
     public double floatValue() {
         return this.value;
     }

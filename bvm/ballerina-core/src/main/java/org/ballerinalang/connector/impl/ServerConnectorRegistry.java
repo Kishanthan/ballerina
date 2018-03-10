@@ -148,6 +148,10 @@ public class ServerConnectorRegistry {
                 annotationValue = new BAnnAttrValue(AnnotationValueType.INT);
                 annotationValue.setIntValue(attributeValue.getIntValue());
                 break;
+            case TypeSignature.SIG_CHAR:
+                annotationValue = new BAnnAttrValue(AnnotationValueType.CHAR);
+                annotationValue.setCharValue(attributeValue.getCharValue());
+                break;
             case TypeSignature.SIG_FLOAT:
                 annotationValue = new BAnnAttrValue(AnnotationValueType.FLOAT);
                 annotationValue.setFloatValue(attributeValue.getFloatValue());

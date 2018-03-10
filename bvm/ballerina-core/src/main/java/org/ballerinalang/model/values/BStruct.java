@@ -39,6 +39,8 @@ public final class BStruct implements BRefType, LockableStructureType {
 
     private long[] longFields;
     private VarLock[] longLocks;
+    private int[] charFields;
+    private VarLock[] charLocks;
     private double[] doubleFields;
     private VarLock[] doubleLocks;
     private String[] stringFields;
@@ -62,12 +64,13 @@ public final class BStruct implements BRefType, LockableStructureType {
 
         int[] fieldCount = this.structType.getFieldTypeCount();
         longFields = new long[fieldCount[0]];
-        doubleFields = new double[fieldCount[1]];
-        stringFields = new String[fieldCount[2]];
+        charFields = new int[fieldCount[1]];
+        doubleFields = new double[fieldCount[2]];
+        stringFields = new String[fieldCount[3]];
         Arrays.fill(stringFields, "");
-        intFields = new int[fieldCount[3]];
-        byteFields = new byte[fieldCount[4]][];
-        refFields = new BRefType[fieldCount[5]];
+        intFields = new int[fieldCount[4]];
+        byteFields = new byte[fieldCount[5]][];
+        refFields = new BRefType[fieldCount[6]];
     }
 
     /**
@@ -85,6 +88,7 @@ public final class BStruct implements BRefType, LockableStructureType {
     public String stringValue() {
         int stringIndex = 0,
                 intIndex = 0,
+                charIndex = 0,
                 longIndex = 0,
                 doubleIndex = 0,
                 byteIndex = 0,
@@ -99,6 +103,8 @@ public final class BStruct implements BRefType, LockableStructureType {
                 fieldVal = "\"" + stringFields[stringIndex++] + "\"";
             } else if (fieldType == BTypes.typeInt) {
                 fieldVal = longFields[longIndex++];
+            } else if (fieldType == BTypes.typeChar) {
+                fieldVal = (char) charFields[charIndex++];
             } else if (fieldType == BTypes.typeFloat) {
                 fieldVal = doubleFields[doubleIndex++];
             } else if (fieldType == BTypes.typeBoolean) {
@@ -128,6 +134,16 @@ public final class BStruct implements BRefType, LockableStructureType {
     @Override
     public void setIntField(int index, long value) {
         longFields[index] = value;
+    }
+
+    @Override
+    public int getCharField(int index) {
+        return charFields[index];
+    }
+
+    @Override
+    public void setCharField(int index, int value) {
+        charFields[index] = value;
     }
 
     @Override
@@ -209,6 +225,37 @@ public final class BStruct implements BRefType, LockableStructureType {
     @Override
     public void unlockIntField(int index) {
         longLocks[index].unlock();
+    }
+
+    @Override
+    public void lockCharField(int index) {
+        /*
+        TODO below synchronization is done on non final variable(which is getting changed in copy method)
+        This is ok for the time being as below synchronizations are only valid for global memory block which is
+        not getting copied, even in that case there shouldn't be a problem as synchronization always happens after
+        copying, but look into that when implementing locking support for struct fields and connector variables.
+         */
+        if (charLocks == null) {
+            synchronized (charFields) {
+                if (charLocks == null) {
+                    charLocks = new VarLock[charFields.length];
+                }
+            }
+        }
+        if (charLocks[index] == null) {
+            //locking the whole field array
+            synchronized (charFields) {
+                if (charLocks[index] == null) {
+                    charLocks[index] = new VarLock();
+                }
+            }
+        }
+        charLocks[index].lock();
+    }
+
+    @Override
+    public void unlockCharField(int index) {
+        charLocks[index].unlock();
     }
 
     @Override
@@ -366,6 +413,7 @@ public final class BStruct implements BRefType, LockableStructureType {
     public BValue copy() {
         BStruct bStruct = new BStruct(structType);
         bStruct.longFields = Arrays.copyOf(longFields, longFields.length);
+        bStruct.charFields = Arrays.copyOf(charFields, charFields.length);
         bStruct.doubleFields = Arrays.copyOf(doubleFields, doubleFields.length);
         bStruct.stringFields = Arrays.copyOf(stringFields, stringFields.length);
         bStruct.intFields = Arrays.copyOf(intFields, intFields.length);
