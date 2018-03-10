@@ -34,7 +34,7 @@ class BCharacterType extends BType {
      * @param typeName string name of the type
      */
     BCharacterType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BInteger.class);
+        super(typeName, pkgPath, BCharacter.class);
     }
 
     @SuppressWarnings("unchecked")
