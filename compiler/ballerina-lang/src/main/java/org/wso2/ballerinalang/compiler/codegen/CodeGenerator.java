@@ -179,6 +179,7 @@ import org.wso2.ballerinalang.programfile.attributes.LineNumberTableAttributeInf
 import org.wso2.ballerinalang.programfile.attributes.LocalVariableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
+import org.wso2.ballerinalang.programfile.cpentries.CharacterCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
@@ -208,6 +209,7 @@ import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableInde
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.REG;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BLOB_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BOOL_OFFSET;
+import static org.wso2.ballerinalang.programfile.ProgramFileConstants.CHAR_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.FLOAT_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.INT_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.REF_OFFSET;
@@ -532,6 +534,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         switch (typeTag) {
             case TypeTags.INT:
                 return InstructionCodes.IRET;
+            case TypeTags.CHAR:
+                return InstructionCodes.CRET;
             case TypeTags.FLOAT:
                 return InstructionCodes.FRET;
             case TypeTags.STRING:
@@ -564,6 +568,13 @@ public class CodeGenerator extends BLangNodeVisitor {
                     int intCPEntryIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(longVal));
                     emit(InstructionCodes.ICONST, getOperand(intCPEntryIndex), regIndex);
                 }
+                break;
+
+            case TypeTags.CHAR:
+                char charVal = (Character) literalExpr.value;
+                CharacterCPEntry characterCPEntry = new CharacterCPEntry(charVal);
+                int charCPIndex = currentPkgInfo.addCPEntry(characterCPEntry);
+                emit(InstructionCodes.CCONST, getOperand(charCPIndex), regIndex);
                 break;
 
             case TypeTags.FLOAT:
@@ -1086,7 +1097,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         genNode(castExpr.expr, this.env);
         if (opcode == InstructionCodes.ANY2T ||
-                opcode == InstructionCodes.ANY2C ||
+                opcode == InstructionCodes.ANY2CN ||
                 opcode == InstructionCodes.ANY2E ||
                 opcode == InstructionCodes.CHECKCAST) {
             Operand typeCPIndex = getTypeCPIndex(castExpr.type);
@@ -1232,6 +1243,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.INT:
                 index = ++indexes.tInt;
                 break;
+            case TypeTags.CHAR:
+                index = ++indexes.tChar;
+                break;
             case TypeTags.FLOAT:
                 index = ++indexes.tFloat;
                 break;
@@ -1257,6 +1271,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         switch (typeTag) {
             case TypeTags.INT:
                 opcode = baseOpcode;
+                break;
+            case TypeTags.CHAR:
+                opcode = baseOpcode + CHAR_OFFSET;
                 break;
             case TypeTags.FLOAT:
                 opcode = baseOpcode + FLOAT_OFFSET;
@@ -1551,6 +1568,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     private VariableIndex copyVarIndex(VariableIndex that) {
         VariableIndex vIndexes = new VariableIndex(that.kind);
         vIndexes.tInt = that.tInt;
+        vIndexes.tChar = that.tChar;
         vIndexes.tFloat = that.tFloat;
         vIndexes.tString = that.tString;
         vIndexes.tBoolean = that.tBoolean;
@@ -1566,6 +1584,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     private void endWorkerInfoUnit(CodeAttributeInfo codeAttributeInfo) {
         codeAttributeInfo.maxLongLocalVars = lvIndexes.tInt + 1;
         codeAttributeInfo.maxDoubleLocalVars = lvIndexes.tFloat + 1;
+        codeAttributeInfo.maxCharLocalVars = lvIndexes.tChar + 1;
         codeAttributeInfo.maxStringLocalVars = lvIndexes.tString + 1;
         codeAttributeInfo.maxIntLocalVars = lvIndexes.tBoolean + 1;
         codeAttributeInfo.maxByteLocalVars = lvIndexes.tBlob + 1;
@@ -1573,6 +1592,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         codeAttributeInfo.maxLongRegs = codeAttributeInfo.maxLongLocalVars + maxRegIndexes.tInt + 1;
         codeAttributeInfo.maxDoubleRegs = codeAttributeInfo.maxDoubleLocalVars + maxRegIndexes.tFloat + 1;
+        codeAttributeInfo.maxCharRegs = codeAttributeInfo.maxCharLocalVars + maxRegIndexes.tChar + 1;
         codeAttributeInfo.maxStringRegs = codeAttributeInfo.maxStringLocalVars + maxRegIndexes.tString + 1;
         codeAttributeInfo.maxIntRegs = codeAttributeInfo.maxIntLocalVars + maxRegIndexes.tBoolean + 1;
         codeAttributeInfo.maxByteRegs = codeAttributeInfo.maxByteLocalVars + maxRegIndexes.tBlob + 1;
@@ -1583,6 +1603,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             switch (regIndex.typeTag) {
                 case TypeTags.INT:
                     regIndex.value = regIndex.value + codeAttributeInfo.maxLongLocalVars;
+                    break;
+                case TypeTags.CHAR:
+                    regIndex.value = regIndex.value + codeAttributeInfo.maxCharLocalVars;
                     break;
                 case TypeTags.FLOAT:
                     regIndex.value = regIndex.value + codeAttributeInfo.maxDoubleLocalVars;
@@ -1610,6 +1633,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private void setMaxRegIndexes(VariableIndex current, VariableIndex max) {
         max.tInt = (max.tInt > current.tInt) ? max.tInt : current.tInt;
+        max.tChar = (max.tChar > current.tChar) ? max.tChar : current.tChar;
         max.tFloat = (max.tFloat > current.tFloat) ? max.tFloat : current.tFloat;
         max.tString = (max.tString > current.tString) ? max.tString : current.tString;
         max.tBoolean = (max.tBoolean > current.tBoolean) ? max.tBoolean : current.tBoolean;
@@ -1619,6 +1643,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private void prepareIndexes(VariableIndex indexes) {
         indexes.tInt++;
+        indexes.tChar++;
         indexes.tFloat++;
         indexes.tString++;
         indexes.tBoolean++;
@@ -1648,6 +1673,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE.value());
         VarTypeCountAttributeInfo varCountAttribInfo = new VarTypeCountAttributeInfo(attrNameCPIndex);
         varCountAttribInfo.setMaxLongVars(fieldCount.tInt);
+        varCountAttribInfo.setMaxCharVars(fieldCount.tChar);
         varCountAttribInfo.setMaxDoubleVars(fieldCount.tFloat);
         varCountAttribInfo.setMaxStringVars(fieldCount.tString);
         varCountAttribInfo.setMaxIntVars(fieldCount.tBoolean);
@@ -1709,6 +1735,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int attribNameCPIndex = constantPool.addCPEntry(attribNameCPEntry);
         VarTypeCountAttributeInfo varCountAttribInfo = new VarTypeCountAttributeInfo(attribNameCPIndex);
         varCountAttribInfo.setMaxLongVars(fieldCount[INT_OFFSET]);
+        varCountAttribInfo.setMaxCharVars(fieldCount[CHAR_OFFSET]);
         varCountAttribInfo.setMaxDoubleVars(fieldCount[FLOAT_OFFSET]);
         varCountAttribInfo.setMaxStringVars(fieldCount[STRING_OFFSET]);
         varCountAttribInfo.setMaxIntVars(fieldCount[BOOL_OFFSET]);
@@ -1727,6 +1754,10 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.INT:
                 defaultValue.intValue = (Long) literalExpr.value;
                 defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(defaultValue.intValue));
+                break;
+            case TypeTags.CHAR:
+                defaultValue.charValue = (Character) literalExpr.value;
+                defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new CharacterCPEntry(defaultValue.charValue));
                 break;
             case TypeTags.FLOAT:
                 defaultValue.floatValue = (Double) literalExpr.value;
@@ -1798,7 +1829,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Create variable count attribute info
         prepareIndexes(fieldIndexes);
-        int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
+        int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tChar, fieldIndexes.tFloat,
                 fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tBlob, fieldIndexes.tRef};
         addVariableCountAttributeInfo(currentPkgInfo, structInfo, fieldCount);
         fieldIndexes = new VariableIndex(FIELD);
@@ -1917,7 +1948,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Create variable count attribute info
         prepareIndexes(fieldIndexes);
-        int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
+        int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tChar, fieldIndexes.tFloat,
                 fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tBlob, fieldIndexes.tRef};
         addVariableCountAttributeInfo(currentPkgInfo, connectorInfo, fieldCount);
 
@@ -2101,6 +2132,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         int tInt = -1;
+        int tChar = -1;
         int tFloat = -1;
         int tString = -1;
         int tBoolean = -1;
@@ -2113,13 +2145,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         public int[] toArray() {
-            int[] result = new int[6];
+            int[] result = new int[7];
             result[0] = this.tInt;
-            result[1] = this.tFloat;
-            result[2] = this.tString;
-            result[3] = this.tBoolean;
-            result[4] = this.tBlob;
-            result[5] = this.tRef;
+            result[1] = this.tChar;
+            result[2] = this.tFloat;
+            result[3] = this.tString;
+            result[4] = this.tBoolean;
+            result[5] = this.tBlob;
+            result[6] = this.tRef;
             return result;
         }
 

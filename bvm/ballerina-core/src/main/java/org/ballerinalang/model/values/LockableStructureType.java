@@ -30,6 +30,10 @@ public interface LockableStructureType extends StructureType {
 
     void unlockIntField(int index);
 
+    boolean lockCharField(WorkerExecutionContext ctx, int index);
+
+    void unlockCharField(int index);
+
     boolean lockFloatField(WorkerExecutionContext ctx, int index);
 
     void unlockFloatField(int index);

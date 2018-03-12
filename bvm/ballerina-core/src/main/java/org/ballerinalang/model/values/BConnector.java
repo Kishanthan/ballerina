@@ -31,6 +31,7 @@ import java.util.Map;
 public final class BConnector implements BRefType, StructureType {
 
     private long[] longFields;
+    private int[] charFields;
     private double[] doubleFields;
     private String[] stringFields;
     private int[] intFields;
@@ -48,12 +49,23 @@ public final class BConnector implements BRefType, StructureType {
         this.connectorType = connectorType;
         int[] fieldIndexes = this.connectorType.getFieldTypeCount();
         longFields = new long[fieldIndexes[0]];
-        doubleFields = new double[fieldIndexes[1]];
-        stringFields = new String[fieldIndexes[2]];
+        charFields = new int[fieldIndexes[1]];
+        doubleFields = new double[fieldIndexes[2]];
+        stringFields = new String[fieldIndexes[3]];
         Arrays.fill(stringFields, "");
-        intFields = new int[fieldIndexes[3]];
-        byteFields = new byte[fieldIndexes[4]][];
-        refFields = new BRefType[fieldIndexes[5]];
+        intFields = new int[fieldIndexes[4]];
+        byteFields = new byte[fieldIndexes[5]][];
+        refFields = new BRefType[fieldIndexes[6]];
+    }
+
+    @Override
+    public int getCharField(int index) {
+        return charFields[index];
+    }
+
+    @Override
+    public void setCharField(int index, int value) {
+        charFields[index] = value;
     }
 
     public BType getConnectorType() {

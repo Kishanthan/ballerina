@@ -56,6 +56,7 @@ QUERY       : {inSiddhi}? 'query' { inSiddhi = false; }  ;
 
 
 TYPE_INT        : 'int' ;
+TYPE_CHAR       : 'char' ;
 TYPE_FLOAT      : 'float' ;
 TYPE_BOOL       : 'boolean' ;
 TYPE_STRING     : 'string' ;
@@ -340,6 +341,17 @@ BooleanLiteral
     :   'true'
     |   'false'
     ;
+
+// §3.10.4 Character Literals
+CharacterLiteral
+	:	'\'' SingleCharacter '\''
+	|	'\'' EscapeSequence '\''
+	;
+
+fragment
+SingleCharacter
+	:	~['\\\r\n]
+	;
 
 // §3.10.5 String Literals
     

@@ -36,6 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class StackFrame {
     long[] longRegs;
+    int[] charRegs;
     double[] doubleRegs;
     String[] stringRegs;
     int[] intRegs;
@@ -77,6 +78,7 @@ public class StackFrame {
         CodeAttributeInfo codeAttribInfo = workerInfo.getCodeAttributeInfo();
 
         this.longRegs = new long[codeAttribInfo.getMaxLongRegs()];
+        this.charRegs = new int[codeAttribInfo.getMaxCharRegs()];
         this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
         this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
@@ -96,6 +98,7 @@ public class StackFrame {
         CodeAttributeInfo codeAttribInfo = workerInfo.getCodeAttributeInfo();
 
         this.longRegs = new long[codeAttribInfo.getMaxLongRegs()];
+        this.charRegs = new int[codeAttribInfo.getMaxCharRegs()];
         this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
         this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
@@ -114,6 +117,10 @@ public class StackFrame {
 
     public double[] getDoubleRegs() {
         return doubleRegs;
+    }
+
+    public int[] getCharRegs() {
+        return charRegs;
     }
 
     public String[] getStringRegs() {
@@ -138,6 +145,10 @@ public class StackFrame {
 
     public void setDoubleRegs(double[] doubleRegs) {
         this.doubleRegs = doubleRegs;
+    }
+
+    public void setCharRegs(int[] charRegs) {
+        this.charRegs = charRegs;
     }
 
     public void setStringRegs(String[] stringRegs) {

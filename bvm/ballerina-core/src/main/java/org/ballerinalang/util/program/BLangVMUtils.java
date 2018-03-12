@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BCharacter;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
@@ -53,6 +54,7 @@ public class BLangVMUtils {
 
     public static void copyArgValues(WorkerData caller, WorkerData callee, int[] argRegs, BType[] paramTypes) {
         int longRegIndex = -1;
+        int charRegIndex = -1;
         int doubleRegIndex = -1;
         int stringRegIndex = -1;
         int booleanRegIndex = -1;
@@ -65,6 +67,9 @@ public class BLangVMUtils {
             case TypeTags.INT_TAG:
                 callee.longRegs[++longRegIndex] = caller.longRegs[argReg];
                 break;
+                case TypeTags.CHAR_TAG:
+                    callee.charRegs[++charRegIndex] = caller.charRegs[argReg];
+                    break;
             case TypeTags.FLOAT_TAG:
                 callee.doubleRegs[++doubleRegIndex] = caller.doubleRegs[argReg];
                 break;
@@ -85,14 +90,19 @@ public class BLangVMUtils {
 
     public static void copyValuesForForkJoin(WorkerData caller, WorkerData callee, int[] argRegs) {
         int longLocalVals = argRegs[0];
-        int doubleLocalVals = argRegs[1];
-        int stringLocalVals = argRegs[2];
-        int booleanLocalVals = argRegs[3];
-        int blobLocalVals = argRegs[4];
-        int refLocalVals = argRegs[5];
+        int charLocalVals = argRegs[1];
+        int doubleLocalVals = argRegs[2];
+        int stringLocalVals = argRegs[3];
+        int booleanLocalVals = argRegs[4];
+        int blobLocalVals = argRegs[5];
+        int refLocalVals = argRegs[6];
 
         for (int i = 0; i <= longLocalVals; i++) {
             callee.longRegs[i] = caller.longRegs[i];
+        }
+
+        for (int i = 0; i <= charLocalVals; i++) {
+            callee.charRegs[i] = caller.charRegs[i];
         }
 
         for (int i = 0; i <= doubleLocalVals; i++) {
@@ -134,6 +144,7 @@ public class BLangVMUtils {
         WorkerData wd = new WorkerData();
         CodeAttributeInfo ci = workerInfo.getCodeAttributeInfo();
         wd.longRegs = new long[ci.getMaxLongRegs()];
+        wd.charRegs = new int[ci.getMaxCharRegs()];
         wd.doubleRegs = new double[ci.getMaxDoubleRegs()];
         wd.stringRegs = new String[ci.getMaxStringRegs()];
         wd.intRegs = new int[ci.getMaxIntRegs()];
@@ -158,6 +169,13 @@ public class BLangVMUtils {
                 }
                 data.longRegs[callersRetRegIndex] = ((BInteger) vals[i]).intValue();
                 break;
+                case TypeTags.CHAR_TAG:
+                    if (vals[i] == null) {
+                        data.charRegs[callersRetRegIndex] = 0;
+                        break;
+                    }
+                    data.charRegs[callersRetRegIndex] = ((BCharacter) vals[i]).charValue();
+                    break;
             case TypeTags.FLOAT_TAG:
                 if (vals[i] == null) {
                     data.doubleRegs[callersRetRegIndex] = 0;
@@ -203,6 +221,9 @@ public class BLangVMUtils {
             case TypeTags.INT_TAG:
                 returnValues[i] = new BInteger(data.longRegs[retRegs[i]]);
                 break;
+                case TypeTags.CHAR_TAG:
+                    returnValues[i] = new BCharacter(data.charRegs[retRegs[i]]);
+                    break;
             case TypeTags.FLOAT_TAG:
                 returnValues[i] = new BFloat(data.doubleRegs[retRegs[i]]);
                 break;
@@ -233,6 +254,9 @@ public class BLangVMUtils {
             case TypeTags.INT_TAG:
                 result[i] += paramWDI.longRegCount;
                 break;
+                case TypeTags.CHAR_TAG:
+                    result[i] += paramWDI.charRegCount;
+                    break;
             case TypeTags.FLOAT_TAG:
                 result[i] += paramWDI.doubleRegCount;
                 break;
@@ -260,13 +284,17 @@ public class BLangVMUtils {
         WorkerDataIndex wdi2 = callableUnitInfo.retWorkerIndex;
         WorkerData local = createWorkerData(wdi1, wdi2);
         BType[] types = callableUnitInfo.getParamTypes();
-        int longParamCount = 0, doubleParamCount = 0, stringParamCount = 0, intParamCount = 0, 
+        int longParamCount = 0, charParamCount = 0, doubleParamCount = 0, stringParamCount = 0, intParamCount = 0,
                 byteParamCount = 0, refParamCount = 0;
         for (int i = 0; i < types.length; i++) {
             switch (types[i].getTag()) {
                 case TypeTags.INT_TAG:
                     local.longRegs[longParamCount] = ((BInteger) args[i]).intValue();
                     longParamCount++;
+                    break;
+                case TypeTags.CHAR_TAG:
+                    local.charRegs[charParamCount] = ((BCharacter) args[i]).charValue();
+                    charParamCount++;
                     break;
                 case TypeTags.FLOAT_TAG:
                     local.doubleRegs[doubleParamCount] = ((BFloat) args[i]).floatValue();
@@ -298,6 +326,7 @@ public class BLangVMUtils {
     public static WorkerData createWorkerData(WorkerDataIndex wdi) {
         WorkerData wd = new WorkerData();
         wd.longRegs = new long[wdi.longRegCount];
+        wd.charRegs = new int[wdi.charRegCount];
         wd.doubleRegs = new double[wdi.doubleRegCount];
         wd.stringRegs = new String[wdi.stringRegCount];
         wd.intRegs = new int[wdi.intRegCount];
@@ -309,6 +338,7 @@ public class BLangVMUtils {
     private static WorkerData createWorkerData(WorkerDataIndex wdi1, WorkerDataIndex wdi2) {
         WorkerData wd = new WorkerData();
         wd.longRegs = new long[wdi1.longRegCount + wdi2.longRegCount];
+        wd.charRegs = new int[wdi1.charRegCount + wdi2.charRegCount];
         wd.doubleRegs = new double[wdi1.doubleRegCount + wdi2.doubleRegCount];
         wd.stringRegs = new String[wdi1.stringRegCount + wdi2.stringRegCount];
         wd.intRegs = new int[wdi1.intRegCount + wdi2.intRegCount];
@@ -351,6 +381,7 @@ public class BLangVMUtils {
             int[] regIndexes) {
         int callersRetRegIndex;
         int longRegCount = 0;
+        int charRegCount = 0;
         int doubleRegCount = 0;
         int stringRegCount = 0;
         int intRegCount = 0;
@@ -363,6 +394,9 @@ public class BLangVMUtils {
             case TypeTags.INT_TAG:
                 targetData.longRegs[callersRetRegIndex] = sourceData.longRegs[longRegCount++];
                 break;
+                case TypeTags.CHAR_TAG:
+                    targetData.charRegs[callersRetRegIndex] = sourceData.charRegs[charRegCount++];
+                    break;
             case TypeTags.FLOAT_TAG:
                 targetData.doubleRegs[callersRetRegIndex] = sourceData.doubleRegs[doubleRegCount++];
                 break;
@@ -386,6 +420,9 @@ public class BLangVMUtils {
             CodeAttributeInfo initWorkerCAI) {
         for (int i = 0; i < initWorkerCAI.getMaxByteLocalVars(); i++) {
             targetData.byteRegs[i] = sourceData.byteRegs[i];
+        }
+        for (int i = 0; i < initWorkerCAI.getMaxCharLocalVars(); i++) {
+            targetData.charRegs[i] = sourceData.charRegs[i];
         }
         for (int i = 0; i < initWorkerCAI.getMaxDoubleLocalVars(); i++) {
             targetData.doubleRegs[i] = sourceData.doubleRegs[i];

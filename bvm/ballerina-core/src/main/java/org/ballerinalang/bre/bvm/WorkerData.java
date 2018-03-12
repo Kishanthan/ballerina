@@ -27,7 +27,9 @@ import org.ballerinalang.model.values.BRefType;
 public class WorkerData {
 
     public long[] longRegs;
-    
+
+    public int[] charRegs;
+
     public double[] doubleRegs;
     
     public String[] stringRegs;
