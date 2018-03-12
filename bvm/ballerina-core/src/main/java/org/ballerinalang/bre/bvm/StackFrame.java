@@ -36,10 +36,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class StackFrame {
     long[] longRegs;
+    int[] charRegs;
     double[] doubleRegs;
     String[] stringRegs;
     int[] intRegs;
-    byte[][] byteRegs;
+    byte[][] blobRegs;
     BRefType[] refRegs;
 
     // Return address of the caller
@@ -77,11 +78,12 @@ public class StackFrame {
         CodeAttributeInfo codeAttribInfo = workerInfo.getCodeAttributeInfo();
 
         this.longRegs = new long[codeAttribInfo.getMaxLongRegs()];
+        this.charRegs = new int[codeAttribInfo.getMaxCharRegs()];
         this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
         this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
-        this.byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
-        Arrays.fill(this.byteRegs, new byte[0]);
+        this.blobRegs = new byte[codeAttribInfo.getMaxBlobRegs()][];
+        Arrays.fill(this.blobRegs, new byte[0]);
         this.refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
 
         this.retAddrs = retAddrs;
@@ -96,11 +98,12 @@ public class StackFrame {
         CodeAttributeInfo codeAttribInfo = workerInfo.getCodeAttributeInfo();
 
         this.longRegs = new long[codeAttribInfo.getMaxLongRegs()];
+        this.charRegs = new int[codeAttribInfo.getMaxCharRegs()];
         this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
         this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
-        this.byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
-        Arrays.fill(this.byteRegs, new byte[0]);
+        this.blobRegs = new byte[codeAttribInfo.getMaxBlobRegs()][];
+        Arrays.fill(this.blobRegs, new byte[0]);
         this.refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
 
         this.retAddrs = retAddrs;
@@ -116,6 +119,10 @@ public class StackFrame {
         return doubleRegs;
     }
 
+    public int[] getCharRegs() {
+        return charRegs;
+    }
+
     public String[] getStringRegs() {
         return stringRegs;
     }
@@ -124,8 +131,8 @@ public class StackFrame {
         return intRegs;
     }
 
-    public byte[][] getByteRegs() {
-        return byteRegs;
+    public byte[][] getBlobRegs() {
+        return blobRegs;
     }
 
     public BRefType[] getRefRegs() {
@@ -140,6 +147,10 @@ public class StackFrame {
         this.doubleRegs = doubleRegs;
     }
 
+    public void setCharRegs(int[] charRegs) {
+        this.charRegs = charRegs;
+    }
+
     public void setStringRegs(String[] stringRegs) {
         this.stringRegs = stringRegs;
     }
@@ -148,8 +159,8 @@ public class StackFrame {
         this.intRegs = intRegs;
     }
 
-    public void setByteRegs(byte[][] byteRegs) {
-        this.byteRegs = byteRegs;
+    public void setBlobRegs(byte[][] blobRegs) {
+        this.blobRegs = blobRegs;
     }
 
     public void setRefRegs(BRefType[] refRegs) {

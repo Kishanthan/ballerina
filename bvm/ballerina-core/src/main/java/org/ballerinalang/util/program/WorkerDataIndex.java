@@ -23,9 +23,11 @@ package org.ballerinalang.util.program;
 public class WorkerDataIndex {
     public int[] retRegs;
     public int longRegCount = 0;
+    public int charRegCount = 0;
+    public int byteRegCount = 0;
     public int doubleRegCount = 0;
     public int stringRegCount = 0;
     public int intRegCount = 0;
     public int refRegCount = 0;
-    public int byteRegCount = 0;
+    public int blobRegCount = 0;
 }

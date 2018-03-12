@@ -28,19 +28,23 @@ public class CodeAttributeInfo implements AttributeInfo {
     public int attributeNameIndex;
 
     public int maxLongLocalVars;
+    public int maxCharLocalVars;
+    public int maxByteLocalVars;
     public int maxDoubleLocalVars;
     public int maxStringLocalVars;
     public int maxIntLocalVars;
-    public int maxByteLocalVars;
+    public int maxBlobLocalVars;
     public int maxRefLocalVars;
 
     // 4 bytes per register
 
     public int maxLongRegs;
+    public int maxCharRegs;
+    public int maxByteRegs;
     public int maxDoubleRegs;
     public int maxStringRegs;
     public int maxIntRegs;
-    public int maxByteRegs;
+    public int maxBlobRegs;
     public int maxRefRegs;
 
     // Base code address in the instruction array

@@ -31,10 +31,12 @@ import java.util.Map;
 public final class BConnector implements BRefType, StructureType {
 
     private long[] longFields;
+    private int[] charFields;
+    private int[] byteFields;
     private double[] doubleFields;
     private String[] stringFields;
     private int[] intFields;
-    private byte[][] byteFields;
+    private byte[][] blobFields;
     private BRefType[] refFields;
 
     private BConnectorType connectorType;
@@ -48,12 +50,14 @@ public final class BConnector implements BRefType, StructureType {
         this.connectorType = connectorType;
         int[] fieldIndexes = this.connectorType.getFieldTypeCount();
         longFields = new long[fieldIndexes[0]];
-        doubleFields = new double[fieldIndexes[1]];
-        stringFields = new String[fieldIndexes[2]];
+        charFields = new int[fieldIndexes[1]];
+        byteFields = new int[fieldIndexes[2]];
+        doubleFields = new double[fieldIndexes[3]];
+        stringFields = new String[fieldIndexes[4]];
         Arrays.fill(stringFields, "");
-        intFields = new int[fieldIndexes[3]];
-        byteFields = new byte[fieldIndexes[4]][];
-        refFields = new BRefType[fieldIndexes[5]];
+        intFields = new int[fieldIndexes[5]];
+        blobFields = new byte[fieldIndexes[6]][];
+        refFields = new BRefType[fieldIndexes[7]];
     }
 
     public BType getConnectorType() {
@@ -102,6 +106,25 @@ public final class BConnector implements BRefType, StructureType {
     }
 
     @Override
+    public int getCharField(int index) {
+        return charFields[index];
+    }
+
+    @Override
+    public void setCharField(int index, int value) {
+        charFields[index] = value;
+    }
+
+    @Override
+    public int getByteField(int index) {
+        return byteFields[index];
+    }
+
+    @Override
+    public void setByteField(int index, int value) {
+        byteFields[index] = value;
+    }
+    @Override
     public double getFloatField(int index) {
         return doubleFields[index];
     }
@@ -134,12 +157,12 @@ public final class BConnector implements BRefType, StructureType {
 
     @Override
     public byte[] getBlobField(int index) {
-        return byteFields[index];
+        return blobFields[index];
     }
 
     @Override
     public void setBlobField(int index, byte[] value) {
-        byteFields[index] = value;
+        blobFields[index] = value;
     }
 
     @Override
