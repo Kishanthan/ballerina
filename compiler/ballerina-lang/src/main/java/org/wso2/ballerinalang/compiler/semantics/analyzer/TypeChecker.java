@@ -455,6 +455,8 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.BOOLEAN:
             case TypeTags.STRING:
             case TypeTags.INT:
+            case TypeTags.CHAR:
+            case TypeTags.BYTE:
             case TypeTags.FLOAT:
             case TypeTags.BLOB:
             case TypeTags.XML:

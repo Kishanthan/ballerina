@@ -43,6 +43,9 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BCharArray;
+import org.ballerinalang.model.values.BCharacter;
 import org.ballerinalang.model.values.BCollection;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BFloat;
@@ -99,6 +102,8 @@ import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
+import org.ballerinalang.util.codegen.cpentries.ByteCPEntry;
+import org.ballerinalang.util.codegen.cpentries.CharacterCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
@@ -160,7 +165,7 @@ public class BLangVM {
         this.globalMemBlock = programFile.getGlobalMemoryBlock();
     }
 
-    private void traceCode(PackageInfo packageInfo) {
+    private void traceCode() {
         PrintStream printStream = System.out;
         for (int i = 0; i < code.length; i++) {
             printStream.println(i + ": " + code[i].toString());
@@ -188,6 +193,8 @@ public class BLangVM {
                     calleeSF.returnValues, retTypes);
             context.nonBlockingContext = null;
         }
+
+//        traceCode();
 
         try {
             exec();
@@ -257,6 +264,16 @@ public class BLangVM {
                     cpIndex = operands[0];
                     i = operands[1];
                     sf.longRegs[i] = ((IntegerCPEntry) constPool[cpIndex]).getValue();
+                    break;
+                case InstructionCodes.CCONST:
+                    cpIndex = operands[0];
+                    i = operands[1];
+                    sf.charRegs[i] = ((CharacterCPEntry) constPool[cpIndex]).getValue();
+                    break;
+                case InstructionCodes.BYCONST:
+                    cpIndex = operands[0];
+                    i = operands[1];
+                    sf.byteRegs[i] = ((ByteCPEntry) constPool[cpIndex]).getValue();
                     break;
                 case InstructionCodes.FCONST:
                     cpIndex = operands[0];
@@ -330,12 +347,14 @@ public class BLangVM {
                     break;
 
                 case InstructionCodes.IMOVE:
+                case InstructionCodes.CMOVE:
                 case InstructionCodes.FMOVE:
                 case InstructionCodes.SMOVE:
                 case InstructionCodes.BMOVE:
                 case InstructionCodes.LMOVE:
                 case InstructionCodes.RMOVE:
                 case InstructionCodes.IALOAD:
+                case InstructionCodes.CALOAD:
                 case InstructionCodes.FALOAD:
                 case InstructionCodes.SALOAD:
                 case InstructionCodes.BALOAD:
@@ -343,12 +362,14 @@ public class BLangVM {
                 case InstructionCodes.RALOAD:
                 case InstructionCodes.JSONALOAD:
                 case InstructionCodes.IGLOAD:
+                case InstructionCodes.CGLOAD:
                 case InstructionCodes.FGLOAD:
                 case InstructionCodes.SGLOAD:
                 case InstructionCodes.BGLOAD:
                 case InstructionCodes.LGLOAD:
                 case InstructionCodes.RGLOAD:
                 case InstructionCodes.IFIELDLOAD:
+                case InstructionCodes.CFIELDLOAD:
                 case InstructionCodes.FFIELDLOAD:
                 case InstructionCodes.SFIELDLOAD:
                 case InstructionCodes.BFIELDLOAD:
@@ -367,6 +388,7 @@ public class BLangVM {
                 case InstructionCodes.LSTORE:
                 case InstructionCodes.RSTORE:
                 case InstructionCodes.IASTORE:
+                case InstructionCodes.CASTORE:
                 case InstructionCodes.FASTORE:
                 case InstructionCodes.SASTORE:
                 case InstructionCodes.BASTORE:
@@ -374,12 +396,14 @@ public class BLangVM {
                 case InstructionCodes.RASTORE:
                 case InstructionCodes.JSONASTORE:
                 case InstructionCodes.IGSTORE:
+                case InstructionCodes.CGSTORE:
                 case InstructionCodes.FGSTORE:
                 case InstructionCodes.SGSTORE:
                 case InstructionCodes.BGSTORE:
                 case InstructionCodes.LGSTORE:
                 case InstructionCodes.RGSTORE:
                 case InstructionCodes.IFIELDSTORE:
+                case InstructionCodes.CFIELDSTORE:
                 case InstructionCodes.FFIELDSTORE:
                 case InstructionCodes.SFIELDSTORE:
                 case InstructionCodes.BFIELDSTORE:
@@ -406,12 +430,14 @@ public class BLangVM {
                 case InstructionCodes.FNEG:
                 case InstructionCodes.BNOT:
                 case InstructionCodes.IEQ:
+                case InstructionCodes.CEQ:
                 case InstructionCodes.FEQ:
                 case InstructionCodes.SEQ:
                 case InstructionCodes.BEQ:
                 case InstructionCodes.REQ:
                 case InstructionCodes.TEQ:
                 case InstructionCodes.INE:
+                case InstructionCodes.CNE:
                 case InstructionCodes.FNE:
                 case InstructionCodes.SNE:
                 case InstructionCodes.BNE:
@@ -551,11 +577,13 @@ public class BLangVM {
                     break;
 
                 case InstructionCodes.I2ANY:
+                case InstructionCodes.C2ANY:
                 case InstructionCodes.F2ANY:
                 case InstructionCodes.S2ANY:
                 case InstructionCodes.B2ANY:
                 case InstructionCodes.L2ANY:
                 case InstructionCodes.ANY2I:
+                case InstructionCodes.ANY2C:
                 case InstructionCodes.ANY2F:
                 case InstructionCodes.ANY2S:
                 case InstructionCodes.ANY2B:
@@ -566,7 +594,7 @@ public class BLangVM {
                 case InstructionCodes.ANY2TYPE:
                 case InstructionCodes.ANY2E:
                 case InstructionCodes.ANY2T:
-                case InstructionCodes.ANY2C:
+                case InstructionCodes.ANY2CN:
                 case InstructionCodes.NULL2JSON:
                 case InstructionCodes.CHECKCAST:
                 case InstructionCodes.B2JSON:
@@ -579,10 +607,15 @@ public class BLangVM {
                     break;
 
                 case InstructionCodes.I2F:
+                case InstructionCodes.I2C:
                 case InstructionCodes.I2S:
                 case InstructionCodes.I2B:
                 case InstructionCodes.I2JSON:
+                case InstructionCodes.C2I:
+                case InstructionCodes.C2F:
+                case InstructionCodes.C2S:
                 case InstructionCodes.F2I:
+                case InstructionCodes.F2C:
                 case InstructionCodes.F2S:
                 case InstructionCodes.F2B:
                 case InstructionCodes.F2JSON:
@@ -609,6 +642,10 @@ public class BLangVM {
                 case InstructionCodes.INEWARRAY:
                     i = operands[0];
                     sf.refRegs[i] = new BIntArray();
+                    break;
+                case InstructionCodes.CNEWARRAY:
+                    i = operands[0];
+                    sf.refRegs[i] = new BCharArray();
                     break;
                 case InstructionCodes.ARRAYLEN:
                     i = operands[0];
@@ -694,6 +731,14 @@ public class BLangVM {
                     callersRetRegIndex = currentSF.retRegIndexes[i];
                     callersSF.longRegs[callersRetRegIndex] = currentSF.longRegs[j];
                     break;
+                case InstructionCodes.CRET:
+                    i = operands[0];
+                    j = operands[1];
+                    currentSF = controlStack.currentFrame;
+                    callersSF = controlStack.currentFrame.prevStackFrame;
+                    callersRetRegIndex = currentSF.retRegIndexes[i];
+                    callersSF.charRegs[callersRetRegIndex] = currentSF.charRegs[j];
+                    break;
                 case InstructionCodes.FRET:
                     i = operands[0];
                     j = operands[1];
@@ -724,7 +769,7 @@ public class BLangVM {
                     currentSF = controlStack.currentFrame;
                     callersSF = controlStack.currentFrame.prevStackFrame;
                     callersRetRegIndex = currentSF.retRegIndexes[i];
-                    callersSF.byteRegs[callersRetRegIndex] = currentSF.byteRegs[j];
+                    callersSF.blobRegs[callersRetRegIndex] = currentSF.blobRegs[j];
                     break;
                 case InstructionCodes.RRET:
                     i = operands[0];
@@ -896,6 +941,7 @@ public class BLangVM {
         int fieldIndex;
 
         BIntArray bIntArray;
+        BCharArray bCharArray;
         BFloatArray bFloatArray;
         BStringArray bStringArray;
         BBooleanArray bBooleanArray;
@@ -909,6 +955,11 @@ public class BLangVM {
                 lvIndex = operands[0];
                 i = operands[1];
                 sf.longRegs[i] = sf.longRegs[lvIndex];
+                break;
+            case InstructionCodes.CMOVE:
+                lvIndex = operands[0];
+                i = operands[1];
+                sf.charRegs[i] = sf.charRegs[lvIndex];
                 break;
             case InstructionCodes.FMOVE:
                 lvIndex = operands[0];
@@ -928,7 +979,7 @@ public class BLangVM {
             case InstructionCodes.LMOVE:
                 lvIndex = operands[0];
                 i = operands[1];
-                sf.byteRegs[i] = sf.byteRegs[lvIndex];
+                sf.blobRegs[i] = sf.blobRegs[lvIndex];
                 break;
             case InstructionCodes.RMOVE:
                 lvIndex = operands[0];
@@ -947,6 +998,23 @@ public class BLangVM {
 
                 try {
                     sf.longRegs[k] = bIntArray.get(sf.longRegs[j]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.CALOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                bCharArray = (BCharArray) sf.refRegs[i];
+                if (bCharArray == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                try {
+                    sf.charRegs[k] = bCharArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
                     context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
                     handleError();
@@ -1014,7 +1082,7 @@ public class BLangVM {
                 }
 
                 try {
-                    sf.byteRegs[k] = bBlobArray.get(sf.longRegs[j]);
+                    sf.blobRegs[k] = bBlobArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
                     context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
                     handleError();
@@ -1061,6 +1129,11 @@ public class BLangVM {
                 j = operands[1];
                 sf.longRegs[j] = globalMemBlock.getIntField(i);
                 break;
+            case InstructionCodes.CGLOAD:
+                i = operands[0];
+                j = operands[1];
+                sf.charRegs[j] = globalMemBlock.getCharField(i);
+                break;
             case InstructionCodes.FGLOAD:
                 i = operands[0];
                 j = operands[1];
@@ -1079,7 +1152,7 @@ public class BLangVM {
             case InstructionCodes.LGLOAD:
                 i = operands[0];
                 j = operands[1];
-                sf.byteRegs[j] = globalMemBlock.getBlobField(i);
+                sf.blobRegs[j] = globalMemBlock.getBlobField(i);
                 break;
             case InstructionCodes.RGLOAD:
                 i = operands[0];
@@ -1098,6 +1171,18 @@ public class BLangVM {
                 }
 
                 sf.longRegs[j] = structureType.getIntField(fieldIndex);
+                break;
+            case InstructionCodes.CFIELDLOAD:
+                i = operands[0];
+                fieldIndex = operands[1];
+                j = operands[2];
+                structureType = (StructureType) sf.refRegs[i];
+                if (structureType == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                sf.charRegs[j] = structureType.getCharField(fieldIndex);
                 break;
             case InstructionCodes.FFIELDLOAD:
                 i = operands[0];
@@ -1145,7 +1230,7 @@ public class BLangVM {
                     break;
                 }
 
-                sf.byteRegs[j] = structureType.getBlobField(fieldIndex);
+                sf.blobRegs[j] = structureType.getBlobField(fieldIndex);
                 break;
             case InstructionCodes.RFIELDLOAD:
                 i = operands[0];
@@ -1206,6 +1291,7 @@ public class BLangVM {
         int fieldIndex;
 
         BIntArray bIntArray;
+        BCharArray bCharArray;
         BFloatArray bFloatArray;
         BStringArray bStringArray;
         BBooleanArray bBooleanArray;
@@ -1219,6 +1305,11 @@ public class BLangVM {
                 i = operands[0];
                 lvIndex = operands[1];
                 sf.longRegs[lvIndex] = sf.longRegs[i];
+                break;
+            case InstructionCodes.CSTORE:
+                i = operands[0];
+                lvIndex = operands[1];
+                sf.charRegs[lvIndex] = sf.charRegs[i];
                 break;
             case InstructionCodes.FSTORE:
                 i = operands[0];
@@ -1238,7 +1329,7 @@ public class BLangVM {
             case InstructionCodes.LSTORE:
                 i = operands[0];
                 lvIndex = operands[1];
-                sf.byteRegs[lvIndex] = sf.byteRegs[i];
+                sf.blobRegs[lvIndex] = sf.blobRegs[i];
                 break;
             case InstructionCodes.RSTORE:
                 i = operands[0];
@@ -1257,6 +1348,23 @@ public class BLangVM {
 
                 try {
                     bIntArray.add(sf.longRegs[j], sf.longRegs[k]);
+                } catch (Exception e) {
+                    context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                    handleError();
+                }
+                break;
+            case InstructionCodes.CASTORE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                bCharArray = (BCharArray) sf.refRegs[i];
+                if (bCharArray == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                try {
+                    bCharArray.add(sf.longRegs[j], sf.charRegs[k]);
                 } catch (Exception e) {
                     context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
                     handleError();
@@ -1324,7 +1432,7 @@ public class BLangVM {
                 }
 
                 try {
-                    bBlobArray.add(sf.longRegs[j], sf.byteRegs[k]);
+                    bBlobArray.add(sf.longRegs[j], sf.blobRegs[k]);
                 } catch (Exception e) {
                     context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
                     handleError();
@@ -1371,6 +1479,11 @@ public class BLangVM {
                 j = operands[1];
                 globalMemBlock.setIntField(j, sf.longRegs[i]);
                 break;
+            case InstructionCodes.CGSTORE:
+                i = operands[0];
+                j = operands[1];
+                globalMemBlock.setCharField(j, sf.charRegs[i]);
+                break;
             case InstructionCodes.FGSTORE:
                 i = operands[0];
                 j = operands[1];
@@ -1389,7 +1502,7 @@ public class BLangVM {
             case InstructionCodes.LGSTORE:
                 i = operands[0];
                 j = operands[1];
-                globalMemBlock.setBlobField(j, sf.byteRegs[i]);
+                globalMemBlock.setBlobField(j, sf.blobRegs[i]);
                 break;
             case InstructionCodes.RGSTORE:
                 i = operands[0];
@@ -1408,6 +1521,18 @@ public class BLangVM {
                 }
 
                 structureType.setIntField(fieldIndex, sf.longRegs[j]);
+                break;
+            case InstructionCodes.CFIELDSTORE:
+                i = operands[0];
+                fieldIndex = operands[1];
+                j = operands[2];
+                structureType = (StructureType) sf.refRegs[i];
+                if (structureType == null) {
+                    handleNullRefError();
+                    break;
+                }
+
+                structureType.setCharField(fieldIndex, sf.charRegs[j]);
                 break;
             case InstructionCodes.FFIELDSTORE:
                 i = operands[0];
@@ -1455,7 +1580,7 @@ public class BLangVM {
                     break;
                 }
 
-                structureType.setBlobField(fieldIndex, sf.byteRegs[j]);
+                structureType.setBlobField(fieldIndex, sf.blobRegs[j]);
                 break;
             case InstructionCodes.RFIELDSTORE:
                 i = operands[0];
@@ -1631,6 +1756,12 @@ public class BLangVM {
                 k = operands[2];
                 sf.intRegs[k] = sf.longRegs[i] == sf.longRegs[j] ? 1 : 0;
                 break;
+            case InstructionCodes.CEQ:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.charRegs[i] == sf.charRegs[j] ? 1 : 0;
+                break;
             case InstructionCodes.FEQ:
                 i = operands[0];
                 j = operands[1];
@@ -1670,6 +1801,12 @@ public class BLangVM {
                 j = operands[1];
                 k = operands[2];
                 sf.intRegs[k] = sf.longRegs[i] != sf.longRegs[j] ? 1 : 0;
+                break;
+            case InstructionCodes.CNE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.charRegs[i] != sf.charRegs[j] ? 1 : 0;
                 break;
             case InstructionCodes.FNE:
                 i = operands[0];
@@ -1845,6 +1982,11 @@ public class BLangVM {
                 j = operands[1];
                 sf.refRegs[j] = new BInteger(sf.longRegs[i]);
                 break;
+            case InstructionCodes.C2ANY:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = new BCharacter(sf.charRegs[i]);
+                break;
             case InstructionCodes.F2ANY:
                 i = operands[0];
                 j = operands[1];
@@ -1863,7 +2005,7 @@ public class BLangVM {
             case InstructionCodes.L2ANY:
                 i = operands[0];
                 j = operands[1];
-                sf.refRegs[j] = new BBlob(sf.byteRegs[i]);
+                sf.refRegs[j] = new BBlob(sf.blobRegs[i]);
                 break;
             case InstructionCodes.ANY2I:
                 i = operands[0];
@@ -1880,6 +2022,23 @@ public class BLangVM {
                 } else {
                     sf.longRegs[j] = 0;
                     handleTypeCastError(sf, k, bRefType.getType(), BTypes.typeInt);
+                }
+                break;
+            case InstructionCodes.ANY2C:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+
+                bRefType = sf.refRegs[i];
+                if (bRefType == null) {
+                    sf.charRegs[j] = 0;
+                    handleTypeCastError(sf, k, BTypes.typeNull, BTypes.typeChar);
+                } else if (bRefType.getType() == BTypes.typeChar) {
+                    sf.refRegs[k] = null;
+                    sf.charRegs[j] = ((BCharacter) bRefType).charValue();
+                } else {
+                    sf.charRegs[j] = 0;
+                    handleTypeCastError(sf, k, bRefType.getType(), BTypes.typeChar);
                 }
                 break;
             case InstructionCodes.ANY2F:
@@ -1940,13 +2099,13 @@ public class BLangVM {
 
                 bRefType = sf.refRegs[i];
                 if (bRefType == null) {
-                    sf.byteRegs[j] = new byte[0];
+                    sf.blobRegs[j] = new byte[0];
                     handleTypeCastError(sf, k, BTypes.typeNull, BTypes.typeBlob);
                 } else if (bRefType.getType() == BTypes.typeBlob) {
                     sf.refRegs[k] = null;
-                    sf.byteRegs[j] = ((BBlob) bRefType).blobValue();
+                    sf.blobRegs[j] = ((BBlob) bRefType).blobValue();
                 } else {
-                    sf.byteRegs[j] = new byte[0];
+                    sf.blobRegs[j] = new byte[0];
                     handleTypeCastError(sf, k, bRefType.getType(), BTypes.typeBlob);
                 }
                 break;
@@ -1967,7 +2126,7 @@ public class BLangVM {
                 break;
             case InstructionCodes.ANY2E:
             case InstructionCodes.ANY2T:
-            case InstructionCodes.ANY2C:
+            case InstructionCodes.ANY2CN:
             case InstructionCodes.CHECKCAST:
                 i = operands[0];
                 cpIndex = operands[1];
@@ -2031,6 +2190,11 @@ public class BLangVM {
                 j = operands[1];
                 sf.doubleRegs[j] = (double) sf.longRegs[i];
                 break;
+            case InstructionCodes.I2C:
+                i = operands[0];
+                j = operands[1];
+                sf.charRegs[j] = (int) sf.longRegs[i];
+                break;
             case InstructionCodes.I2S:
                 i = operands[0];
                 j = operands[1];
@@ -2046,10 +2210,30 @@ public class BLangVM {
                 j = operands[1];
                 sf.refRegs[j] = new BJSON(Long.toString(sf.longRegs[i]));
                 break;
+            case InstructionCodes.C2I:
+                i = operands[0];
+                j = operands[1];
+                sf.longRegs[j] = (long) sf.charRegs[i];
+                break;
+            case InstructionCodes.C2F:
+                i = operands[0];
+                j = operands[1];
+                sf.doubleRegs[j] = (double) sf.charRegs[i];
+                break;
+            case InstructionCodes.C2S:
+                i = operands[0];
+                j = operands[1];
+                sf.stringRegs[j] = Character.toString((char) sf.charRegs[i]);
+                break;
             case InstructionCodes.F2I:
                 i = operands[0];
                 j = operands[1];
                 sf.longRegs[j] = (long) sf.doubleRegs[i];
+                break;
+            case InstructionCodes.F2C:
+                i = operands[0];
+                j = operands[1];
+                sf.charRegs[j] = (int) sf.doubleRegs[i];
                 break;
             case InstructionCodes.F2S:
                 i = operands[0];
@@ -2286,6 +2470,12 @@ public class BLangVM {
                 case TypeTags.INT_TAG:
                     sf.longRegs[target] = ((BInteger) source).intValue();
                     break;
+                case TypeTags.CHAR_TAG:
+                    sf.charRegs[target] = ((BCharacter) source).charValue();
+                    break;
+                case TypeTags.BYTE_TAG:
+                    sf.byteRegs[target] = ((BByte) source).byteValue();
+                    break;
                 case TypeTags.FLOAT_TAG:
                     sf.doubleRegs[target] = ((BFloat) source).floatValue();
                     break;
@@ -2296,7 +2486,7 @@ public class BLangVM {
                     sf.intRegs[target] = ((BBoolean) source).booleanValue() ? 1 : 0;
                     break;
                 case TypeTags.BLOB_TAG:
-                    sf.byteRegs[target] = ((BBlob) source).blobValue();
+                    sf.blobRegs[target] = ((BBlob) source).blobValue();
                     break;
                 default:
                     sf.refRegs[target] = (BRefType) source;
@@ -2381,6 +2571,12 @@ public class BLangVM {
                 case TypeTags.INT_TAG:
                     globalMemBlock.lockIntField(regIndex);
                     break;
+                case TypeTags.CHAR_TAG:
+                    globalMemBlock.lockIntField(regIndex);
+                    break;
+                case TypeTags.BYTE_TAG:
+                    globalMemBlock.lockByteField(regIndex);
+                    break;
                 case TypeTags.FLOAT_TAG:
                     globalMemBlock.lockFloatField(regIndex);
                     break;
@@ -2406,6 +2602,12 @@ public class BLangVM {
             switch (paramType.getTag()) {
                 case TypeTags.INT_TAG:
                     globalMemBlock.unlockIntField(regIndex);
+                    break;
+                case TypeTags.CHAR_TAG:
+                    globalMemBlock.unlockCharField(regIndex);
+                    break;
+                case TypeTags.BYTE_TAG:
+                    globalMemBlock.unlockByteField(regIndex);
                     break;
                 case TypeTags.FLOAT_TAG:
                     globalMemBlock.unlockFloatField(regIndex);
@@ -2639,6 +2841,7 @@ public class BLangVM {
 
         // Populate default values
         int longRegIndex = -1;
+        int charRegIndex = -1;
         int doubleRegIndex = -1;
         int stringRegIndex = -1;
         int booleanRegIndex = -1;
@@ -2650,6 +2853,12 @@ public class BLangVM {
                     longRegIndex++;
                     if (defaultValueInfo != null) {
                         bStruct.setIntField(longRegIndex, defaultValueInfo.getDefaultValue().getIntValue());
+                    }
+                    break;
+                case TypeTags.CHAR_TAG:
+                    charRegIndex++;
+                    if (defaultValueInfo != null) {
+                        bStruct.setCharField(charRegIndex, defaultValueInfo.getDefaultValue().getCharValue());
                     }
                     break;
                 case TypeTags.FLOAT_TAG:
@@ -2922,6 +3131,12 @@ public class BLangVM {
                 case TypeTags.INT_TAG:
                     arguments[i] = new BInteger(callerSF.longRegs[argReg]);
                     break;
+                case TypeTags.CHAR_TAG:
+                    arguments[i] = new BCharacter(callerSF.charRegs[argReg]);
+                    break;
+                case TypeTags.BYTE_TAG:
+                    arguments[i] = new BByte(callerSF.byteRegs[argReg]);
+                    break;
                 case TypeTags.FLOAT_TAG:
                     arguments[i] = new BFloat(callerSF.doubleRegs[argReg]);
                     break;
@@ -2932,7 +3147,7 @@ public class BLangVM {
                     arguments[i] = new BBoolean(callerSF.intRegs[argReg] > 0);
                     break;
                 case TypeTags.BLOB_TAG:
-                    arguments[i] = new BBlob(callerSF.byteRegs[argReg]);
+                    arguments[i] = new BBlob(callerSF.blobRegs[argReg]);
                     break;
                 default:
                     arguments[i] = callerSF.refRegs[argReg];
@@ -2949,6 +3164,12 @@ public class BLangVM {
                 case TypeTags.INT_TAG:
                     currentSF.getLongRegs()[regIndex] = ((BInteger) passedInValues[i]).intValue();
                     break;
+                case TypeTags.CHAR_TAG:
+                    currentSF.getCharRegs()[regIndex] = ((BCharacter) passedInValues[i]).charValue();
+                    break;
+                case TypeTags.BYTE_TAG:
+                    currentSF.getByteRegs()[regIndex] = ((BByte) passedInValues[i]).byteValue();
+                    break;
                 case TypeTags.FLOAT_TAG:
                     currentSF.getDoubleRegs()[regIndex] = ((BFloat) passedInValues[i]).floatValue();
                     break;
@@ -2959,7 +3180,7 @@ public class BLangVM {
                     currentSF.getIntRegs()[regIndex] = (((BBoolean) passedInValues[i]).booleanValue()) ? 1 : 0;
                     break;
                 case TypeTags.BLOB_TAG:
-                    currentSF.getByteRegs()[regIndex] = ((BBlob) passedInValues[i]).blobValue();
+                    currentSF.getBlobRegs()[regIndex] = ((BBlob) passedInValues[i]).blobValue();
                     break;
                 default:
                     currentSF.getRefRegs()[regIndex] = (BRefType) passedInValues[i];
@@ -2969,14 +3190,24 @@ public class BLangVM {
 
     public static void copyValuesForForkJoin(StackFrame callerSF, StackFrame calleeSF, int[] argRegs) {
         int longLocalVals = argRegs[0];
-        int doubleLocalVals = argRegs[1];
-        int stringLocalVals = argRegs[2];
-        int booleanLocalVals = argRegs[3];
-        int blobLocalVals = argRegs[4];
-        int refLocalVals = argRegs[5];
+        int charLocalVals = argRegs[1];
+        int byteLocalVals = argRegs[2];
+        int doubleLocalVals = argRegs[3];
+        int stringLocalVals = argRegs[4];
+        int booleanLocalVals = argRegs[5];
+        int blobLocalVals = argRegs[6];
+        int refLocalVals = argRegs[7];
 
         for (int i = 0; i <= longLocalVals; i++) {
             calleeSF.getLongRegs()[i] = callerSF.getLongRegs()[i];
+        }
+
+        for (int i = 0; i <= charLocalVals; i++) {
+            calleeSF.getCharRegs()[i] = callerSF.getCharRegs()[i];
+        }
+
+        for (int i = 0; i <= byteLocalVals; i++) {
+            calleeSF.getByteRegs()[i] = callerSF.getByteRegs()[i];
         }
 
         for (int i = 0; i <= doubleLocalVals; i++) {
@@ -2996,23 +3227,27 @@ public class BLangVM {
         }
 
         for (int i = 0; i <= blobLocalVals; i++) {
-            calleeSF.getByteRegs()[i] = callerSF.getByteRegs()[i];
+            calleeSF.getBlobRegs()[i] = callerSF.getBlobRegs()[i];
         }
     }
 
     public static void copyValues(StackFrame parent, StackFrame workerSF) {
         CodeAttributeInfo codeInfo = parent.callableUnitInfo.getDefaultWorkerInfo().getCodeAttributeInfo();
         System.arraycopy(parent.longRegs, 0, workerSF.longRegs, 0, codeInfo.getMaxLongLocalVars());
+        System.arraycopy(parent.charRegs, 0, workerSF.charRegs, 0, codeInfo.getMaxCharLocalVars());
+        System.arraycopy(parent.byteRegs, 0, workerSF.byteRegs, 0, codeInfo.getMaxByteLocalVars());
         System.arraycopy(parent.doubleRegs, 0, workerSF.doubleRegs, 0, codeInfo.getMaxDoubleLocalVars());
         System.arraycopy(parent.intRegs, 0, workerSF.intRegs, 0, codeInfo.getMaxIntLocalVars());
         System.arraycopy(parent.stringRegs, 0, workerSF.stringRegs, 0, codeInfo.getMaxStringLocalVars());
-        System.arraycopy(parent.byteRegs, 0, workerSF.byteRegs, 0, codeInfo.getMaxByteLocalVars());
+        System.arraycopy(parent.blobRegs, 0, workerSF.blobRegs, 0, codeInfo.getMaxBlobLocalVars());
         System.arraycopy(parent.refRegs, 0, workerSF.refRegs, 0, codeInfo.getMaxRefLocalVars());
     }
 
 
     public static void copyArgValues(StackFrame callerSF, StackFrame calleeSF, int[] argRegs, BType[] paramTypes) {
         int longRegIndex = -1;
+        int charRegIndex = -1;
+        int byteRegIndex = -1;
         int doubleRegIndex = -1;
         int stringRegIndex = -1;
         int booleanRegIndex = -1;
@@ -3026,6 +3261,12 @@ public class BLangVM {
                 case TypeTags.INT_TAG:
                     calleeSF.longRegs[++longRegIndex] = callerSF.longRegs[argReg];
                     break;
+                case TypeTags.CHAR_TAG:
+                    calleeSF.charRegs[++charRegIndex] = callerSF.charRegs[argReg];
+                    break;
+                case TypeTags.BYTE_TAG:
+                    calleeSF.byteRegs[++byteRegIndex] = callerSF.byteRegs[argReg];
+                    break;
                 case TypeTags.FLOAT_TAG:
                     calleeSF.doubleRegs[++doubleRegIndex] = callerSF.doubleRegs[argReg];
                     break;
@@ -3036,7 +3277,7 @@ public class BLangVM {
                     calleeSF.intRegs[++booleanRegIndex] = callerSF.intRegs[argReg];
                     break;
                 case TypeTags.BLOB_TAG:
-                    calleeSF.byteRegs[++blobRegIndex] = callerSF.byteRegs[argReg];
+                    calleeSF.blobRegs[++blobRegIndex] = callerSF.blobRegs[argReg];
                     break;
                 default:
                     calleeSF.refRegs[++refRegIndex] = callerSF.refRegs[argReg];
@@ -3060,11 +3301,13 @@ public class BLangVM {
     private void copyWorkersReturnValues(StackFrame workerSF, StackFrame parentsSF) {
         int callersRetRegIndex;
         int longRegCount = 0;
+        int charRegCount = 0;
+        int byteRegCount = 0;
         int doubleRegCount = 0;
         int stringRegCount = 0;
         int intRegCount = 0;
         int refRegCount = 0;
-        int byteRegCount = 0;
+        int blobRegCount = 0;
         StackFrame workerCallerSF = workerSF.prevStackFrame;
         StackFrame parentCallersSF = parentsSF.prevStackFrame;
         BType[] retTypes = parentsSF.getCallableUnitInfo().getRetParamTypes();
@@ -3074,6 +3317,12 @@ public class BLangVM {
             switch (retType.getTag()) {
                 case TypeTags.INT_TAG:
                     parentCallersSF.longRegs[callersRetRegIndex] = workerCallerSF.longRegs[longRegCount++];
+                    break;
+                case TypeTags.CHAR_TAG:
+                    parentCallersSF.charRegs[callersRetRegIndex] = workerCallerSF.charRegs[charRegCount++];
+                    break;
+                case TypeTags.BYTE_TAG:
+                    parentCallersSF.byteRegs[callersRetRegIndex] = workerCallerSF.byteRegs[byteRegCount++];
                     break;
                 case TypeTags.FLOAT_TAG:
                     parentCallersSF.doubleRegs[callersRetRegIndex] = workerCallerSF.doubleRegs[doubleRegCount++];
@@ -3085,7 +3334,7 @@ public class BLangVM {
                     parentCallersSF.intRegs[callersRetRegIndex] = workerCallerSF.intRegs[intRegCount++];
                     break;
                 case TypeTags.BLOB_TAG:
-                    parentCallersSF.byteRegs[callersRetRegIndex] = workerCallerSF.byteRegs[byteRegCount++];
+                    parentCallersSF.blobRegs[callersRetRegIndex] = workerCallerSF.blobRegs[blobRegCount++];
                     break;
                 default:
                     parentCallersSF.refRegs[callersRetRegIndex] = workerCallerSF.refRegs[refRegCount++];
@@ -3222,6 +3471,20 @@ public class BLangVM {
                     }
                     callerSF.longRegs[callersRetRegIndex] = ((BInteger) returnValues[i]).intValue();
                     break;
+                case TypeTags.CHAR_TAG:
+                    if (returnValues[i] == null) {
+                        callerSF.charRegs[callersRetRegIndex] = 0;
+                        break;
+                    }
+                    callerSF.charRegs[callersRetRegIndex] = ((BCharacter) returnValues[i]).charValue();
+                    break;
+                case TypeTags.BYTE_TAG:
+                    if (returnValues[i] == null) {
+                        callerSF.byteRegs[callersRetRegIndex] = 0;
+                        break;
+                    }
+                    callerSF.byteRegs[callersRetRegIndex] = ((BByte) returnValues[i]).byteValue();
+                    break;
                 case TypeTags.FLOAT_TAG:
                     if (returnValues[i] == null) {
                         callerSF.doubleRegs[callersRetRegIndex] = 0;
@@ -3245,10 +3508,10 @@ public class BLangVM {
                     break;
                 case TypeTags.BLOB_TAG:
                     if (returnValues[i] == null) {
-                        callerSF.byteRegs[callersRetRegIndex] = new byte[0];
+                        callerSF.blobRegs[callersRetRegIndex] = new byte[0];
                         break;
                     }
-                    callerSF.byteRegs[callersRetRegIndex] = ((BBlob) returnValues[i]).blobValue();
+                    callerSF.blobRegs[callersRetRegIndex] = ((BBlob) returnValues[i]).blobValue();
                     break;
                 default:
                     callerSF.refRegs[callersRetRegIndex] = (BRefType) returnValues[i];
@@ -3688,6 +3951,8 @@ public class BLangVM {
         }
 
         int longRegIndex = -1;
+        int charRegIndex = -1;
+        int byteRegIndex = -1;
         int doubleRegIndex = -1;
         int stringRegIndex = -1;
         int booleanRegIndex = -1;
@@ -3702,6 +3967,12 @@ public class BLangVM {
             switch (fieldType.getTag()) {
                 case TypeTags.INT_TAG:
                     map.put(key, new BInteger(bStruct.getIntField(++longRegIndex)));
+                    break;
+                case TypeTags.CHAR_TAG:
+                    map.put(key, new BCharacter(bStruct.getCharField(++charRegIndex)));
+                    break;
+                case TypeTags.BYTE_TAG:
+                    map.put(key, new BByte(bStruct.getByteField(++byteRegIndex)));
                     break;
                 case TypeTags.FLOAT_TAG:
                     map.put(key, new BFloat(bStruct.getFloatField(++doubleRegIndex)));
@@ -3759,6 +4030,8 @@ public class BLangVM {
         }
 
         int longRegIndex = -1;
+        int charRegIndex = -1;
+        int byteRegIndex = -1;
         int doubleRegIndex = -1;
         int stringRegIndex = -1;
         int booleanRegIndex = -1;
@@ -3799,6 +4072,22 @@ public class BLangVM {
                             bStruct.setIntField(longRegIndex, ((BInteger) mapVal).intValue());
                         } else if (defaultValAttrInfo != null) {
                             bStruct.setIntField(longRegIndex, defaultValAttrInfo.getDefaultValue().getIntValue());
+                        }
+                        break;
+                    case TypeTags.CHAR_TAG:
+                        charRegIndex++;
+                        if (containsField) {
+                            bStruct.setCharField(charRegIndex, ((BCharacter) mapVal).charValue());
+                        } else if (defaultValAttrInfo != null) {
+                            bStruct.setCharField(longRegIndex, defaultValAttrInfo.getDefaultValue().getCharValue());
+                        }
+                        break;
+                    case TypeTags.BYTE_TAG:
+                        byteRegIndex++;
+                        if (containsField) {
+                            bStruct.setByteField(byteRegIndex, ((BByte) mapVal).byteValue());
+                        } else if (defaultValAttrInfo != null) {
+                            bStruct.setByteField(longRegIndex, defaultValAttrInfo.getDefaultValue().getByteValue());
                         }
                         break;
                     case TypeTags.FLOAT_TAG:
@@ -3960,7 +4249,7 @@ public class BLangVM {
             return;
         } else if (typeTag == TypeTags.BLOB_TAG) {
             // Here it is assumed null is not supported for blob type
-            sf.longRegs[j] = sf.byteRegs[i].length;
+            sf.longRegs[j] = sf.blobRegs[i].length;
             return;
         }
 

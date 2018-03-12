@@ -30,6 +30,7 @@ public class BAnnAttrValue implements AnnAttrValue {
     private AnnotationValueType type;
 
     private long intValue;
+    private int charValue;
     private double floatValue;
     private String stringValue;
     private boolean booleanValue;
@@ -97,5 +98,13 @@ public class BAnnAttrValue implements AnnAttrValue {
 
     public void setAnnotationValueArray(AnnAttrValue[] annotationValueArray) {
         this.annotationValueArray = annotationValueArray;
+    }
+
+    public int getCharValue() {
+        return charValue;
+    }
+
+    public void setCharValue(int charValue) {
+        this.charValue = charValue;
     }
 }

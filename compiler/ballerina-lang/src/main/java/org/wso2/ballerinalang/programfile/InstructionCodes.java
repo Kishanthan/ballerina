@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.programfile;
 
 /**
@@ -28,237 +28,274 @@ public interface InstructionCodes {
     int ICONST = 2;
     int FCONST = 3;
     int SCONST = 4;
-    int ICONST_0 = 5;
-    int ICONST_1 = 6;
-    int ICONST_2 = 7;
-    int ICONST_3 = 8;
-    int ICONST_4 = 9;
-    int ICONST_5 = 10;
-    int FCONST_0 = 11;
-    int FCONST_1 = 12;
-    int FCONST_2 = 13;
-    int FCONST_3 = 14;
-    int FCONST_4 = 15;
-    int FCONST_5 = 16;
-    int BCONST_0 = 17;
-    int BCONST_1 = 18;
-    int RCONST_NULL = 19;
+    int CCONST = 5;
+    int BTCONST = 6;
+    int ICONST_0 = 7;
+    int ICONST_1 = 8;
+    int ICONST_2 = 9;
+    int ICONST_3 = 10;
+    int ICONST_4 = 11;
+    int ICONST_5 = 12;
+    int FCONST_0 = 13;
+    int FCONST_1 = 14;
+    int FCONST_2 = 15;
+    int FCONST_3 = 16;
+    int FCONST_4 = 17;
+    int FCONST_5 = 18;
+    int BCONST_0 = 19;
+    int BCONST_1 = 20;
+    int RCONST_NULL = 21;
 
-    int IMOVE = 21;
-    int FMOVE = 22;
-    int SMOVE = 23;
-    int BMOVE = 24;
-    int LMOVE = 25;
-    int RMOVE = 26;
-    int IALOAD = 27;
-    int FALOAD = 28;
-    int SALOAD = 29;
-    int BALOAD = 30;
-    int LALOAD = 31;
-    int RALOAD = 32;
-    int JSONALOAD = 33;
-    int IGLOAD = 34;
-    int FGLOAD = 35;
-    int SGLOAD = 36;
-    int BGLOAD = 37;
-    int LGLOAD = 38;
-    int RGLOAD = 39;
+    int IMOVE = 22;
+    int CMOVE = 23;
+    int BTMOVE = 24;
+    int FMOVE = 25;
+    int SMOVE = 26;
+    int BMOVE = 27;
+    int LMOVE = 28;
+    int RMOVE = 29;
+    int IALOAD = 29;
+    int CALOAD = 30;
+    int BTALOAD = 31;
+    int FALOAD = 32;
+    int SALOAD = 33;
+    int BALOAD = 34;
+    int LALOAD = 35;
+    int RALOAD = 36;
+    int JSONALOAD = 37;
+    int IGLOAD = 38;
+    int CGLOAD = 39;
+    int FGLOAD = 40;
+    int SGLOAD = 41;
+    int BGLOAD = 42;
+    int LGLOAD = 43;
+    int RGLOAD = 44;
 
-    int IFIELDLOAD = 40;
-    int FFIELDLOAD = 41;
-    int SFIELDLOAD = 42;
-    int BFIELDLOAD = 43;
-    int LFIELDLOAD = 44;
-    int RFIELDLOAD = 45;
+    int IFIELDLOAD = 45;
+    int CFIELDLOAD = 46;
+    int BTFIELDLOAD = 47;
+    int FFIELDLOAD = 48;
+    int SFIELDLOAD = 49;
+    int BFIELDLOAD = 50;
+    int LFIELDLOAD = 51;
+    int RFIELDLOAD = 52;
 
-    int MAPLOAD = 46;
-    int JSONLOAD = 47;
-    int ENUMERATORLOAD = 48;
+    int MAPLOAD = 53;
+    int JSONLOAD = 54;
+    int ENUMERATORLOAD = 55;
 
-    int ISTORE = 49;
-    int FSTORE = 50;
-    int SSTORE = 51;
-    int BSTORE = 52;
-    int LSTORE = 53;
-    int RSTORE = 54;
-    int IASTORE = 55;
-    int FASTORE = 56;
-    int SASTORE = 57;
-    int BASTORE = 58;
-    int LASTORE = 59;
-    int RASTORE = 60;
-    int JSONASTORE = 61;
-    int IGSTORE = 62;
-    int FGSTORE = 63;
-    int SGSTORE = 64;
-    int BGSTORE = 65;
-    int LGSTORE = 66;
-    int RGSTORE = 67;
+//    int ISTORE = 53;
+//    int CSTORE = 54;
+//    int FSTORE = 55;
+//    int SSTORE = 56;
+//    int BSTORE = 57;
+//    int LSTORE = 58;
+//    int RSTORE = 59;
+    int IASTORE = 56;
+    int CASTORE = 57;
+    int BTASTORE = 58;
+    int FASTORE = 59;
+    int SASTORE = 60;
+    int BASTORE = 61;
+    int LASTORE = 62;
+    int RASTORE = 63;
+    int JSONASTORE = 64;
+    int IGSTORE = 65;
+    int CGSTORE = 66;
+    int BTGSTORE = 67;
+    int FGSTORE = 68;
+    int SGSTORE = 69;
+    int BGSTORE = 70;
+    int LGSTORE = 71;
+    int RGSTORE = 72;
 
-    int IFIELDSTORE = 68;
-    int FFIELDSTORE = 69;
-    int SFIELDSTORE = 70;
-    int BFIELDSTORE = 71;
-    int LFIELDSTORE = 72;
-    int RFIELDSTORE = 73;
+    int IFIELDSTORE = 73;
+    int CFIELDSTORE = 74;
+    int BTFIELDSTORE = 75;
+    int FFIELDSTORE = 76;
+    int SFIELDSTORE = 77;
+    int BFIELDSTORE = 78;
+    int LFIELDSTORE = 79;
+    int RFIELDSTORE = 80;
 
-    int MAPSTORE = 74;
-    int JSONSTORE = 75;
+    int MAPSTORE = 81;
+    int JSONSTORE = 82;
 
-    int IADD = 76;
-    int FADD = 77;
-    int SADD = 78;
-    int XMLADD = 81;
-    int ISUB = 82;
-    int FSUB = 83;
-    int IMUL = 84;
-    int FMUL = 85;
-    int IDIV = 86;
-    int FDIV = 87;
-    int IMOD = 88;
-    int FMOD = 89;
-    int INEG = 90;
-    int FNEG = 91;
-    int BNOT = 92;
+    int IADD = 83;
+    int BTADD = 84;
+    int FADD = 85;
+    int SADD = 86;
+    int XMLADD = 87;
+    int ISUB = 88;
+    int FSUB = 89;
+    int IMUL = 90;
+    int FMUL = 91;
+    int IDIV = 92;
+    int FDIV = 93;
+    int IMOD = 94;
+    int FMOD = 95;
+    int INEG = 96;
+    int FNEG = 97;
+    int BNOT = 98;
 
-    int IEQ = 93;
-    int FEQ = 94;
-    int SEQ = 95;
-    int BEQ = 96;
-    int REQ = 98;
+    int IEQ = 99;
+    int CEQ = 100;
+    int BTEQ = 101;
+    int FEQ = 102;
+    int SEQ = 103;
+    int BEQ = 104;
+    int REQ = 105;
 
-    int INE = 99;
-    int FNE = 100;
-    int SNE = 101;
-    int BNE = 102;
-    int RNE = 104;
+    int INE = 106;
+    int CNE = 107;
+    int BTNE = 108;
+    int FNE = 109;
+    int SNE = 110;
+    int BNE = 111;
+    int RNE = 112;
 
-    int IGT = 105;
-    int FGT = 106;
+    int IGT = 113;
+    int FGT = 114;
 
-    int IGE = 107;
-    int FGE = 108;
+    int IGE = 115;
+    int FGE = 116;
 
-    int ILT = 109;
-    int FLT = 110;
+    int ILT = 117;
+    int FLT = 118;
 
-    int ILE = 111;
-    int FLE = 112;
+    int ILE = 119;
+    int FLE = 120;
 
-    int REQ_NULL = 113;
-    int RNE_NULL = 114;
+    int REQ_NULL = 121;
+    int RNE_NULL = 122;
 
-    int BR_TRUE = 115;
-    int BR_FALSE = 116;
+    int BR_TRUE = 123;
+    int BR_FALSE = 124;
 
-    int GOTO = 117;
-    int HALT = 118;
-    int TR_RETRY = 119;
-    int CALL = 120;
-    int VCALL = 121;
-    int ACALL = 122;
-    int THROW = 123;
-    int ERRSTORE = 124;
-    int FPCALL = 125;
-    int FPLOAD = 126;
-    int TCALL = 127;
+    int GOTO = 125;
+    int HALT = 126;
+    int TR_RETRY = 127;
+    int CALL = 128;
+    int VCALL = 129;
+    int ACALL = 130;
+    int THROW = 131;
+    int ERRSTORE = 132;
+    int FPCALL = 133;
+    int FPLOAD = 134;
+    int TCALL = 135;
 
-    int SEQ_NULL = 128;
-    int SNE_NULL = 129;
+    int SEQ_NULL = 136;
+    int SNE_NULL = 137;
 
     // Type Conversion related instructions
-    int I2F = 130;
-    int I2S = 131;
-    int I2B = 132;
-    int I2JSON = 133;
-    int F2I = 134;
-    int F2S = 135;
-    int F2B = 136;
-    int F2JSON = 137;
-    int S2I = 138;
-    int S2F = 139;
-    int S2B = 140;
-    int S2JSON = 141;
-    int B2I = 142;
-    int B2F = 143;
-    int B2S = 144;
-    int B2JSON = 145;
-    int JSON2I = 146;
-    int JSON2F = 147;
-    int JSON2S = 148;
-    int JSON2B = 149;
-    int DT2JSON = 150;
-    int DT2XML = 151;
-    int T2MAP = 152;
-    int T2JSON = 153;
-    int MAP2T = 154;
-    int JSON2T = 155;
-    int XML2JSON = 156;
-    int JSON2XML = 157;
-    int S2XML = 158;
-    int XML2S = 159;
+    int I2C = 138;
+    int I2F = 139;
+    int I2S = 140;
+    int I2B = 141;
+    int I2JSON = 142;
+    int C2I = 143;
+    int C2F = 144;
+    int C2S = 145;
+    int BT2S = 146;
+    int F2I = 147;
+    int F2C = 148;
+    int F2S = 149;
+    int F2B = 150;
+    int F2JSON = 151;
+    int S2I = 152;
+    int S2F = 153;
+    int S2B = 154;
+    int S2JSON = 155;
+    int B2I = 156;
+    int B2F = 157;
+    int B2S = 158;
+    int B2JSON = 159;
+    int JSON2I = 160;
+    int JSON2F = 161;
+    int JSON2S = 162;
+    int JSON2B = 163;
+    int DT2JSON = 164;
+    int DT2XML = 165;
+    int T2MAP = 166;
+    int T2JSON = 167;
+    int MAP2T = 168;
+    int JSON2T = 169;
+//    int XML2JSON = 170;
+//    int JSON2XML = 168;
+    int S2XML = 170;
+    int XML2S = 171;
 
     // Type cast
-    int I2ANY = 160;
-    int F2ANY = 161;
-    int S2ANY = 162;
-    int B2ANY = 163;
-    int L2ANY = 164;
-    int ANY2I = 165;
-    int ANY2F = 166;
-    int ANY2S = 167;
-    int ANY2B = 168;
-    int ANY2L = 169;
-    int ANY2JSON = 170;
-    int ANY2XML = 171;
-    int ANY2MAP = 172;
-    int ANY2DT = 174;
+    int I2ANY = 172;
+    int C2ANY = 173;
+    int BT2ANY = 174;
+    int F2ANY = 175;
+    int S2ANY = 176;
+    int B2ANY = 177;
+    int L2ANY = 178;
+    int ANY2I = 179;
+    int ANY2C = 180;
+    int ANY2BT = 181;
+    int ANY2F = 182;
+    int ANY2S = 183;
+    int ANY2B = 184;
+    int ANY2L = 185;
+    int ANY2JSON = 186;
+    int ANY2XML = 187;
+    int ANY2MAP = 188;
+    int ANY2DT = 189;
 
-    int ANY2E = 177;
-    int ANY2T = 178;
-    int ANY2C = 179;
-    int CHECKCAST = 180;
-    int NULL2JSON = 181;
+    int ANY2E = 190;
+    int ANY2T = 191;
+    int ANY2CN = 192;
+    int CHECKCAST = 193;
+    int NULL2JSON = 194;
 
-    int ANY2TYPE = 182;
-    int S2JSONX = 183;
-    int NULL2S = 184;
+    int ANY2TYPE = 195;
+    int S2JSONX = 196;
+    int NULL2S = 197;
 
-    int LOCK = 185;
-    int UNLOCK = 186;
+    int LOCK = 198;
+    int UNLOCK = 199;
 
     // Transactions
-    int TR_BEGIN = 188;
-    int TR_END = 189;
+    int TR_BEGIN = 200;
+    int TR_END = 201;
 
-    int WRKSEND = 190;
-    int WRKRECEIVE = 191;
-    int FORKJOIN = 192;
-    int WRKSTART = 193;
-    int WRKRETURN = 194;
+    int WRKSEND = 202;
+    int WRKRECEIVE = 203;
+    int FORKJOIN = 204;
+    int WRKSTART = 205;
+    int WRKRETURN = 206;
 
-    int INEWARRAY = 200;
-    int FNEWARRAY = 201;
-    int SNEWARRAY = 202;
-    int BNEWARRAY = 203;
-    int LNEWARRAY = 204;
-    int RNEWARRAY = 205;
-    int JSONNEWARRAY = 206;
-    int ARRAYLEN = 207;
-    int LENGTHOF = 208;
+    int INEWARRAY = 207;
+    int CNEWARRAY = 208;
+    int BTNEWARRAY = 209;
+    int FNEWARRAY = 210;
+    int SNEWARRAY = 211;
+    int BNEWARRAY = 212;
+    int LNEWARRAY = 213;
+    int RNEWARRAY = 214;
+    int JSONNEWARRAY = 215;
+    int ARRAYLEN = 216;
+    int LENGTHOF = 217;
 
-    int NEWSTRUCT = 210;
-    int NEWCONNECTOR = 211;
-    int NEWMAP = 212;
-    int NEWJSON = 213;
-    int NEWTABLE = 215;
+    int NEWSTRUCT = 218;
+    int NEWCONNECTOR = 219;
+    int NEWMAP = 220;
+    int NEWJSON = 221;
+    int NEWTABLE = 222;
 
-    int NEW_INT_RANGE = 219;
-    int ITR_NEW = 220;
-    int ITR_HAS_NEXT = 221;
-    int ITR_NEXT = 222;
+    int NEW_INT_RANGE = 223;
+    int ITR_NEW = 224;
+    int ITR_HAS_NEXT = 225;
+    int ITR_NEXT = 226;
 
-    int IRET = 231;
+    // 227, 228
+
+    int IRET = 229;
+    int CRET = 230;
+    int BTRET = 231;
     int FRET = 232;
     int SRET = 233;
     int BRET = 234;

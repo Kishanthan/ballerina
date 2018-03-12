@@ -28,6 +28,9 @@ public class AnnAttributeValue {
 
     private int valueCPIndex = -1;
     private long intValue;
+    private int charValue;
+    //TODO byte?
+//    private int byteValue;
     private double floatValue;
     private String stringValue;
     private boolean booleanValue;
@@ -148,4 +151,11 @@ public class AnnAttributeValue {
         return attributeValueArray;
     }
 
+    public int getCharValue() {
+        return charValue;
+    }
+
+    public void setCharValue(int charValue) {
+        this.charValue = charValue;
+    }
 }

@@ -26,6 +26,8 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BCharacter;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
@@ -120,11 +122,13 @@ public class BLangFunctions {
         // TODO Create registers to hold return values
 
         int longRegCount = 0;
+        int charRegCount = 0;
+        int byteRegCount = 0;
         int doubleRegCount = 0;
         int stringRegCount = 0;
         int intRegCount = 0;
         int refRegCount = 0;
-        int byteRegCount = 0;
+        int blobRegCount = 0;
 
         // Calculate registers to store return values
         BType[] retTypes = functionInfo.getRetParamTypes();
@@ -134,6 +138,12 @@ public class BLangFunctions {
             switch (retType.getTag()) {
                 case TypeTags.INT_TAG:
                     retRegs[i] = longRegCount++;
+                    break;
+                case TypeTags.CHAR_TAG:
+                    retRegs[i] = charRegCount++;
+                    break;
+                case TypeTags.BYTE_TAG:
+                    retRegs[i] = byteRegCount++;
                     break;
                 case TypeTags.FLOAT_TAG:
                     retRegs[i] = doubleRegCount++;
@@ -145,7 +155,7 @@ public class BLangFunctions {
                     retRegs[i] = intRegCount++;
                     break;
                 case TypeTags.BLOB_TAG:
-                    retRegs[i] = byteRegCount++;
+                    retRegs[i] = blobRegCount++;
                     break;
                 default:
                     retRegs[i] = refRegCount++;
@@ -154,11 +164,13 @@ public class BLangFunctions {
         }
 
         callerSF.setLongRegs(new long[longRegCount]);
+        callerSF.setCharRegs(new int[charRegCount]);
+        callerSF.setByteRegs(new int[byteRegCount]);
         callerSF.setDoubleRegs(new double[doubleRegCount]);
         callerSF.setStringRegs(new String[stringRegCount]);
         callerSF.setIntRegs(new int[intRegCount]);
         callerSF.setRefRegs(new BRefType[refRegCount]);
-        callerSF.setByteRegs(new byte[byteRegCount][]);
+        callerSF.setBlobRegs(new byte[blobRegCount][]);
 
         // Now create callee's stackframe
         WorkerInfo defaultWorkerInfo = functionInfo.getDefaultWorkerInfo();
@@ -166,22 +178,26 @@ public class BLangFunctions {
         controlStack.pushFrame(calleeSF);
 
         int longParamCount = 0;
+        int charParamCount = 0;
+        int byteParamCount = 0;
         int doubleParamCount = 0;
         int stringParamCount = 0;
         int intParamCount = 0;
         int refParamCount = 0;
-        int byteParamCount = 0;
+        int blobParamCount = 0;
 
         CodeAttributeInfo codeAttribInfo = defaultWorkerInfo.getCodeAttributeInfo();
 
         long[] longRegs = new long[codeAttribInfo.getMaxLongRegs()];
+        int[] charRegs = new int[codeAttribInfo.getMaxCharRegs()];
+        int[] byteRegs = new int[codeAttribInfo.getMaxByteRegs()];
         double[] doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
         String[] stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         // Setting the zero values for strings
         Arrays.fill(stringRegs, BLangConstants.STRING_NULL_VALUE);
 
         int[] intRegs = new int[codeAttribInfo.getMaxIntRegs()];
-        byte[][] byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
+        byte[][] blobRegs = new byte[codeAttribInfo.getMaxBlobRegs()][];
         BRefType[] refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
 
         for (int i = 0; i < functionInfo.getParamTypes().length; i++) {
@@ -190,6 +206,14 @@ public class BLangFunctions {
                 case TypeTags.INT_TAG:
                     longRegs[longParamCount] = ((BInteger) args[i]).intValue();
                     longParamCount++;
+                    break;
+                case TypeTags.CHAR_TAG:
+                    charRegs[charParamCount] = ((BCharacter) args[i]).charValue();
+                    charParamCount++;
+                    break;
+                case TypeTags.BYTE_TAG:
+                    byteRegs[byteParamCount] = ((BByte) args[i]).byteValue();
+                    charParamCount++;
                     break;
                 case TypeTags.FLOAT_TAG:
                     doubleRegs[doubleParamCount] = ((BFloat) args[i]).floatValue();
@@ -204,8 +228,8 @@ public class BLangFunctions {
                     intParamCount++;
                     break;
                 case TypeTags.BLOB_TAG:
-                    byteRegs[byteParamCount] = ((BBlob) args[i]).blobValue();
-                    byteParamCount++;
+                    blobRegs[blobParamCount] = ((BBlob) args[i]).blobValue();
+                    blobParamCount++;
                     break;
                 default:
                     refRegs[refParamCount] = (BRefType) args[i];
@@ -215,10 +239,12 @@ public class BLangFunctions {
         }
 
         calleeSF.setLongRegs(longRegs);
+        calleeSF.setCharRegs(charRegs);
+        calleeSF.setByteRegs(byteRegs);
         calleeSF.setDoubleRegs(doubleRegs);
         calleeSF.setStringRegs(stringRegs);
         calleeSF.setIntRegs(intRegs);
-        calleeSF.setByteRegs(byteRegs);
+        calleeSF.setBlobRegs(blobRegs);
         calleeSF.setRefRegs(refRegs);
         
         BLangVM bLangVM = new BLangVM(bLangProgram);
@@ -234,17 +260,25 @@ public class BLangFunctions {
         }
 
         longRegCount = 0;
+        charRegCount = 0;
+        byteRegCount = 0;
         doubleRegCount = 0;
         stringRegCount = 0;
         intRegCount = 0;
         refRegCount = 0;
-        byteRegCount = 0;
+        blobRegCount = 0;
         BValue[] returnValues = new BValue[retTypes.length];
         for (int i = 0; i < returnValues.length; i++) {
             BType retType = retTypes[i];
             switch (retType.getTag()) {
                 case TypeTags.INT_TAG:
                     returnValues[i] = new BInteger(callerSF.getLongRegs()[longRegCount++]);
+                    break;
+                case TypeTags.CHAR_TAG:
+                    returnValues[i] = new BCharacter(callerSF.getCharRegs()[charRegCount++]);
+                    break;
+                case TypeTags.BYTE_TAG:
+                    returnValues[i] = new BByte(callerSF.getByteRegs()[byteRegCount++]);
                     break;
                 case TypeTags.FLOAT_TAG:
                     returnValues[i] = new BFloat(callerSF.getDoubleRegs()[doubleRegCount++]);
@@ -257,7 +291,7 @@ public class BLangFunctions {
                     returnValues[i] = new BBoolean(boolValue);
                     break;
                 case TypeTags.BLOB_TAG:
-                    returnValues[i] = new BBlob(callerSF.getByteRegs()[byteRegCount++]);
+                    returnValues[i] = new BBlob(callerSF.getBlobRegs()[blobRegCount++]);
                     break;
                 default:
                     returnValues[i] = callerSF.getRefRegs()[refRegCount++];
@@ -306,6 +340,14 @@ public class BLangFunctions {
                     a.setIntValue(programFile.getGlobalMemoryBlock().getIntField(localVariableInfo
                             .getVariableIndex()));
                     break;
+                case TypeTags.CHAR_TAG:
+                    a.setCharValue(programFile.getGlobalMemoryBlock().getCharField(localVariableInfo
+                            .getVariableIndex()));
+                    break;
+//                case TypeTags.BYTE_TAG:
+//                    a.setCharValue(programFile.getGlobalMemoryBlock().getCharField(localVariableInfo
+//                            .getVariableIndex()));
+//                    break;
                 case TypeTags.FLOAT_TAG:
                     a.setFloatValue(programFile.getGlobalMemoryBlock().getFloatField(localVariableInfo
                             .getVariableIndex()));

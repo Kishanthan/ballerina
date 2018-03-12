@@ -18,17 +18,17 @@
 
 package org.ballerinalang.test.nativeimpl.functions.io.socket;
 
-import org.ballerinalang.bre.bvm.BLangVMStructs;
+//import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
+//import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+//import org.ballerinalang.util.codegen.PackageInfo;
+//import org.ballerinalang.util.codegen.StructInfo;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -77,24 +77,24 @@ public class ClientSocketTest {
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Read size not match with the request size");
     }
 
-    @Test(dependsOnMethods = "testWriteReadContent",
-          description = "Test the connection closure")
-    public void testClosure() {
-        BRunUtil.invoke(socketClient, "closeSocket");
-    }
-
-    @Test(dependsOnMethods = "testClosure",
-          description = "Test connection open with properties")
-    public void testOpenWithProperties() {
-        int port = ThreadLocalRandom.current().nextInt(33000, 46000);
-        PackageInfo ioPackageInfo = socketClient.getProgFile().getPackageInfo("ballerina.io");
-        StructInfo socketProperties = ioPackageInfo.getStructInfo("SocketProperties");
-        BStruct propertyStruct = BLangVMStructs.createBStruct(socketProperties, port);
-        BValue[] args = { new BString("localhost"), new BInteger(port), propertyStruct };
-        final BValue[] returns = BRunUtil.invoke(socketClient, "openSocketConnectionWithProps", args);
-        final BStruct socket = (BStruct) returns[0];
-        Assert.assertEquals(socket.getIntField(1), port, "Client port didn't bind to assign port.");
-        args = new BValue[] { socket };
-        BRunUtil.invoke(socketClient, "close", args);
-    }
+//    @Test(dependsOnMethods = "testWriteReadContent",
+//          description = "Test the connection closure")
+//    public void testClosure() {
+//        BRunUtil.invoke(socketClient, "closeSocket");
+//    }
+//
+//    @Test(dependsOnMethods = "testClosure",
+//          description = "Test connection open with properties")
+//    public void testOpenWithProperties() {
+//        int port = ThreadLocalRandom.current().nextInt(33000, 46000);
+//        PackageInfo ioPackageInfo = socketClient.getProgFile().getPackageInfo("ballerina.io");
+//        StructInfo socketProperties = ioPackageInfo.getStructInfo("SocketProperties");
+//        BStruct propertyStruct = BLangVMStructs.createBStruct(socketProperties, port);
+//        BValue[] args = { new BString("localhost"), new BInteger(port), propertyStruct };
+//        final BValue[] returns = BRunUtil.invoke(socketClient, "openSocketConnectionWithProps", args);
+//        final BStruct socket = (BStruct) returns[0];
+//        Assert.assertEquals(socket.getIntField(1), port, "Client port didn't bind to assign port.");
+//        args = new BValue[] { socket };
+//        BRunUtil.invoke(socketClient, "close", args);
+//    }
 }

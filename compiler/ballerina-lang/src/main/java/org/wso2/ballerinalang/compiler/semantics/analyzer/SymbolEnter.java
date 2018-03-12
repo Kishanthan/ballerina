@@ -949,6 +949,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (varType.tag != TypeTags.BOOLEAN
                 && varType.tag != TypeTags.STRING
                 && varType.tag != TypeTags.INT
+                && varType.tag != TypeTags.CHAR
+                && varType.tag != TypeTags.BYTE
                 && varType.tag != TypeTags.FLOAT
                 && varType.tag != TypeTags.BLOB
                 && varType.tag != TypeTags.JSON

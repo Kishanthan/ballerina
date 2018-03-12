@@ -28,19 +28,23 @@ public class CodeAttributeInfo implements AttributeInfo {
     private int attributeNameIndex;
 
     private int maxLongLocalVars;
+    private int maxCharLocalVars;
+    private int maxByteLocalVars;
     private int maxDoubleLocalVars;
     private int maxStringLocalVars;
     private int maxIntLocalVars;
-    private int maxByteLocalVars;
+    private int maxBlobLocalVars;
     private int maxBValueLocalVars;
 
     // 4 bytes per register
 
     private int maxLongRegs;
+    private int maxCharRegs;
+    private int maxByteRegs;
     private int maxDoubleRegs;
     private int maxStringRegs;
     private int maxIntRegs;
-    private int maxByteRegs;
+    private int maxBlobRegs;
     private int maxBValueRegs;
 
     // Base code address in the instruction array
@@ -138,6 +142,48 @@ public class CodeAttributeInfo implements AttributeInfo {
         this.codeAddrs = codeAddrs;
     }
 
+    public int getMaxBlobLocalVars() {
+        return maxBlobLocalVars;
+    }
+
+    public void setMaxBlobLocalVars(int maxBlobLocalVars) {
+        this.maxBlobLocalVars = maxBlobLocalVars;
+    }
+
+    public int getMaxBlobRegs() {
+        return maxBlobRegs;
+    }
+
+    public void setMaxBlobRegs(int maxBlobRegs) {
+        this.maxBlobRegs = maxBlobRegs;
+    }
+
+    @Override
+    public Kind getKind() {
+        return Kind.CODE_ATTRIBUTE;
+    }
+
+    @Override
+    public int getAttributeNameIndex() {
+        return attributeNameIndex;
+    }
+
+    public int getMaxCharLocalVars() {
+        return maxCharLocalVars;
+    }
+
+    public void setMaxCharLocalVars(int maxCharLocalVars) {
+        this.maxCharLocalVars = maxCharLocalVars;
+    }
+
+    public int getMaxCharRegs() {
+        return maxCharRegs;
+    }
+
+    public void setMaxCharRegs(int maxCharRegs) {
+        this.maxCharRegs = maxCharRegs;
+    }
+
     public int getMaxByteLocalVars() {
         return maxByteLocalVars;
     }
@@ -153,15 +199,4 @@ public class CodeAttributeInfo implements AttributeInfo {
     public void setMaxByteRegs(int maxByteRegs) {
         this.maxByteRegs = maxByteRegs;
     }
-
-    @Override
-    public Kind getKind() {
-        return Kind.CODE_ATTRIBUTE;
-    }
-
-    @Override
-    public int getAttributeNameIndex() {
-        return attributeNameIndex;
-    }
-
 }

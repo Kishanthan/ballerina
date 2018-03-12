@@ -36,10 +36,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class StackFrame {
     long[] longRegs;
+    int[] charRegs;
+    int[] byteRegs;
     double[] doubleRegs;
     String[] stringRegs;
     int[] intRegs;
-    byte[][] byteRegs;
+    byte[][] blobRegs;
     BRefType[] refRegs;
 
     // Return address of the caller
@@ -77,11 +79,13 @@ public class StackFrame {
         CodeAttributeInfo codeAttribInfo = workerInfo.getCodeAttributeInfo();
 
         this.longRegs = new long[codeAttribInfo.getMaxLongRegs()];
+        this.charRegs = new int[codeAttribInfo.getMaxCharRegs()];
+        this.byteRegs = new int[codeAttribInfo.getMaxByteRegs()];
         this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
         this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
-        this.byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
-        Arrays.fill(this.byteRegs, new byte[0]);
+        this.blobRegs = new byte[codeAttribInfo.getMaxBlobRegs()][];
+        Arrays.fill(this.blobRegs, new byte[0]);
         this.refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
 
         this.retAddrs = retAddrs;
@@ -96,11 +100,13 @@ public class StackFrame {
         CodeAttributeInfo codeAttribInfo = workerInfo.getCodeAttributeInfo();
 
         this.longRegs = new long[codeAttribInfo.getMaxLongRegs()];
+        this.charRegs = new int[codeAttribInfo.getMaxCharRegs()];
+        this.byteRegs = new int[codeAttribInfo.getMaxByteRegs()];
         this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
         this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
-        this.byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
-        Arrays.fill(this.byteRegs, new byte[0]);
+        this.blobRegs = new byte[codeAttribInfo.getMaxBlobRegs()][];
+        Arrays.fill(this.blobRegs, new byte[0]);
         this.refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
 
         this.retAddrs = retAddrs;
@@ -110,6 +116,14 @@ public class StackFrame {
 
     public long[] getLongRegs() {
         return longRegs;
+    }
+
+    public int[] getCharRegs() {
+        return charRegs;
+    }
+
+    public int[] getByteRegs() {
+        return byteRegs;
     }
 
     public double[] getDoubleRegs() {
@@ -124,8 +138,8 @@ public class StackFrame {
         return intRegs;
     }
 
-    public byte[][] getByteRegs() {
-        return byteRegs;
+    public byte[][] getBlobRegs() {
+        return blobRegs;
     }
 
     public BRefType[] getRefRegs() {
@@ -134,6 +148,14 @@ public class StackFrame {
 
     public void setLongRegs(long[] longRegs) {
         this.longRegs = longRegs;
+    }
+
+    public void setCharRegs(int[] charRegs) {
+        this.charRegs = charRegs;
+    }
+
+    public void setByteRegs(int[] byteRegs) {
+        this.byteRegs = byteRegs;
     }
 
     public void setDoubleRegs(double[] doubleRegs) {
@@ -148,8 +170,8 @@ public class StackFrame {
         this.intRegs = intRegs;
     }
 
-    public void setByteRegs(byte[][] byteRegs) {
-        this.byteRegs = byteRegs;
+    public void setBlobRegs(byte[][] blobRegs) {
+        this.blobRegs = blobRegs;
     }
 
     public void setRefRegs(BRefType[] refRegs) {

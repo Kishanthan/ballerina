@@ -39,14 +39,18 @@ public final class BStruct implements BRefType, LockableStructureType {
 
     private long[] longFields;
     private VarLock[] longLocks;
+    private int[] charFields;
+    private VarLock[] charLocks;
+    private int[] byteFields;
+    private VarLock[] byteLocks;
     private double[] doubleFields;
     private VarLock[] doubleLocks;
     private String[] stringFields;
     private VarLock[] stringLocks;
     private int[] intFields;
     private VarLock[] intLocks;
-    private byte[][] byteFields;
-    private VarLock[] byteLocks;
+    private byte[][] blobFields;
+    private VarLock[] blobLocks;
     private BRefType[] refFields;
     private VarLock[] refLocks;
 
@@ -62,12 +66,14 @@ public final class BStruct implements BRefType, LockableStructureType {
 
         int[] fieldCount = this.structType.getFieldTypeCount();
         longFields = new long[fieldCount[0]];
-        doubleFields = new double[fieldCount[1]];
-        stringFields = new String[fieldCount[2]];
+        charFields = new int[fieldCount[1]];
+        byteFields = new int[fieldCount[2]];
+        doubleFields = new double[fieldCount[3]];
+        stringFields = new String[fieldCount[4]];
         Arrays.fill(stringFields, "");
-        intFields = new int[fieldCount[3]];
-        byteFields = new byte[fieldCount[4]][];
-        refFields = new BRefType[fieldCount[5]];
+        intFields = new int[fieldCount[5]];
+        blobFields = new byte[fieldCount[6]][];
+        refFields = new BRefType[fieldCount[7]];
     }
 
     /**
@@ -85,9 +91,11 @@ public final class BStruct implements BRefType, LockableStructureType {
     public String stringValue() {
         int stringIndex = 0,
                 intIndex = 0,
+                charIndex = 0,
+                byteIndex = 0,
                 longIndex = 0,
                 doubleIndex = 0,
-                byteIndex = 0,
+                blobIndex = 0,
                 refValIndex = 0;
 
         StringJoiner sj = new StringJoiner(", ", "{", "}");
@@ -99,12 +107,16 @@ public final class BStruct implements BRefType, LockableStructureType {
                 fieldVal = "\"" + stringFields[stringIndex++] + "\"";
             } else if (fieldType == BTypes.typeInt) {
                 fieldVal = longFields[longIndex++];
+            } else if (fieldType == BTypes.typeChar) {
+                fieldVal = (char) charFields[charIndex++];
+            } else if (fieldType == BTypes.typeByte) {
+                fieldVal = (byte) byteFields[byteIndex++];
             } else if (fieldType == BTypes.typeFloat) {
                 fieldVal = doubleFields[doubleIndex++];
             } else if (fieldType == BTypes.typeBoolean) {
                 fieldVal = intFields[intIndex++] == 1;
             } else if (fieldType == BTypes.typeBlob) {
-                byte[] blob = byteFields[byteIndex++];
+                byte[] blob = blobFields[blobIndex++];
                 fieldVal = blob == null ? null : new String(blob, StandardCharsets.UTF_8);
             } else {
                 BValue val = refFields[refValIndex++];
@@ -129,6 +141,27 @@ public final class BStruct implements BRefType, LockableStructureType {
     public void setIntField(int index, long value) {
         longFields[index] = value;
     }
+
+    @Override
+    public int getCharField(int index) {
+        return charFields[index];
+    }
+
+    @Override
+    public void setByteField(int index, int value) {
+        byteFields[index] = value;
+    }
+
+    @Override
+    public int getByteField(int index) {
+        return byteFields[index];
+    }
+
+    @Override
+    public void setCharField(int index, int value) {
+        charFields[index] = value;
+    }
+
 
     @Override
     public double getFloatField(int index) {
@@ -157,12 +190,12 @@ public final class BStruct implements BRefType, LockableStructureType {
 
     @Override
     public byte[] getBlobField(int index) {
-        return byteFields[index];
+        return blobFields[index];
     }
 
     @Override
     public void setBlobField(int index, byte[] value) {
-        byteFields[index] = value;
+        blobFields[index] = value;
     }
 
     @Override
@@ -209,6 +242,47 @@ public final class BStruct implements BRefType, LockableStructureType {
     @Override
     public void unlockIntField(int index) {
         longLocks[index].unlock();
+    }
+
+    @Override
+    public void lockCharField(int index) {
+        /*
+        TODO below synchronization is done on non final variable(which is getting changed in copy method)
+        This is ok for the time being as below synchronizations are only valid for global memory block which is
+        not getting copied, even in that case there shouldn't be a problem as synchronization always happens after
+        copying, but look into that when implementing locking support for struct fields and connector variables.
+         */
+        if (charLocks == null) {
+            synchronized (charFields) {
+                if (charLocks == null) {
+                    charLocks = new VarLock[charFields.length];
+                }
+            }
+        }
+        if (charLocks[index] == null) {
+            //locking the whole field array
+            synchronized (charFields) {
+                if (charLocks[index] == null) {
+                    charLocks[index] = new VarLock();
+                }
+            }
+        }
+        charLocks[index].lock();
+    }
+
+    @Override
+    public void unlockCharField(int index) {
+        charLocks[index].unlock();
+    }
+
+    @Override
+    public void lockByteField(int index) {
+        //TODO
+    }
+
+    @Override
+    public void unlockByteField(int index) {
+        //TODO
     }
 
     @Override
@@ -310,26 +384,26 @@ public final class BStruct implements BRefType, LockableStructureType {
         not getting copied, even in that case there shouldn't be a problem as synchronization always happens after
         copying, but look into that when implementing locking support for struct fields and connector variables.
          */
-        if (byteLocks == null) {
-            synchronized (byteFields) {
-                if (byteLocks == null) {
-                    byteLocks = new VarLock[byteFields.length];
+        if (blobLocks == null) {
+            synchronized (blobFields) {
+                if (blobLocks == null) {
+                    blobLocks = new VarLock[blobFields.length];
                 }
             }
         }
-        if (byteLocks[index] == null) {
-            synchronized (byteFields) {
-                if (byteLocks[index] == null) {
-                    byteLocks[index] = new VarLock();
+        if (blobLocks[index] == null) {
+            synchronized (blobFields) {
+                if (blobLocks[index] == null) {
+                    blobLocks[index] = new VarLock();
                 }
             }
         }
-        byteLocks[index].lock();
+        blobLocks[index].lock();
     }
 
     @Override
     public void unlockBlobField(int index) {
-        byteLocks[index].unlock();
+        blobLocks[index].unlock();
     }
 
     @Override
@@ -366,10 +440,12 @@ public final class BStruct implements BRefType, LockableStructureType {
     public BValue copy() {
         BStruct bStruct = new BStruct(structType);
         bStruct.longFields = Arrays.copyOf(longFields, longFields.length);
+        bStruct.charFields = Arrays.copyOf(charFields, charFields.length);
+        bStruct.byteFields = Arrays.copyOf(byteFields, byteFields.length);
         bStruct.doubleFields = Arrays.copyOf(doubleFields, doubleFields.length);
         bStruct.stringFields = Arrays.copyOf(stringFields, stringFields.length);
         bStruct.intFields = Arrays.copyOf(intFields, intFields.length);
-        bStruct.byteFields = Arrays.copyOf(byteFields, byteFields.length);
+        bStruct.blobFields = Arrays.copyOf(blobFields, blobFields.length);
         bStruct.refFields = Arrays.copyOf(refFields, refFields.length);
         return bStruct;
     }

@@ -25,6 +25,8 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BCharacter;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
@@ -97,15 +99,19 @@ public class ResourceExecutor {
         Arrays.fill(stringReg, BLangConstants.STRING_NULL_VALUE);
         int[] intRegs = new int[codeAttribInfo.getMaxIntRegs()];
         long[] longRegs = new long[codeAttribInfo.getMaxLongRegs()];
+        int[] charRegs = new int[codeAttribInfo.getMaxCharRegs()];
+        int[] byteRegs = new int[codeAttribInfo.getMaxByteRegs()];
         double[] doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
-        byte[][] byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
+        byte[][] blobRegs = new byte[codeAttribInfo.getMaxBlobRegs()][];
         BRefType[] refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
 
         int stringParamCount = 0;
         int intParamCount = 0;
         int doubleParamCount = 0;
-        int longParamCount = 0;
+        int charParamCount = 0;
         int byteParamCount = 0;
+        int longParamCount = 0;
+        int blobParamCount = 0;
         int refParamCount = 0;
         BType[] bTypes = resourceInfo.getParamTypes();
 
@@ -133,8 +139,12 @@ public class ResourceExecutor {
                     doubleRegs[doubleParamCount++] = ((BFloat) value).floatValue();
                 } else if (btype == BTypes.typeInt) {
                     longRegs[longParamCount++] = ((BInteger) value).intValue();
+                } else if (btype == BTypes.typeChar) {
+                    charRegs[charParamCount++] = ((BCharacter) value).charValue();
+                } else if (btype == BTypes.typeByte) {
+                    byteRegs[byteParamCount++] = ((BByte) value).byteValue();
                 } else if (btype == BTypes.typeBlob) {
-                    byteRegs[byteParamCount++] = ((BBlob) value).blobValue();
+                    blobRegs[blobParamCount++] = ((BBlob) value).blobValue();
                 } else if (value instanceof BStruct || value instanceof BRefValueArray || btype == BTypes.typeJSON ||
                         btype == BTypes.typeXML) {
                     refRegs[refParamCount++] = (BRefType) value;
@@ -147,10 +157,12 @@ public class ResourceExecutor {
 
         // It is given that first parameter of the resource is carbon message.
         calleeSF.setLongRegs(longRegs);
+        calleeSF.setCharRegs(charRegs);
+        calleeSF.setByteRegs(byteRegs);
         calleeSF.setDoubleRegs(doubleRegs);
         calleeSF.setStringRegs(stringReg);
         calleeSF.setIntRegs(intRegs);
-        calleeSF.setByteRegs(byteRegs);
+        calleeSF.setBlobRegs(blobRegs);
         calleeSF.setRefRegs(refRegs);
 
         // Execute workers

@@ -22,6 +22,9 @@ package org.wso2.ballerinalang.compiler.util;
  */
 public class TypeDescriptor {
     public static final String SIG_INT = "I";
+    //TODO sign for char "C" ?
+    public static final String SIG_CHAR = "X";
+    public static final String SIG_BYTE = "Z";
     public static final String SIG_FLOAT = "F";
     public static final String SIG_STRING = "S";
     public static final String SIG_BOOLEAN = "B";

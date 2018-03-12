@@ -85,7 +85,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
 
     public byte[] getBlobArgument(Context context, int index) {
         if (index > -1) {
-            byte[] result = context.getControlStack().getCurrentFrame().getByteRegs()[index];
+            byte[] result = context.getControlStack().getCurrentFrame().getBlobRegs()[index];
             if (result == null) {
                 throw new BallerinaException("argument " + index + " is null");
             }

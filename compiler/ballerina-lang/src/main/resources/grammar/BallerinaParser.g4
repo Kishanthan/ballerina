@@ -184,6 +184,8 @@ anonStructTypeName
 valueTypeName
     :   TYPE_BOOL
     |   TYPE_INT
+    |   TYPE_CHAR
+    |   TYPE_BYTE
     |   TYPE_FLOAT
     |   TYPE_STRING
     |   TYPE_BLOB
@@ -532,6 +534,7 @@ simpleLiteral
     |   (SUB)? FloatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
+    |	CharacterLiteral
     |   NullLiteral
     ;
     

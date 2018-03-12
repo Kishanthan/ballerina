@@ -46,6 +46,18 @@ public final class BString extends BValueType implements BRefType<String> {
     }
 
     @Override
+    public int charValue() {
+        //TODO
+        return 0;
+    }
+
+    @Override
+    public int byteValue() {
+        //TODO
+        return 0;
+    }
+
+    @Override
     public double floatValue() {
         double result;
         try {

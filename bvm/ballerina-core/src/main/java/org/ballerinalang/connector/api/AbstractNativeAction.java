@@ -103,7 +103,7 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
 
     public byte[] getBlobArgument(Context context, int index) {
         if (index > -1) {
-            return context.getControlStack().getCurrentFrame().getByteRegs()[index];
+            return context.getControlStack().getCurrentFrame().getBlobRegs()[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }
