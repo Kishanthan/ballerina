@@ -101,24 +101,6 @@ function testByteBinaryNotEqualOperation(byte a, byte b, byte c) (boolean, boole
     return b1, b2;
 }
 
-struct Person {
-    string name;
-    byte age = -1;
-    Person parent;
-}
-
-function testByteStructFields () (string, byte) {
-    Person p1 = {};
-
-    Person p2 = {name:"Jack", age:20, parent:p1};
-
-    p1.name = "Anne";
-    p1.age = 35;
-
-    return p1.name, p2.age;
-}
-
-
 function testWorkerWithByteVariable() {
    worker w1 {
      int a = 10;

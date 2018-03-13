@@ -93,6 +93,7 @@ public final class BStruct implements BRefType, LockableStructureType {
         int stringIndex = 0,
                 intIndex = 0,
                 charIndex = 0,
+                byteIndex = 0,
                 longIndex = 0,
                 doubleIndex = 0,
                 blobIndex = 0,
@@ -109,6 +110,8 @@ public final class BStruct implements BRefType, LockableStructureType {
                 fieldVal = longFields[longIndex++];
             } else if (fieldType == BTypes.typeChar) {
                 fieldVal = (char) charFields[charIndex++];
+            } else if (fieldType == BTypes.typeByte) {
+                fieldVal = (byte) byteFields[byteIndex++];
             } else if (fieldType == BTypes.typeFloat) {
                 fieldVal = doubleFields[doubleIndex++];
             } else if (fieldType == BTypes.typeBoolean) {
@@ -458,6 +461,7 @@ public final class BStruct implements BRefType, LockableStructureType {
         BStruct bStruct = new BStruct(structType);
         bStruct.longFields = Arrays.copyOf(longFields, longFields.length);
         bStruct.charFields = Arrays.copyOf(charFields, charFields.length);
+        bStruct.byteFields = Arrays.copyOf(byteFields, byteFields.length);
         bStruct.doubleFields = Arrays.copyOf(doubleFields, doubleFields.length);
         bStruct.stringFields = Arrays.copyOf(stringFields, stringFields.length);
         bStruct.intFields = Arrays.copyOf(intFields, intFields.length);

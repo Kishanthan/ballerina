@@ -559,7 +559,7 @@ simpleLiteral
     |   (SUB)? FloatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
-    |	CharacterLiteral
+    |   CharacterLiteral
     |   NullLiteral
     ;
 

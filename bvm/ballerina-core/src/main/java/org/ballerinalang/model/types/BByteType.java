@@ -18,7 +18,6 @@
 package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BCharacter;
 import org.ballerinalang.model.values.BValue;
 
 /**

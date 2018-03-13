@@ -18,7 +18,7 @@
 package org.ballerinalang.util.codegen.cpentries;
 
 /**
- * {@code CharacterCPEntry} represents a Ballerina char value in the constant pool.
+ * {@code CharacterCPEntry} represents a Ballerina character value in the constant pool.
  *
  * @since 0.964
  */
