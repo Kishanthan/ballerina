@@ -1835,11 +1835,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         DiagnosticPos pos = getCurrentPos(ctx);
         Set<Whitespace> ws = getWS(ctx);
         if ((node = ctx.IntegerLiteral()) != null) {
-            if (node.getParent().getParent().getParent().getText().startsWith("byte")) {
-                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BYTE, Byte.parseByte(getNodeValue(ctx, node)));
-            } else {
-                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node)));
-            }
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.parseLong(getNodeValue(ctx, node)));
         } else if ((node = ctx.CharacterLiteral()) != null) {
             String text = node.getText();
             text = text.substring(1, text.length() - 1);
