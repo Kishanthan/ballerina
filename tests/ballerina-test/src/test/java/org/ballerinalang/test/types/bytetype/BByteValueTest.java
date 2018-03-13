@@ -139,8 +139,8 @@ public class BByteValueTest {
         Assert.assertSame(returns[1].getClass(), BByteArray.class);
 
         BByteArray bByteArrayOut = (BByteArray) returns[1];
-        Assert.assertSame((byte) bByteArrayOut.get(0), input1);
-        Assert.assertSame((byte) bByteArrayOut.get(1), input2);
+        Assert.assertSame(bByteArrayOut.get(0), input1);
+        Assert.assertSame(bByteArrayOut.get(1), input2);
     }
 
     @Test(description = "Test integer to byte conversion")
@@ -193,10 +193,10 @@ public class BByteValueTest {
         Assert.assertSame(returns[0].getClass(), BByteArray.class);
         BByteArray bByteArrayOut = (BByteArray) returns[0];
 
-        Assert.assertSame((byte) bByteArrayOut.get(0), input1);
-        Assert.assertSame((byte) bByteArrayOut.get(1), input2);
-        Assert.assertSame((byte) bByteArrayOut.get(2), input3);
-        Assert.assertSame((byte) bByteArrayOut.get(3), input4);
+        Assert.assertSame(bByteArrayOut.get(0), input1);
+        Assert.assertSame(bByteArrayOut.get(1), input2);
+        Assert.assertSame(bByteArrayOut.get(2), input3);
+        Assert.assertSame(bByteArrayOut.get(3), input4);
     }
 
 
