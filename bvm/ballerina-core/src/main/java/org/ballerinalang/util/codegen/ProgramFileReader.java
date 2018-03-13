@@ -846,7 +846,7 @@ public class ProgramFileReader {
             case 'I':
                 typeStack.push(BTypes.typeInt);
                 return index + 1;
-            case 'X':
+            case 'H':
                 typeStack.push(BTypes.typeChar);
                 return index + 1;
             case 'Z':
@@ -952,7 +952,7 @@ public class ProgramFileReader {
         switch (ch) {
             case 'I':
                 return BTypes.typeInt;
-            case 'X':
+            case 'H':
                 return BTypes.typeChar;
             case 'Z':
                 return BTypes.typeByte;
