@@ -71,13 +71,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.LGLOAD] = "lgload";
         mnemonics[InstructionCodes.RGLOAD] = "rgload";
 
-//        mnemonics[InstructionCodes.ISTORE] = "istore";
-//        mnemonics[InstructionCodes.CSTORE] = "cstore";
-//        mnemonics[InstructionCodes.FSTORE] = "fstore";
-//        mnemonics[InstructionCodes.SSTORE] = "sstore";
-//        mnemonics[InstructionCodes.BSTORE] = "bstore";
-//        mnemonics[InstructionCodes.LSTORE] = "lstore";
-//        mnemonics[InstructionCodes.RSTORE] = "rstore";
         mnemonics[InstructionCodes.IASTORE] = "iastore";
         mnemonics[InstructionCodes.CASTORE] = "castore";
         mnemonics[InstructionCodes.BTASTORE] = "btastore";
@@ -181,6 +174,7 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.I2F] = "i2f";
         mnemonics[InstructionCodes.I2C] = "i2c";
+        mnemonics[InstructionCodes.I2BT] = "i2bt";
         mnemonics[InstructionCodes.I2S] = "i2s";
         mnemonics[InstructionCodes.I2B] = "i2b";
         mnemonics[InstructionCodes.I2ANY] = "i2any";
@@ -189,6 +183,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.C2F] = "c2f";
         mnemonics[InstructionCodes.C2S] = "c2s";
         mnemonics[InstructionCodes.C2ANY] = "c2any";
+        mnemonics[InstructionCodes.BT2I] = "bt2i";
         mnemonics[InstructionCodes.BT2ANY] = "bt2any";
         mnemonics[InstructionCodes.F2I] = "f2i";
         mnemonics[InstructionCodes.F2C] = "f2c";

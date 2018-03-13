@@ -84,13 +84,6 @@ public interface InstructionCodes {
     int JSONLOAD = 55;
     int ENUMERATORLOAD = 56;
 
-        int ISTORE = 53;
-//    int CSTORE = 54;
-//    int FSTORE = 55;
-//    int SSTORE = 56;
-//    int BSTORE = 57;
-//    int LSTORE = 58;
-//    int RSTORE = 59;
     int IASTORE = 57;
     int CASTORE = 58;
     int BTASTORE = 59;
@@ -217,8 +210,6 @@ public interface InstructionCodes {
     int T2JSON = 166;
     int MAP2T = 167;
     int JSON2T = 168;
-    //    int XML2JSON = 167;
-//    int JSON2XML = 168;
     int S2XML = 169;
     int XML2S = 170;
     int ANY2SCONV = 172;
@@ -287,7 +278,10 @@ public interface InstructionCodes {
     int ITR_HAS_NEXT = 224;
     int ITR_NEXT = 225;
 
-    //227, 228
+    int I2BT = 226;
+    int BT2I = 227;
+
+    //228
 
     int IRET = 229;
     int CRET = 230;

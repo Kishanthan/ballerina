@@ -168,8 +168,6 @@ public class CPU {
 
         boolean debugEnabled = ctx.programFile.getDebugger().isDebugEnabled();
 
-        traceCode(ctx.code);
-
         WorkerData currentSF, callersSF;
         int callersRetRegIndex;
 
@@ -309,12 +307,6 @@ public class CPU {
                     execLoadOpcodes(ctx, sf, opcode, operands);
                     break;
 
-//                case InstructionCodes.ISTORE:
-//                case InstructionCodes.FSTORE:
-//                case InstructionCodes.SSTORE:
-//                case InstructionCodes.BSTORE:
-//                case InstructionCodes.LSTORE:
-//                case InstructionCodes.RSTORE:
                 case InstructionCodes.IASTORE:
                 case InstructionCodes.CASTORE:
                 case InstructionCodes.BTASTORE:
@@ -563,12 +555,14 @@ public class CPU {
 
                 case InstructionCodes.I2F:
                 case InstructionCodes.I2C:
+                case InstructionCodes.I2BT:
                 case InstructionCodes.I2S:
                 case InstructionCodes.I2B:
                 case InstructionCodes.I2JSON:
                 case InstructionCodes.C2I:
                 case InstructionCodes.C2F:
                 case InstructionCodes.C2S:
+                case InstructionCodes.BT2I:
                 case InstructionCodes.F2I:
                 case InstructionCodes.F2C:
                 case InstructionCodes.F2S:
@@ -1303,41 +1297,6 @@ public class CPU {
         BMap<String, BRefType> bMap;
         BJSON jsonVal;
         switch (opcode) {
-//            case InstructionCodes.ISTORE:
-//                i = operands[0];
-//                lvIndex = operands[1];
-//                sf.longRegs[lvIndex] = sf.longRegs[i];
-//                break;
-//            case InstructionCodes.CSTORE:
-//                i = operands[0];
-//                lvIndex = operands[1];
-//                sf.charRegs[lvIndex] = sf.charRegs[i];
-//                break;
-//            case InstructionCodes.FSTORE:
-//                i = operands[0];
-//                lvIndex = operands[1];
-//                sf.doubleRegs[lvIndex] = sf.doubleRegs[i];
-//                break;
-//            case InstructionCodes.SSTORE:
-//                i = operands[0];
-//                lvIndex = operands[1];
-//                sf.stringRegs[lvIndex] = sf.stringRegs[i];
-//                break;
-//            case InstructionCodes.BSTORE:
-//                i = operands[0];
-//                lvIndex = operands[1];
-//                sf.intRegs[lvIndex] = sf.intRegs[i];
-//                break;
-//            case InstructionCodes.LSTORE:
-//                i = operands[0];
-//                lvIndex = operands[1];
-//                sf.blobRegs[lvIndex] = sf.blobRegs[i];
-//                break;
-//            case InstructionCodes.RSTORE:
-//                i = operands[0];
-//                lvIndex = operands[1];
-//                sf.refRegs[lvIndex] = sf.refRegs[i];
-//                break;
             case InstructionCodes.IASTORE:
                 i = operands[0];
                 j = operands[1];
@@ -2254,6 +2213,11 @@ public class CPU {
                 j = operands[1];
                 sf.charRegs[j] = (int) sf.longRegs[i];
                 break;
+            case InstructionCodes.I2BT:
+                i = operands[0];
+                j = operands[1];
+                sf.byteRegs[j] = (int) sf.longRegs[i];
+                break;
             case InstructionCodes.I2S:
                 i = operands[0];
                 j = operands[1];
@@ -2283,6 +2247,11 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 sf.stringRegs[j] = Character.toString((char) sf.charRegs[i]);
+                break;
+            case InstructionCodes.BT2I:
+                i = operands[0];
+                j = operands[1];
+                sf.longRegs[j] = (long) sf.byteRegs[i];
                 break;
             case InstructionCodes.F2I:
                 i = operands[0];

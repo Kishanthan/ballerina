@@ -322,7 +322,7 @@ public class BLangVMUtils {
                     break;
                 case TypeTags.BYTE_TAG:
                     local.byteRegs[byteParamCount] = ((BByte) args[i]).byteValue();
-                    charParamCount++;
+                    byteParamCount++;
                     break;
                 case TypeTags.FLOAT_TAG:
                     local.doubleRegs[doubleParamCount] = ((BFloat) args[i]).floatValue();

@@ -1439,13 +1439,6 @@ public class ProgramFileReader {
                 case InstructionCodes.BGLOAD:
                 case InstructionCodes.LGLOAD:
                 case InstructionCodes.RGLOAD:
-//                case InstructionCodes.ISTORE:
-//                case InstructionCodes.CSTORE:
-//                case InstructionCodes.FSTORE:
-//                case InstructionCodes.SSTORE:
-//                case InstructionCodes.BSTORE:
-//                case InstructionCodes.LSTORE:
-//                case InstructionCodes.RSTORE:
                 case InstructionCodes.IGSTORE:
                 case InstructionCodes.CGSTORE:
                 case InstructionCodes.BTGSTORE:
@@ -1595,12 +1588,14 @@ public class ProgramFileReader {
                 case InstructionCodes.NULL2JSON:
                 case InstructionCodes.I2F:
                 case InstructionCodes.I2C:
+                case InstructionCodes.I2BT:
                 case InstructionCodes.I2S:
                 case InstructionCodes.I2B:
                 case InstructionCodes.I2JSON:
                 case InstructionCodes.C2I:
                 case InstructionCodes.C2F:
                 case InstructionCodes.C2S:
+                case InstructionCodes.BT2I:
                 case InstructionCodes.F2I:
                 case InstructionCodes.F2C:
                 case InstructionCodes.F2S:

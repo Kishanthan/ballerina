@@ -53,16 +53,6 @@
                 </excludes>
             </resource>
         </resources>
-        <plugins>
-            <plugin>
-                <groupId>org.antlr</groupId>
-                <artifactId>antlr4-maven-plugin</artifactId>
-                <configuration>
-                    <sourceDirectory>src/main/resources/grammar</sourceDirectory>
-                    <!--<outputDirectory>src/main/java/org/wso2/ballerinalang/compiler/parser/antlr4</outputDirectory>-->
-                </configuration>
-            </plugin>
-        </plugins>
     </build>
 
     <properties>

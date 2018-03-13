@@ -349,9 +349,11 @@ public class SymbolTable {
         defineCastOperator(intType, anyType, true, InstructionCodes.I2ANY);
         defineCastOperator(intType, floatType, true, InstructionCodes.I2F);
         defineCastOperator(intType, charType, true, InstructionCodes.I2C);
+        defineCastOperator(intType, byteType, true, InstructionCodes.I2BT);
         defineCastOperator(charType, intType, true, InstructionCodes.C2I);
         defineCastOperator(charType, floatType, true, InstructionCodes.C2F);
         defineCastOperator(charType, anyType, true, InstructionCodes.C2ANY);
+        defineCastOperator(byteType, intType, true, InstructionCodes.BT2I);
         defineCastOperator(byteType, anyType, true, InstructionCodes.BT2ANY);
         defineCastOperator(floatType, jsonType, true, InstructionCodes.F2JSON);
         defineCastOperator(floatType, anyType, true, InstructionCodes.F2ANY);
@@ -390,9 +392,11 @@ public class SymbolTable {
         defineConversionOperator(intType, stringType, true, InstructionCodes.I2S);
         defineConversionOperator(intType, booleanType, true, InstructionCodes.I2B);
         defineConversionOperator(intType, charType, true, InstructionCodes.I2C);
+        defineConversionOperator(intType, byteType, true, InstructionCodes.I2BT);
         defineConversionOperator(charType, intType, true, InstructionCodes.C2I);
         defineConversionOperator(charType, floatType, true, InstructionCodes.C2F);
         defineConversionOperator(charType, stringType, true, InstructionCodes.C2S);
+        defineConversionOperator(byteType, intType, true, InstructionCodes.BT2I);
         defineConversionOperator(floatType, stringType, true, InstructionCodes.F2S);
         defineConversionOperator(floatType, booleanType, true, InstructionCodes.F2B);
         defineConversionOperator(floatType, intType, true, InstructionCodes.F2I);
