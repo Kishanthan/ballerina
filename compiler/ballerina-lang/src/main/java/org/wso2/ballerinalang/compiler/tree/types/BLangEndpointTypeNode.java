@@ -18,15 +18,20 @@
 package org.wso2.ballerinalang.compiler.tree.types;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.types.EndpointTypeNode;
+import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
  * @since 0.95
- *
  */
-@Deprecated
-public class BLangEndpointTypeNode extends BLangUserDefinedType {
-    public BLangUserDefinedType endpointType;
+public class BLangEndpointTypeNode extends BLangType implements EndpointTypeNode {
+    public BLangType constraint;
+
+    @Override
+    public TypeNode getConstraint() {
+        return constraint;
+    }
 
     @Override
     public NodeKind getKind() {
@@ -40,6 +45,6 @@ public class BLangEndpointTypeNode extends BLangUserDefinedType {
 
     @Override
     public String toString() {
-        return "endpoint<" + this.endpointType + ">";
+        return "endpoint<" + this.constraint.toString() + ">";
     }
 }

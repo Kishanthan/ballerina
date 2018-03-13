@@ -6,7 +6,7 @@ service<http> proxy {
     @http:resourceConfig {
         path:"/"
     }
-    resource sample (http:Connection conn, http:Request req) {
+    resource sample (http:Connection conn, http:InRequest req) {
         //Configure client connector forwarded/x-forwarded-- header behaviour by adding disable (default value), enable or transition.
         //Transition config converts available x-forwarded-- headers to forwarded header.
         endpoint<http:HttpClient> endPoint {
@@ -22,9 +22,9 @@ service<http> sample {
     @http:resourceConfig {
         path:"/"
     }
-    resource sampleResource (http:Connection conn, http:Request req) {
+    resource sampleResource (http:Connection conn, http:InRequest req) {
         string value = req.getHeader("forwarded");
-        http:Response res = {};
+        http:OutResponse res = {};
         res.setStringPayload("forwarded header value : " + value);
         _ = conn.respond(res);
     }

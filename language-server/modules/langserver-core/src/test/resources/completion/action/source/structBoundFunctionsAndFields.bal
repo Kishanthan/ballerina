@@ -2,7 +2,7 @@ import ballerina.net.http;
 
 connector testConnector () {
     action testAction () {
-        http:Response res = {};
+        http:OutResponse res = {};
         res.
     }
 }

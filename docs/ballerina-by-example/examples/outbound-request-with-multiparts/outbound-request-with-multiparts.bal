@@ -2,21 +2,16 @@ import ballerina.net.http;
 import ballerina.mime;
 import ballerina.file;
 
-endpoint<http:Service> multipartEP {
-    port:9092
-}
-
-endpoint<http:Client> clientEP {
-    serviceUri: "http://localhost:9090"
-}
-
-@http:serviceConfig { endpoints:[multipartEP] }
-service<http:Service> multiparts {
+@http:configuration {port:9092}
+service<http> multiparts {
     @http:resourceConfig {
         methods:["POST"],
         path:"/encoder"
     }
-    resource encodeMultiparts (http:ServerConnector conn, http:Request req) {
+    resource encodeMultiparts (http:Connection conn, http:InRequest req) {
+        endpoint<http:HttpClient> httpEndpoint {
+            create http:HttpClient("http://localhost:9090", {});
+        }
 
         //Create a json body part.
         mime:Entity jsonBodyPart = {};
@@ -30,8 +25,6 @@ service<http:Service> multiparts {
         mime:MediaType contentTypeOfFilePart = mime:getMediaType(mime:TEXT_XML);
         xmlFilePart.contentType = contentTypeOfFilePart;
         xmlFilePart.contentDisposition = getContentDispositionForFormData("xml file part");
-        //This file path is relative to where the ballerina is running. If your file is located outside, please
-        //give the absolute file path instead.
         file:File fileHandler = {path:"./files/test.xml"};
         xmlFilePart.setFileAsEntityBody(fileHandler);
 
@@ -46,16 +39,16 @@ service<http:Service> multiparts {
         //Create an array to hold all the body parts.
         mime:Entity[] bodyParts = [xmlBodyPart, xmlFilePart, jsonBodyPart];
 
-        http:Request request = {};
+        http:OutRequest request = {};
         //Set body parts to request. Here the content-type is set as multipart form data. This also works with any other
         //multipart media type. eg:- multipart/mixed, multipart/related etc... Just pass the content type that suit
         //your requirement.
         request.setMultiparts(bodyParts, mime:MULTIPART_FORM_DATA);
 
-        http:Response resp1 = {};
-        resp1, _ = clientEP -> post("/multiparts/decode_in_request", request);
+        http:InResponse resp1 = {};
+        resp1, _ = httpEndpoint.post("/multiparts/receivableParts", request);
 
-        _ = conn -> forward(resp1);
+        _ = conn.forward(resp1);
     }
 }
 

@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BEndpointType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -195,6 +196,12 @@ public class Types {
         }
 
         if (target.tag == TypeTags.TABLE && source.tag == TypeTags.TABLE) {
+            return true;
+        }
+
+        if (target.tag == TypeTags.ENDPOINT && source.tag == TypeTags.CONNECTOR
+                && checkConnectorEquivalency(source, ((BEndpointType) target).constraint)) {
+            //TODO do we need to resolve a nop implicit cast operation?
             return true;
         }
 

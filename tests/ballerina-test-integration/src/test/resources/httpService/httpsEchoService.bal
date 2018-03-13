@@ -1,68 +1,59 @@
 import ballerina.net.http;
 
-endpoint<http:Service> echoDummyEP {
-    port:9090
-}
-
-endpoint<http:Service> echoHttpEP {
-    port: 9094
-}
-
-endpoint<http:Service> echoEP {
-    port:9095,
-    ssl:{
-        keyStoreFile:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
-        keyStorePassword:"ballerina",
-        certPassword:"ballerina"
-    }
-}
-
-@http:serviceConfig {
+@http:configuration {
     basePath:"/echo",
-    endpoints: [echoEP]
+    httpsPort:9095,
+    keyStoreFile:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
+    keyStorePassword:"ballerina",
+    certPassword:"ballerina"
 }
+service<http> echo {
 
-service<http:Service> echo {
     @http:resourceConfig {
         methods:["POST"],
         path:"/"
     }
-    resource echo (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+    resource echo (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         res.setStringPayload("hello world");
-        _ = conn -> respond(res);
+        _ = conn.respond(res);
     }
 }
 
-@http:serviceConfig  {
+@http:configuration {
     basePath:"/echoOne",
-    endpoints: [echoHttpEP, echoEP]
+    port:9094,
+    httpsPort:9095,
+    keyStoreFile:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
+    keyStorePassword:"ballerina",
+    certPassword:"ballerina"
 }
-service<http:Service> echoOne {
+service<http> echoOne {
+
     @http:resourceConfig {
         methods:["POST"],
         path:"/abc"
     }
-    resource echoAbc (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+    resource echoAbc (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         res.setStringPayload("hello world");
-        _ = conn -> respond(res);
+        _ = conn.respond(res);
     }
 }
 
-@http:serviceConfig {
-    basePath:"/echoDummy",
-    endpoints: [echoDummyEP]
+
+@http:configuration {
+    basePath:"/echoDummy"
 }
-service<http:Service> echoDummy {
+service<http> echoDummy {
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/"
     }
-    resource echoDummy (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+    resource echoDummy (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         res.setStringPayload("hello world");
-        _ = conn -> respond(res);
+        _ = conn.respond(res);
     }
 }

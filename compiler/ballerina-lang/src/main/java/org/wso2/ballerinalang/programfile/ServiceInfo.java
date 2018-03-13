@@ -28,7 +28,7 @@ import java.util.Objects;
  */
 public class ServiceInfo extends StructureTypeInfo {
 
-    public int endpointNameCPIndex;
+    public int protocolPkgPathCPIndex;
 
     public Map<String, ResourceInfo> resourceInfoMap = new HashMap<>();
 
@@ -37,10 +37,10 @@ public class ServiceInfo extends StructureTypeInfo {
     public ServiceInfo(int pkgPathCPIndex,
                        int nameCPIndex,
                        int flags,
-                       int endpointNameCPIndex) {
+                       int protocolPkgPathCPIndex) {
 
         super(pkgPathCPIndex, nameCPIndex, flags);
-        this.endpointNameCPIndex = endpointNameCPIndex;
+        this.protocolPkgPathCPIndex = protocolPkgPathCPIndex;
     }
 
     @Override

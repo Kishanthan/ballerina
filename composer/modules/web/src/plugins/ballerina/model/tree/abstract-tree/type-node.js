@@ -16,9 +16,10 @@
  * under the License.
  */
 
+import Node from '../node';
 
-class TypeNodeAbstract {
+class AbstractTypeNode extends Node {
 
 }
 
-export default TypeNodeAbstract;
+export default AbstractTypeNode;

@@ -17,8 +17,6 @@
 */
 package org.ballerinalang.connector.api;
 
-import org.ballerinalang.util.codegen.ResourceInfo;
-
 import java.util.List;
 
 /**
@@ -59,5 +57,4 @@ public interface Resource {
      */
     List<ParamDetail> getParamDetails();
 
-    ResourceInfo getResourceInfo();
 }

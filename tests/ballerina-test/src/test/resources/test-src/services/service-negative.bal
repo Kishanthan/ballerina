@@ -1,12 +1,6 @@
 import ballerina.io;
 import ballerina.net.http;
-import ballerina.net.http.mock;
-
-endpoint<mock:NonListeningService> echoEP {
-    port:9090
-}
-
-service<http:Service> FooService {
+service<http> FooService {
 
     resource test1 (string dummyParam) {
         io:println("test1-before");

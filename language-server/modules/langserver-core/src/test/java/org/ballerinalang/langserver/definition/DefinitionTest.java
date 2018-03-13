@@ -23,6 +23,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +55,7 @@ public class DefinitionTest {
         balFile2Content = new String(encoded2);
     }
 
-//    @Test(description = "Test goto definition for local functions", dataProvider = "localFuncPosition")
+    @Test(description = "Test goto definition for local functions", dataProvider = "localFuncPosition")
     public void definitionForLocalFunctionsTest(Position position, DefinitionTestDataModel dataModel)
             throws InterruptedException, IOException {
         Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position,
@@ -64,7 +65,7 @@ public class DefinitionTest {
                         + " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
-//    @Test(description = "Test goto definition for structs", dataProvider = "structPositions")
+    @Test(description = "Test goto definition for structs", dataProvider = "structPositions")
     public void definitionForStructsTest(Position position, DefinitionTestDataModel dataModel)
             throws InterruptedException, IOException {
         Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position,
@@ -74,7 +75,7 @@ public class DefinitionTest {
                         + " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
-//    @Test(description = "Test goto definition for global variables", dataProvider = "globalVariablePositions")
+    @Test(description = "Test goto definition for global variables", dataProvider = "globalVariablePositions")
     public void definitionForGlobalVariablesTest(Position position, DefinitionTestDataModel dataModel)
             throws InterruptedException, IOException {
         Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position,
@@ -84,7 +85,7 @@ public class DefinitionTest {
                         " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
-//    @Test(description = "Test goto definition for local variables", dataProvider = "localVariablePositions")
+    @Test(description = "Test goto definition for local variables", dataProvider = "localVariablePositions")
     public void definitionForLocalVariablesTest(Position position, DefinitionTestDataModel dataModel)
             throws InterruptedException, IOException {
         Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position,

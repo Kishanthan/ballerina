@@ -21,10 +21,8 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +32,6 @@ import java.util.List;
  */
 public class BLangAnnotationAttachment extends BLangNode implements AnnotationAttachmentNode {
 
-    public BLangExpression expr;
-    @Deprecated
     public List<BLangAnnotAttachmentAttribute> attributes;
     public BLangIdentifier annotationName;
     public BLangAnnotationAttachmentPoint attachmentPoint;
@@ -57,13 +53,11 @@ public class BLangAnnotationAttachment extends BLangNode implements AnnotationAt
     }
 
     @Override
-    @Deprecated
     public void addAttribute(AnnotationAttachmentAttributeNode attribute) {
         attributes.add((BLangAnnotAttachmentAttribute) attribute);
     }
 
     @Override
-    @Deprecated
     public List<BLangAnnotAttachmentAttribute> getAttributes() {
         return attributes;
     }
@@ -91,16 +85,6 @@ public class BLangAnnotationAttachment extends BLangNode implements AnnotationAt
     @Override
     public String toString() {
         return "BLangAnnotationAttachment: " + annotationName + " " + attributes;
-    }
-
-    @Override
-    public BLangExpression getExpression() {
-        return expr;
-    }
-
-    @Override
-    public void setExpression(ExpressionNode expression) {
-        this.expr = (BLangExpression) expression;
     }
 
 }

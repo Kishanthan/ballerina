@@ -7,10 +7,10 @@ service<http> multiparts {
         methods:["POST"],
         path:"/receivableParts"
     }
-    resource receiveMultiparts (http:Connection conn, http:Request req) {
+    resource receiveMultiparts (http:Connection conn, http:InRequest req) {
         //Extract multiparts from the inbound request.
         var bodyParts, payloadError = req.getMultiparts();
-        http:Response res = {};
+        http:OutResponse res = {};
         if (payloadError == null) {
             int i = 0;
             io:println("Content-Type of top level entity > " + req.getHeader("content-type"));

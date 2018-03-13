@@ -54,9 +54,5 @@ public enum Flag {
     /**
      * Indicates Flagged node is deprecated.
      */
-    DEPRECATED,
-    /**
-     * Indicates Flagged node is an enpoint.
-     */
-    ENDPOINT
+    DEPRECATED
 }

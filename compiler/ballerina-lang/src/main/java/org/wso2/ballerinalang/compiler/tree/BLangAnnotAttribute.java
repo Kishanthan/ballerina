@@ -36,7 +36,6 @@ import java.util.Set;
 /**
  * @since 0.94
  */
-@Deprecated
 public class BLangAnnotAttribute extends BLangNode implements AnnotationAttributeNode {
 
     public BLangType typeNode;

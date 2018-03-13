@@ -18,7 +18,6 @@
 package org.ballerinalang.langserver.completions;
 
 import org.ballerinalang.langserver.LanguageServerContext;
-import org.ballerinalang.langserver.TextDocumentServiceContext;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
@@ -44,13 +43,5 @@ public class CompletionKeys {
     public static final LanguageServerContext.Key<Integer> TRANSACTION_COUNT_KEY
             = new LanguageServerContext.Key<>();
     public static final LanguageServerContext.Key<Boolean> INVOCATION_STATEMENT_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<TextDocumentServiceContext> COMPLETION_META_CONTEXT_KEY
-            = new LanguageServerContext.Key<>();
-    
-    // Meta context Keys
-    public static final LanguageServerContext.Key<Boolean> META_CONTEXT_IS_ENDPOINT_KEY
-            = new LanguageServerContext.Key<>();
-    public static final LanguageServerContext.Key<String> META_CONTEXT_ENDPOINT_NAME_KEY
             = new LanguageServerContext.Key<>();
 }

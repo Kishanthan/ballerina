@@ -17,7 +17,8 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.model.types.BServiceType;
+import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,9 +31,8 @@ import java.util.Objects;
  */
 public class ServiceInfo extends StructureTypeInfo {
 
-    private BServiceType serviceType;
-    private int endpointNameCPIndex;
-    private String endpointName;
+    private int protocolPkgPathCPIndex;
+    private String protocolPkgPath;
 
     private Map<String, ResourceInfo> resourceInfoMap = new HashMap<>();
 
@@ -40,19 +40,19 @@ public class ServiceInfo extends StructureTypeInfo {
 
     public ServiceInfo(int pkgPathCPIndex, String packageName,
                        int nameCPIndex, String serviceName, int flags,
-                       int endpointNameCPIndex, String endpointName) {
+                       int protocolPkgPathCPIndex, String protocolPkgPath) {
 
         super(pkgPathCPIndex, packageName, nameCPIndex, serviceName, flags);
-        this.endpointNameCPIndex = endpointNameCPIndex;
-        this.endpointName = endpointName;
+        this.protocolPkgPathCPIndex = protocolPkgPathCPIndex;
+        this.protocolPkgPath = protocolPkgPath;
     }
 
-    public int getEndpointNameCPIndex() {
-        return endpointNameCPIndex;
+    public int getProtocolPkgPathCPIndex() {
+        return protocolPkgPathCPIndex;
     }
 
-    public String getEndpointName() {
-        return endpointName;
+    public String getProtocolPkgPath() {
+        return protocolPkgPath;
     }
 
     public ResourceInfo[] getResourceInfoEntries() {
@@ -75,14 +75,6 @@ public class ServiceInfo extends StructureTypeInfo {
         this.initFuncInfo = initFuncInfo;
     }
 
-    public BServiceType getType() {
-        return serviceType;
-    }
-
-    public void setType(BServiceType serviceType) {
-        this.serviceType = serviceType;
-    }
-
     @Override
     public int hashCode() {
         return Objects.hash(pkgPathCPIndex, nameCPIndex);
@@ -95,8 +87,17 @@ public class ServiceInfo extends StructureTypeInfo {
                 && nameCPIndex == (((ServiceInfo) obj).nameCPIndex);
     }
 
-    @Deprecated
     public AnnAttachmentInfo getAnnotationAttachmentInfo(String packageName, String annotationName) {
+        AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) getAttributeInfo(
+                AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
+        if (attributeInfo == null || packageName == null || annotationName == null) {
+            return null;
+        }
+        for (AnnAttachmentInfo annotationInfo : attributeInfo.getAttachmentInfoEntries()) {
+            if (packageName.equals(annotationInfo.getPkgPath()) && annotationName.equals(annotationInfo.getName())) {
+                return annotationInfo;
+            }
+        }
         return null;
     }
 

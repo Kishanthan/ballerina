@@ -32,7 +32,6 @@ import java.util.stream.Stream;
  */
 public class CorsPopulator {
 
-    @Deprecated
     public static void populateServiceCors(HttpService service) {
         CorsHeaders corsHeaders = populateAndGetCorsHeaders(
                 HttpUtil.getServiceConfigAnnotation(service.getBalService(), HttpConstants.HTTP_PACKAGE_PATH));
@@ -48,7 +47,6 @@ public class CorsPopulator {
         }
     }
 
-    @Deprecated
     public static void processResourceCors(HttpResource resource, HttpService service) {
         CorsHeaders corsHeaders = populateAndGetCorsHeaders(
                 HttpUtil.getResourceConfigAnnotation(resource.getBalResource(), HttpConstants.HTTP_PACKAGE_PATH));

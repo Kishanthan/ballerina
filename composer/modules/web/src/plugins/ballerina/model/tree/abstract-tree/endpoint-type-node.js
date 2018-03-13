@@ -22,10 +22,12 @@ import Node from '../node';
 class AbstractEndpointTypeNode extends Node {
 
 
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
+    setConstraint(newValue, silent, title) {
+        const oldValue = this.constraint;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
+        this.constraint = newValue;
+
+        this.constraint.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -33,7 +35,7 @@ class AbstractEndpointTypeNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'flags',
+                    attributeName: 'constraint',
                     newValue,
                     oldValue,
                 },
@@ -41,60 +43,8 @@ class AbstractEndpointTypeNode extends Node {
         }
     }
 
-    getFlags() {
-        return this.flags;
-    }
-
-
-    setPackageAlias(newValue, silent, title) {
-        const oldValue = this.packageAlias;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.packageAlias = newValue;
-
-        this.packageAlias.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'packageAlias',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getPackageAlias() {
-        return this.packageAlias;
-    }
-
-
-    setTypeName(newValue, silent, title) {
-        const oldValue = this.typeName;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.typeName = newValue;
-
-        this.typeName.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'typeName',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getTypeName() {
-        return this.typeName;
+    getConstraint() {
+        return this.constraint;
     }
 
 

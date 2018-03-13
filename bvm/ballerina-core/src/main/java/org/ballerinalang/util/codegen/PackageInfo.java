@@ -39,7 +39,7 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     private int pkgNameCPIndex;
     private String pkgPath;
-    private FunctionInfo initFunctionInfo, startFunctionInfo, stopFunctionInfo;
+    private FunctionInfo initFunctionInfo;
 
     private ConstantPoolEntry[] constPool;
     private List<ConstantPoolEntry> constantPoolEntries = new ArrayList<>();
@@ -279,22 +279,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public void setInitFunctionInfo(FunctionInfo initFunctionInfo) {
         this.initFunctionInfo = initFunctionInfo;
-    }
-
-    public FunctionInfo getStartFunctionInfo() {
-        return startFunctionInfo;
-    }
-
-    public void setStartFunctionInfo(FunctionInfo startFunctionInfo) {
-        this.startFunctionInfo = startFunctionInfo;
-    }
-
-    public FunctionInfo getStopFunctionInfo() {
-        return stopFunctionInfo;
-    }
-
-    public void setStopFunctionInfo(FunctionInfo stopFunctionInfo) {
-        this.stopFunctionInfo = stopFunctionInfo;
     }
 
     public void complete() {

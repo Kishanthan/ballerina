@@ -8,9 +8,9 @@ service<http> Bankinfo {
     @http:resourceConfig {
         methods:["POST"]
     }
-    resource product (http:Connection conn, http:Request req) {
+    resource product (http:Connection conn, http:InRequest req) {
         var jsonRequest, payloadError = req.getJsonPayload();
-        http:Response res = {};
+        http:OutResponse res = {};
         if (payloadError == null) {
             string branchCode;
             branchCode, _ = (string)jsonRequest.BranchInfo.BranchCode;

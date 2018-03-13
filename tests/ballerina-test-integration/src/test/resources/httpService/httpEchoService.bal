@@ -1,68 +1,59 @@
 import ballerina.net.http;
 
-endpoint<http:Service> echoEP1 {
+@http:configuration {
+    basePath:"/echo",
     port:9094
 }
-
-endpoint<http:Service> echoEP2 {
-    port:9090
-}
-
-@http:serviceConfig {
-    basePath:"/echo",
-    endpoints: [echoEP1]
-}
-service<http:Service> echo {
+service<http> echo {
     @http:resourceConfig {
         methods:["POST"],
         path:"/"
     }
-    resource echo (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+    resource echo (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         res.setStringPayload("hello world");
-        _ = conn -> respond(res);
+        _ = conn.respond(res);
     }
 }
 
-@http:serviceConfig {
+@http:configuration {
     basePath:"/echoOne",
-    endpoints: [echoEP1]
+    port:9094
 }
-service<http:Service> echoOne {
+service<http> echoOne {
     @http:resourceConfig {
         methods:["POST"],
         path:"/abc"
     }
-    resource echoAbc (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+    resource echoAbc (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         res.setStringPayload("hello world");
-        _ = conn -> respond(res);
+        _ = conn.respond(res);
     }
 }
 
-@http:serviceConfig {
-    basePath:"/echoDummy",
-    endpoints: [echoEP2]
+@http:configuration {
+    basePath:"/echoDummy"
 }
-service<http:Service> echoDummy {
+service<http> echoDummy {
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/"
     }
-    resource echoDummy (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+    resource echoDummy (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         res.setStringPayload("hello world");
-        _ = conn -> respond(res);
+        _ = conn.respond(res);
     }
 
     @http:resourceConfig {
         methods:["OPTIONS"],
         path:"/getOptions"
     }
-    resource echoOptions (http:ServerConnector conn, http:Request req) {
-        http:Response res = {};
+    resource echoOptions (http:Connection conn, http:InRequest req) {
+        http:OutResponse res = {};
         res.setStringPayload("hello Options");
-        _ = conn -> respond(res);
+        _ = conn.respond(res);
     }
 }

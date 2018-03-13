@@ -27,7 +27,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 /**
  * @since 0.94
  */
-@Deprecated
 public class BLangAnnotAttachmentAttribute extends BLangExpression implements AnnotationAttachmentAttributeNode {
 
     public BLangIdentifier name;

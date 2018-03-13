@@ -24,7 +24,7 @@ connector Participant2pcClient (string participantURL) {
     }
 
     action prepare (string transactionId) returns (string status, error err) {
-        http:Request req = {};
+        http:OutRequest req = {};
         PrepareRequest prepareReq = {transactionId:transactionId};
         var j, _ = <json>prepareReq;
         req.setJsonPayload(j);
@@ -58,7 +58,7 @@ connector Participant2pcClient (string participantURL) {
     action notify (string transactionId, string message) returns (string status,
                                                                   error participantErr,
                                                                   error communicationErr) {
-        http:Request req = {};
+        http:OutRequest req = {};
         NotifyRequest notifyReq = {transactionId:transactionId, message:message};
         var j, _ = <json>notifyReq;
         req.setJsonPayload(j);

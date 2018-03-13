@@ -175,9 +175,9 @@ service<http> helloServer {
         methods:["POST"],
         path:"/largepayload"
     }
-    resource getPayloadFromFileChannel (http:Connection conn, http:Request request) {
+    resource getPayloadFromFileChannel (http:Connection conn, http:InRequest request) {
         var byteChannel, _ = request.getByteChannel();
-        http:Response response = {};
+        http:OutResponse response = {};
         mime:Entity responseEntity = {};
         responseEntity.setByteChannel(byteChannel);
         response.setEntity(responseEntity);

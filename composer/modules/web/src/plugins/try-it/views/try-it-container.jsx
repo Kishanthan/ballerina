@@ -79,7 +79,7 @@ class TryItContainer extends React.Component {
         if (this.state.compilationUnit) {
             const services = this.state.compilationUnit.filterTopLevelNodes({ kind: 'Service' });
             return services.filter((serviceNode) => {
-                return serviceNode.getType() === type;
+                return serviceNode.getProtocolPackageIdentifier().getValue() === type;
             });
         } else {
             return [];
@@ -114,7 +114,7 @@ class TryItContainer extends React.Component {
      * @memberof TryItContainer
      */
     renderClientTypePills() {
-        const httpServices = this.filterServices('HttpService');
+        const httpServices = this.filterServices('http');
         const wsServices = this.filterServices('ws');
         const jmsServices = this.filterServices('jms');
         let activeKey;
@@ -144,7 +144,7 @@ class TryItContainer extends React.Component {
      * @memberof TryItContainer
      */
     renderClientView() {
-        const httpServices = this.filterServices('HttpService');
+        const httpServices = this.filterServices('http');
         const wsServices = this.filterServices('ws');
         const jmsServices = this.filterServices('jms');
         let clientType = '';

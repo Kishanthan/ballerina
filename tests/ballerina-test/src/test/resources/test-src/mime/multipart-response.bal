@@ -1,19 +1,13 @@
 import ballerina.net.http;
-import ballerina.net.http.mock;
 import ballerina.mime;
 import ballerina.file;
 
-endpoint<mock:NonListeningService> mockEP {
-    port:9090
-}
-
-@http:serviceConfig {endpoints:[mockEP]}
-service<http:Service> multipart {
+service<http> multipart {
     @http:resourceConfig {
         methods:["GET"],
         path:"/encode_out_response"
     }
-    resource multipartOutResponse (http:ServerConnector conn, http:Request request) {
+    resource multipartOutResponse (http:Connection conn, http:InRequest request) {
 
         //Create a body part with json content.
         mime:Entity bodyPart1 = {};
@@ -45,23 +39,23 @@ service<http:Service> multipart {
         mime:Entity[] bodyParts = [bodyPart1, bodyPart2, bodyPart3, bodyPart4];
 
         //Set the body parts to outbound response.
-        http:Response outResponse = {};
+        http:OutResponse outResponse = {};
         string contentType = mime:MULTIPART_MIXED + "; boundary=e3a0b9ad7b4e7cdb";
         outResponse.setMultiparts(bodyParts, contentType);
 
-        _ = conn -> respond(outResponse);
+        _ = conn.respond(outResponse);
     }
 
     @http:resourceConfig {
         methods:["POST"],
         path:"/nested_parts_in_outresponse"
     }
-    resource nestedPartsInOutResponse (http:ServerConnector conn, http:Request request) {
+    resource nestedPartsInOutResponse (http:Connection conn, http:InRequest request) {
 
         var bodyParts, _ = request.getMultiparts();
         string contentType = request.getHeader("content-type");
-        http:Response outResponse = {};
+        http:OutResponse outResponse = {};
         outResponse.setMultiparts(bodyParts, contentType);
-        _ = conn -> respond(outResponse);
+        _ = conn.respond(outResponse);
     }
 }

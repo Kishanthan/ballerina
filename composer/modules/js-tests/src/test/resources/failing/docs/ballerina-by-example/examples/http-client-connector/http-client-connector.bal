@@ -6,9 +6,9 @@ function main (string[] args) {
         create http:HttpClient("https://postman-echo.com", {});
     }
 
-    http:Request req = {};
+    http:OutRequest req = {};
     // Send a GET request to the specified endpoint
-    http:Response resp = {};
+    http:InResponse resp = {};
     resp, _ = httpEndpoint.get("/get?test=123", req);
     io:println("GET request:");
     var jsonPayload1, payloadError1 = resp.getJsonPayload();

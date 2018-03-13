@@ -39,7 +39,7 @@ public class AnnotationTest {
         compileResult = BCompileUtil.compile(this, "test-src", "lang/annotations/foo");
     }
 
-    @Test(description = "Test function annotation", enabled = false)
+    @Test(description = "Test function annotation")
     public void testFunctionAnnotation() {
         AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
                 .getEntryPackage().getFunctionInfo("foo")
@@ -71,7 +71,7 @@ public class AnnotationTest {
                 "test @Args annotation");
     }
 
-    @Test(description = "Test function parameter annotation", enabled = false)
+    @Test(description = "Test function parameter annotation")
     public void testParameterAnnotation() {
         AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
                 .getEntryPackage().getFunctionInfo("foo")
@@ -82,7 +82,7 @@ public class AnnotationTest {
         // Assert.assertEquals(attributeValue, "args: input parameter : type string");
     }
 
-    @Test(description = "Test service annotation", enabled = false)
+    @Test(description = "Test service annotation")
     public void testServiceAnnotation() {
         AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
                 .getEntryPackage().getServiceInfo("PizzaService")
@@ -92,7 +92,7 @@ public class AnnotationTest {
         Assert.assertEquals(attributeValue, "Pizza service");
     }
 
-    @Test(description = "Test resource annotation", enabled = false)
+    @Test(description = "Test resource annotation")
     public void testResourceAnnotation() {
         AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
                 .getEntryPackage().getServiceInfo("PizzaService").getResourceInfoEntries()[1]
@@ -114,7 +114,7 @@ public class AnnotationTest {
         // Assert.assertEquals(paramAnnotVal, "input parameter for oderPizza resource");
     }
 
-    @Test(description = "Test connector annotation", enabled = false)
+    @Test(description = "Test connector annotation")
     public void testConnectorAnnotation() {
         AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
                 .getEntryPackage().getConnectorInfoEntries()[0]
@@ -124,7 +124,7 @@ public class AnnotationTest {
         Assert.assertEquals(attributeValue, "Test connector");
     }
 
-    @Test(description = "Test action annotation", enabled = false)
+    @Test(description = "Test action annotation")
     public void testActionAnnotation() {
         AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
                 .getEntryPackage().getConnectorInfoEntries()[0].getActionInfoEntries()[1]
@@ -134,7 +134,7 @@ public class AnnotationTest {
         Assert.assertEquals(attributeValue, "Test action of test connector");
     }
 
-    @Test(description = "Test struct annotation", enabled = false)
+    @Test(description = "Test struct annotation")
     public void testStructAnnotation() {
         AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
                 .getEntryPackage().getStructInfo("Person")
@@ -144,7 +144,7 @@ public class AnnotationTest {
         Assert.assertEquals(attributeValue, "User defined struct : Person");
     }
 
-    @Test(description = "Test constant annotation", enabled = false)
+    @Test(description = "Test constant annotation")
     public void testConstantAnnotation() {
 //        if (varNode.symbol.flags == Flags.CONST) {
 //            PackageVarInfo varInfo = currentPkgInfo.pkgVarInfoMap.get(varNode.getName().getValue());
@@ -164,7 +164,7 @@ public class AnnotationTest {
 //        Assert.assertEquals(attributeValue, "Constant holding the name of the current ballerina program");
     }
 
-    @Test(description = "Test self annotating and annotation", enabled = false)
+    @Test(description = "Test self annotating and annotation")
     public void testSelfAnnotating() {
         CompileResult bLangProgram = BCompileUtil.compile(this, "test-src", "lang/annotations/doc/");
         // TODO Annotation definitions are not available complied program entry package
@@ -179,7 +179,7 @@ public class AnnotationTest {
 //        Assert.assertEquals(attributeValue, "first query param name");
     }
 
-    @Test(description = "Test annotation array", enabled = false)
+    @Test(description = "Test annotation array")
     public void testAnnotationArray() {
         AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
                 .getEntryPackage().getFunctionInfo("foo")
@@ -204,18 +204,18 @@ public class AnnotationTest {
 
     }
 
-    @Test(description = "Test annotation attachment package valdation", enabled = false)
+    @Test(description = "Test annotation attachment package valdation")
     public void testValidAnnoatationAttachmentPackage() {
         Assert.assertNotNull(BCompileUtil.compile(this, "test-src", "lang/annotations/pkg/valid").getProgFile());
     }
 
-    @Test(description = "Test constant as annotation attribute value", enabled = false)
+    @Test(description = "Test constant as annotation attribute value")
     public void testConstAsAttributeValue() {
         Assert.assertNotNull(BCompileUtil
                 .compile(this, "test-src", "lang/annotations/constant-as-attribute-value.bal").getProgFile());
     }
 
-    @Test(description = "Test transformer annotation", enabled = false)
+    @Test(description = "Test transformer annotation")
     public void testTransformerAnnotation() {
         AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
                 .getEntryPackage().getTransformerInfo("Bar")
@@ -227,7 +227,7 @@ public class AnnotationTest {
 
     // Negative tests
 
-    @Test(description = "Test child annotation from a wrong package", enabled = false)
+    @Test(description = "Test child annotation from a wrong package")
     public void testInvalidChildAnnotation() {
         CompileResult resNegative = BCompileUtil.compile(this, "test-src",
                 "lang/annotations/invalid-child-annotation.bal");
@@ -236,7 +236,7 @@ public class AnnotationTest {
                 "found 'Args'", 3, 24);
     }
 
-    @Test(description = "Test array value for a non-array type attribute", enabled = false)
+    @Test(description = "Test array value for a non-array type attribute")
     public void testInvalidArrayValuedAttribute() {
         CompileResult resultNegative = BCompileUtil
                 .compile(this, "test-src", "lang/annotations/invalid-array-valued-attribute.bal");
@@ -244,7 +244,7 @@ public class AnnotationTest {
         BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected a 'string', found an array", 3, 1);
     }
 
-    @Test(description = "Test non-array value for a array type attribute", enabled = false)
+    @Test(description = "Test non-array value for a array type attribute")
     public void testInvalidSingleValuedAttribute() {
         CompileResult resultNegative = BCompileUtil
                 .compile(this, "test-src", "lang/annotations/invalid-single-valued-attribute.bal");
@@ -254,7 +254,7 @@ public class AnnotationTest {
                         "found 'lang.annotations.doc:QueryParam'", 3, 35);
     }
 
-    @Test(description = "Test multi-typed attribute value array", enabled = false)
+    @Test(description = "Test multi-typed attribute value array")
     public void testMultiTypedAttributeArray() {
         CompileResult resultNegative = BCompileUtil
                 .compile(this, "test-src", "lang/annotations/multityped-attribute-array.bal");
@@ -264,7 +264,7 @@ public class AnnotationTest {
 
     }
 
-    @Test(description = "Test an annotation attached in a wrong point", enabled = false)
+    @Test(description = "Test an annotation attached in a wrong point")
     public void testWronglyAttachedAnnot() {
         CompileResult resultNegative = BCompileUtil
                 .compile(this, "test-src", "lang/annotations/wrongly-attached-annot.bal");
@@ -273,7 +273,7 @@ public class AnnotationTest {
                 "annotation 'Bar' is not allowed in function", 7, 1);
     }
 
-    @Test(description = "Test child annotation with an invalid attribute value", enabled = false)
+    @Test(description = "Test child annotation with an invalid attribute value")
     public void testInvalidInnerAttribute() {
         CompileResult resultNegative = BCompileUtil
                 .compile(this, "test-src", "lang/annotations/invalid-inner-attributes.bal");
@@ -282,7 +282,7 @@ public class AnnotationTest {
                 "incompatible types: expected 'string', found 'int'", 4, 16);
     }
 
-    @Test(description = "Test an invalid service annotation", enabled = false)
+    @Test(description = "Test an invalid service annotation")
     public void testInvalidServiceAnnotation() {
         CompileResult resultNegative = BCompileUtil
                 .compile(this, "test-src", "lang/annotations/invalid-service-annotation.bal");
@@ -291,7 +291,7 @@ public class AnnotationTest {
                 "incompatible types: expected 'string', found 'int'", 4, 24);
     }
 
-    @Test(description = "Test an invalid resource annotation", enabled = false)
+    @Test(description = "Test an invalid resource annotation")
     public void testInvalidResourceAnnotation() {
         CompileResult resultNegative = BCompileUtil
                 .compile(this, "test-src", "lang/annotations/invalid-resource-annotation.bal");
@@ -300,7 +300,7 @@ public class AnnotationTest {
                 "incompatible types: expected 'string', found 'int'", 13, 28);
     }
 
-    @Test(description = "Test an invalid connector annotation", enabled = false)
+    @Test(description = "Test an invalid connector annotation")
     public void testInvalidConnectorAnnotation() {
         CompileResult resultNegative = BCompileUtil
                 .compile(this, "test-src", "lang/annotations/invalid-connector-annotation.bal");
@@ -309,7 +309,7 @@ public class AnnotationTest {
                 "incompatible types: expected 'string', found 'int'", 3, 24);
     }
 
-    @Test(description = "Test an invalid action annotation", enabled = false)
+    @Test(description = "Test an invalid action annotation")
     public void testInvalidActionAnnotation() {
         CompileResult resultNegative = BCompileUtil
                 .compile(this, "test-src", "lang/annotations/invalid-action-annotation.bal");
@@ -318,7 +318,7 @@ public class AnnotationTest {
                 "incompatible types: expected 'string', found 'int'", 6, 28);
     }
 
-    @Test(description = "Test an invalid struct annotation", enabled = false)
+    @Test(description = "Test an invalid struct annotation")
     public void testInvalidStructAnnotation() {
         CompileResult resultNegative = BCompileUtil
                 .compile(this, "test-src", "lang/annotations/invalid-struct-annotation.bal");
@@ -327,7 +327,7 @@ public class AnnotationTest {
                 "incompatible types: expected 'string', found 'int'", 3, 24);
     }
 
-    @Test(description = "Test an invalid constant annotation", enabled = false)
+    @Test(description = "Test an invalid constant annotation")
     public void testInvalidConstantAnnotation() {
         CompileResult resultNegative = BCompileUtil
                 .compile(this, "test-src", "lang/annotations/invalid-constant-annotation.bal");
@@ -337,7 +337,7 @@ public class AnnotationTest {
     }
 
     @Test(description = "Test invalid annotation attachment for service where annotation attachment is only valid" +
-            "for given protocol package", enabled = false)
+            "for given protocol package")
     public void testInvalidAttachmentInServiceWithDifferentProtocolPkg() {
         CompileResult resultNegative = BCompileUtil.compile(this, "test-src", "lang/annotations/pkg/error1");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
@@ -347,7 +347,7 @@ public class AnnotationTest {
     }
 
     @Test(description = "Test invalid annotation attachment for service where annotation attachment is only valid" +
-            "for annotation def protocol package", enabled = false)
+            "for annotation def protocol package")
     public void testInvalidAttachmentInServiceWhenAttachPointIsDifferentPkg() {
         CompileResult resultNegative = BCompileUtil.compile(this, "test-src", "lang/annotations/pkg/error2");
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
@@ -356,7 +356,7 @@ public class AnnotationTest {
                         "service<lang.annotations.pkg.first>", 5, 1);
     }
 
-    @Test(description = "Test global variable as annotation attribute value", enabled = false)
+    @Test(description = "Test global variable as annotation attribute value")
     public void testVariableAsAttributeValue() {
         CompileResult resultNegative = BCompileUtil
                 .compile(this, "test-src", "lang/annotations/variable-as-attribute-value.bal");
@@ -365,7 +365,7 @@ public class AnnotationTest {
                 "annotation attribute value should be either constant reference or a basic literal", 4, 1);
     }
 
-    @Test(description = "Test type mismatch in annotation attribute value", enabled = false)
+    @Test(description = "Test type mismatch in annotation attribute value")
     public void testTypeMismatchInAttributeValue() {
         CompileResult resultNegative = BCompileUtil
                 .compile(this, "test-src", "lang/annotations/attribute-value-type-mismatch.bal");
@@ -374,7 +374,7 @@ public class AnnotationTest {
                 "incompatible types: expected 'string', found 'int'", 4, 15);
     }
 
-    @Test(description = "Test default values for annotation", enabled = false)
+    @Test(description = "Test default values for annotation")
     public void testDefaultValues() {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src", "lang/annotations/default-values.bal");
         AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()

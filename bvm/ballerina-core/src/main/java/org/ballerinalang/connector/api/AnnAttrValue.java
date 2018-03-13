@@ -23,7 +23,6 @@ package org.ballerinalang.connector.api;
  *
  * @since 0.94
  */
-@Deprecated
 public interface AnnAttrValue {
 
     /**

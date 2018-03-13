@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -53,18 +54,39 @@ public class BLangProgramRunner {
         // Invoke package init function
         BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
 
-        BLangFunctions.invokeVMUtilFunction(servicesPackage.getStartFunctionInfo());
-
         deployTransactionCoordinatorServices(programFile);
+
+        int serviceCount = 0;
+        for (ServiceInfo serviceInfo : servicesPackage.getServiceInfoEntries()) {
+            deployService(serviceInfo, programFile);
+            serviceCount++;
+        }
+
+        if (serviceCount == 0) {
+            throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
+        }
     }
 
     private static void deployTransactionCoordinatorServices(ProgramFile programFile) {
         PackageInfo coordinatorPkgInfo = programFile.getPackageInfo("ballerina.transactions.coordinator");
+        ServiceInfo[] coordinatorServices;
         if (coordinatorPkgInfo != null) {
             coordinatorPkgInfo.setProgramFile(programFile);
-            BLangFunctions.invokePackageInitFunction(coordinatorPkgInfo.getInitFunctionInfo());
-            BLangFunctions.invokeVMUtilFunction(coordinatorPkgInfo.getStartFunctionInfo());
+            coordinatorServices = coordinatorPkgInfo.getServiceInfoEntries();
+            if (coordinatorServices != null) {
+                for (ServiceInfo coordinatorService : coordinatorServices) {
+                    deployService(coordinatorService, programFile);
+                }
+            }
         }
+    }
+
+    private static void deployService(ServiceInfo serviceInfo, ProgramFile programFile) {
+        // Invoke service init function
+        BLangFunctions.invokeServiceInitFunction(serviceInfo.getInitFunctionInfo());
+
+        // Deploy service
+        programFile.getServerConnectorRegistry().registerService(serviceInfo);
     }
 
     public static void runMain(ProgramFile programFile, String[] args) {
@@ -78,22 +100,18 @@ public class BLangProgramRunner {
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
-        try {
-            BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo, extractMainArgs(args));
-        } finally {
-            if (debugger.isDebugEnabled()) {
-                debugger.notifyExit();
-            }
-            BLangFunctions.invokeVMUtilFunction(mainPkgInfo.getStopFunctionInfo());
+        BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo, extractMainArgs(args));
+        if (debugger.isDebugEnabled()) {
+            debugger.notifyExit();
         }
     }
-
+    
     private static BValue[] extractMainArgs(String[] args) {
         BStringArray arrayArgs = new BStringArray();
         for (int i = 0; i < args.length; i++) {
             arrayArgs.add(i, args[i]);
         }
-        return new BValue[] {arrayArgs};
+        return new BValue[] { arrayArgs };
     }
 
     private static void initDebugger(ProgramFile programFile, Debugger debugger) {

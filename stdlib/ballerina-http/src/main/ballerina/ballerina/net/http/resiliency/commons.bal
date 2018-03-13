@@ -33,9 +33,9 @@ enum HttpOperation {
 }
 
 // makes the actual endpoints call according to the http operation passed in.
-public function invokeEndpoint (string path, http:Request outRequest, http:Request inRequest,
+public function invokeEndpoint (string path, http:OutRequest outRequest, http:InRequest inRequest,
                                 HttpOperation requestAction, http:HttpClient httpClient)
-(http:Response, http:HttpConnectorError) {
+(http:InResponse, http:HttpConnectorError) {
 
     endpoint<http:HttpClient> endPoint {
     }

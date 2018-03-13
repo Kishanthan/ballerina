@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.completions.util.Priority;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class EndpointDefContextItemSorter extends CompletionItemSorter {
         if (!(bLangVariable.typeNode instanceof BLangEndpointTypeNode)) {
             return;
         }
-        String constraintType = ((BLangEndpointTypeNode) bLangVariable.typeNode).endpointType
+        String constraintType = ((BLangUserDefinedType) ((BLangEndpointTypeNode) bLangVariable.typeNode).constraint)
                 .type.toString();
         completionItems.forEach(completionItem -> {
             if (completionItem.getDetail().equals(ItemResolverConstants.FUNCTION_TYPE)) {

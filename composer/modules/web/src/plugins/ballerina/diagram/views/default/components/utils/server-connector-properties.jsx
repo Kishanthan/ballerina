@@ -53,6 +53,10 @@ class ServerConnectorProperties extends React.Component {
      */
     render() {
         const bBox = this.props.bBox;
+        const titleHeight = panel.heading.height;
+        const iconSize = 14;
+        const protocolOffset = 50;
+        let protocolClassName = 'protocol-rect';
         if (!_.isEmpty(this.props.model.viewState.overlayContainer)) {
             protocolClassName = 'protocol-rect-clicked';
         }
@@ -74,7 +78,7 @@ class ServerConnectorProperties extends React.Component {
                     alignmentBaseline='middle'
                     textAnchor='middle'
                     className='protocol-label'
-                >{this.props.model.getType()}</text>
+                >{this.props.model.getProtocolPackageIdentifier().value}</text>
             </g>
         );
     }

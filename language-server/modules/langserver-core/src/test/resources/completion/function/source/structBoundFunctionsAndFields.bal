@@ -1,7 +1,7 @@
 import ballerina.net.http;
 
 function testFunction () {
-    http:Response res = {};
+    http:OutResponse res = {};
     res.
 }
 

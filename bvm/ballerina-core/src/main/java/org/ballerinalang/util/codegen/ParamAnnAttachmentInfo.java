@@ -26,7 +26,6 @@ import java.util.List;
  *
  * @since 0.87
  */
-@Deprecated
 public class ParamAnnAttachmentInfo {
     private int paramIdex;
 
@@ -40,12 +39,10 @@ public class ParamAnnAttachmentInfo {
         return paramIdex;
     }
 
-    @Deprecated
     public AnnAttachmentInfo[] getAnnAttachmentInfos() {
         return attachmentList.toArray(new AnnAttachmentInfo[0]);
     }
 
-    @Deprecated
     public void addAnnotationAttachmentInfo(AnnAttachmentInfo attachmentInfo) {
         attachmentList.add(attachmentInfo);
     }

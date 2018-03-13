@@ -22,6 +22,33 @@ import StatementNode from '../statement-node';
 class AbstractBindNode extends StatementNode {
 
 
+    setVariable(newValue, silent, title) {
+        const oldValue = this.variable;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.variable = newValue;
+
+        this.variable.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'variable',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getVariable() {
+        return this.variable;
+    }
+
+
+
     setExpression(newValue, silent, title) {
         const oldValue = this.expression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -47,31 +74,6 @@ class AbstractBindNode extends StatementNode {
         return this.expression;
     }
 
-
-    setVariable(newValue, silent, title) {
-        const oldValue = this.variable;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.variable = newValue;
-
-        this.variable.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'variable',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getVariable() {
-        return this.variable;
-    }
 
 
 }

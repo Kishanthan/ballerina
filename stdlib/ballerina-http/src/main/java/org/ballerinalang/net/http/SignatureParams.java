@@ -24,8 +24,6 @@ import org.ballerinalang.model.types.TypeTags;
 
 import java.util.List;
 
-import static org.ballerinalang.net.http.compiler.ResourceSignatureValidator.COMPULSORY_PARAM_COUNT;
-
 /**
  * This class holds the resource signature parameters.
  *
@@ -33,11 +31,12 @@ import static org.ballerinalang.net.http.compiler.ResourceSignatureValidator.COM
  */
 public class SignatureParams {
 
+    private static final int compulsoryParamCount = 2;
     private HttpResource resource;
     private final List<ParamDetail> paramDetails;
     private ParamDetail entityBody;
     private List<ParamDetail> pathParams;
-    private int paramCount = COMPULSORY_PARAM_COUNT;
+    private int paramCount = compulsoryParamCount;
 
     SignatureParams(HttpResource resource, List<ParamDetail> paramDetails) {
         this.resource = resource;
@@ -45,13 +44,34 @@ public class SignatureParams {
     }
 
     void validate() {
+        if (paramDetails.size() < compulsoryParamCount) {
+            throw new BallerinaConnectorException("resource signature parameter count should be >= 2");
+        }
+        if (!isValidResourceParam(paramDetails.get(0), HttpConstants.CONNECTION)) {
+            throw new BallerinaConnectorException("first parameter should be of type - "
+                    + HttpConstants.PROTOCOL_PACKAGE_HTTP + ":" + HttpConstants.CONNECTION);
+        }
+        if (!isValidResourceParam(paramDetails.get(1), HttpConstants.IN_REQUEST)) {
+            throw new BallerinaConnectorException("second parameter should be of type - "
+                    + HttpConstants.PROTOCOL_PACKAGE_HTTP + ":" + HttpConstants.IN_REQUEST);
+        }
+        if (paramDetails.size() == compulsoryParamCount) {
+            return;
+        }
+
         if (resource.getEntityBodyAttributeValue() == null) {
-            validatePathParam(paramDetails.subList(COMPULSORY_PARAM_COUNT, paramDetails.size()));
+            validatePathParam(paramDetails.subList(compulsoryParamCount, paramDetails.size()));
         } else {
             int lastParamIndex = paramDetails.size() - 1;
-            validatePathParam(paramDetails.subList(COMPULSORY_PARAM_COUNT, lastParamIndex));
+            validatePathParam(paramDetails.subList(compulsoryParamCount, lastParamIndex));
             validateEntityBodyParam(paramDetails.get(lastParamIndex));
         }
+    }
+
+    private boolean isValidResourceParam(ParamDetail paramDetail, String varTypeName) {
+        String packagePath = paramDetail.getVarType().getPackagePath();
+        return packagePath != null && packagePath.equals(HttpConstants.PROTOCOL_PACKAGE_HTTP)
+                && paramDetail.getVarType().getName().equals(varTypeName);
     }
 
     private void validatePathParam(List<ParamDetail> paramDetails) {

@@ -133,17 +133,6 @@ class ServiceNode extends AbstractServiceNode {
     getFullPackageName(fullPackageName) {
         return this._fullPackageName;
     }
-
-
-    /**
-     * Returns the type of the service.
-     *
-     * @memberof ServiceNode
-     */
-    getType() {
-        return this.endpointType.typeName.value;
-    }
-
 }
 
 export default ServiceNode;

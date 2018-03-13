@@ -42,8 +42,6 @@ public interface ConnectorNode extends AnnotatableNode, DocumentableNode, TopLev
     
     void addAction(ActionNode action);
 
-    List<? extends EndpointNode> getEndpointNodes();
-
     void setInitFunction(FunctionNode function);
 
     FunctionNode getInitFunction();

@@ -84,7 +84,7 @@
     }, {
       "label": "inRequest",
       "kind": "Unit",
-      "detail": "ballerina.net.http:Request",
+      "detail": "ballerina.net.http:InRequest",
       "sortText": "PRIORITY7",
       "insertText": "inRequest"
     }, {

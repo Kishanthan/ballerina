@@ -22,7 +22,6 @@ package org.ballerinalang.connector.api;
  *
  * @since 0.94
  */
-@Deprecated
 public enum AnnotationValueType {
     INT, FLOAT, STRING, BOOLEAN, ARRAY, ANNOTATION
 }

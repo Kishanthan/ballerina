@@ -8,7 +8,7 @@ service<http> multiparts {
         methods:["GET"],
         path:"/encode_out_response"
     }
-    resource multipartSender (http:Connection conn, http:Request req) {
+    resource multipartSender (http:Connection conn, http:InRequest req) {
 
         //Create an enclosing entity to hold child parts.
         mime:Entity parentPart = {};
@@ -36,7 +36,7 @@ service<http> multiparts {
 
         //Create an array to hold the parent part and set it to response.
         mime:Entity[] immediatePartsToResponse = [parentPart];
-        http:Response outResponse = {};
+        http:OutResponse outResponse = {};
         outResponse.setMultiparts(immediatePartsToResponse, mime:MULTIPART_FORM_DATA);
 
         _ = conn.respond(outResponse);
