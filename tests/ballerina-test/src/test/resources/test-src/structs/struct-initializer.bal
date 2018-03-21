@@ -41,4 +41,3 @@ function testStructInitializerOrder() returns (int, string){
     employee p = {age: 40};
     return (p.age, p.name);
 }
-
