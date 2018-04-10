@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -47,9 +48,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -373,35 +376,58 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @param bSymbol symbol to resolve and find the associated closure variable.
      * @return resolved closure variable for the given symbol.
      */
-    public BLangVariable findClosureVar(SymbolEnv env, BSymbol bSymbol) {
+    public BVarSymbol findClosureVarSymbol(SymbolEnv env, BSymbol bSymbol) {
         BLangNode enclEnvNode = env.enclEnv.node;
         if (enclEnvNode instanceof BLangBlockStmt) {
-            Optional<BLangStatement> statement = ((BLangBlockStmt) enclEnvNode).stmts.stream()
-                    .filter(stmt -> (stmt instanceof BLangVariableDef) &&
-                            bSymbol.equals(((BLangVariableDef) stmt).getVariable().symbol))
-                    .findFirst();
-            if (statement.isPresent()) {
-                ((BLangFunction) env.enclInvokable).closureVarList.add(((BLangVariableDef) statement.get()).
-                        getVariable());
-                return  ((BLangVariableDef) statement.get()).getVariable();
+            BLangBlockStmt blockStmt = ((BLangBlockStmt) enclEnvNode);
+            Optional<BVarSymbol> bVarSymbol = findFromVarDefStatement(bSymbol, blockStmt);
+            if (!bVarSymbol.isPresent() && bSymbol.owner.equals(blockStmt.scope.owner)) {
+                bVarSymbol = findFromAssignmentStatement(bSymbol, blockStmt);
+            }
+            if (bVarSymbol.isPresent()) {
+                return bVarSymbol.get();
             }
         } else if (enclEnvNode instanceof BLangFunction) {
             Optional<BLangVariable> var = ((BLangFunction) enclEnvNode).requiredParams.stream()
                     .filter(param -> bSymbol.equals(param.symbol))
                     .findFirst();
             if (var.isPresent()) {
-                return var.get();
+                return var.get().symbol;
+            }
+        } else if (enclEnvNode instanceof BLangObject) {
+            BLangObject bLangObject = (BLangObject) enclEnvNode;
+            Optional<BLangVariable> var = bLangObject.fields.stream()
+                    .filter(variable -> bSymbol.equals(variable.symbol))
+                    .findFirst();
+            if (var.isPresent()) {
+                return ((BLangFunction) env.enclInvokable).receiver.symbol;
             }
         }
 
         if (env.enclEnv != null && env.enclInvokable != null) {
-            BLangVariable closureVar = findClosureVar(env.enclEnv, bSymbol);
-            if (closureVar != symTable.notFoundVariable) {
-                ((BLangFunction) env.enclInvokable).closureVarList.add(closureVar);
+            BVarSymbol closureVarSymbol = findClosureVarSymbol(env.enclEnv, bSymbol);
+            if (closureVarSymbol != symTable.notFoundVarSymbol && !env.enclInvokable.flagSet.contains(Flag.ATTACHED)) {
+                ((BLangFunction) env.enclInvokable).closureVarSymbols.add(closureVarSymbol);
             }
-            return closureVar;
+            return closureVarSymbol;
         }
-        return symTable.notFoundVariable;
+        return symTable.notFoundVarSymbol;
+    }
+
+    private Optional<BVarSymbol> findFromAssignmentStatement(BSymbol bSymbol, BLangBlockStmt blockStmt) {
+        return blockStmt.stmts.stream()
+                .filter(stmt -> (stmt instanceof BLangAssignment) &&
+                        bSymbol.equals(((BLangSimpleVarRef)(((BLangAssignment) stmt).varRef)).symbol))
+                .map(stmt -> ((BLangSimpleVarRef)(((BLangAssignment) stmt).varRef)).symbol)
+                .findFirst();
+    }
+
+    private Optional<BVarSymbol> findFromVarDefStatement(BSymbol bSymbol, BLangBlockStmt blockStmt) {
+        return blockStmt.stmts.stream()
+                .filter(stmt -> (stmt instanceof BLangVariableDef) &&
+                        bSymbol.equals(((BLangVariableDef) stmt).getVariable().symbol))
+                .map(stmt -> ((BLangVariableDef) stmt).getVariable().symbol)
+                .findFirst();
     }
 
     /**

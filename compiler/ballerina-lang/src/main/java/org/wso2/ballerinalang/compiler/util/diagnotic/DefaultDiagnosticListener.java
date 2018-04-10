@@ -23,6 +23,10 @@ import org.ballerinalang.util.diagnostic.Diagnostic.Kind;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * @since 0.94
@@ -31,20 +35,29 @@ public class DefaultDiagnosticListener implements DiagnosticListener {
 
     private PrintStream console = System.err;
 
+    private List<Diagnostic> diagnostics =  new ArrayList<>();
+
     @Override
     public void received(Diagnostic diagnostic) {
-        BDiagnostic diag = (BDiagnostic) diagnostic;
-        DiagnosticPosition pos = ((BDiagnostic) diagnostic).pos;
-        Kind kind = diag.kind;
-        switch (kind) {
-            case ERROR:
-                console.println("error: " + pos + " " + diag.msg);
-                break;
-            case WARNING:
-                console.println("warning: " + pos + " " + diag.msg);
-                break;
-            case NOTE:
-                break;
-        }
+        diagnostics.add(diagnostic);
+    }
+
+    public void process() {
+        diagnostics.sort(Comparator.comparingInt(diag ->  diag.getPosition().getStartLine()));
+        diagnostics.forEach(diag -> {
+            BDiagnostic bDIag = ((BDiagnostic) diag);
+            DiagnosticPosition pos = bDIag.pos;
+            Kind kind = bDIag.kind;
+            switch (kind) {
+                case ERROR:
+                    console.println("error: " + pos + " " + bDIag.msg);
+                    break;
+                case WARNING:
+                    console.println("warning: " + pos + " " + bDIag.msg);
+                    break;
+                case NOTE:
+                    break;
+            }
+        });
     }
 }

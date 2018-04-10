@@ -57,7 +57,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
@@ -389,9 +388,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualType = varSym.type;
                 if (env.enclInvokable != null && env.enclInvokable.flagSet.contains(Flag.LAMBDA) &&
                         env.enclEnv.enclEnv != null) {
-                    BLangVariable closureVar = symResolver.findClosureVar(env.enclEnv, symbol);
-                    if (closureVar != symTable.notFoundVariable) {
-                        ((BLangFunction) env.enclInvokable).closureVarList.add(closureVar);
+                    BVarSymbol closureVarSymbol = symResolver.findClosureVarSymbol(env.enclEnv, symbol);
+                    if (closureVarSymbol != symTable.notFoundVarSymbol) {
+                        ((BLangFunction) env.enclInvokable).closureVarSymbols.add(closureVarSymbol);
                     }
                 }
             } else {

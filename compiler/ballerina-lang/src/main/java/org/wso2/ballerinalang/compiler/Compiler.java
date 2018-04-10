@@ -119,6 +119,7 @@ public class Compiler {
 
     public ProgramFile getExecutableProgram(BLangPackage entryPackageNode) {
         if (dlog.errorCount > 0) {
+            dlog.printErrors();
             return null;
         }
         return this.binaryFileWriter.genExecutable(entryPackageNode);
