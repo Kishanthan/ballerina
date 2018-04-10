@@ -372,7 +372,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     /**
      * Recursively analyse the symbol env to find the closure variable that is being resolved.
      *
-     * @param env symbol env to analyse and find the closure variable.
+     * @param env     symbol env to analyse and find the closure variable.
      * @param bSymbol symbol to resolve and find the associated closure variable.
      * @return resolved closure variable for the given symbol.
      */
@@ -417,8 +417,8 @@ public class SymbolResolver extends BLangNodeVisitor {
     private Optional<BVarSymbol> findFromAssignmentStatement(BSymbol bSymbol, BLangBlockStmt blockStmt) {
         return blockStmt.stmts.stream()
                 .filter(stmt -> (stmt instanceof BLangAssignment) &&
-                        bSymbol.equals(((BLangSimpleVarRef)(((BLangAssignment) stmt).varRef)).symbol))
-                .map(stmt -> ((BLangSimpleVarRef)(((BLangAssignment) stmt).varRef)).symbol)
+                        bSymbol.equals(((BLangSimpleVarRef) (((BLangAssignment) stmt).varRef)).symbol))
+                .map(stmt -> ((BLangSimpleVarRef) (((BLangAssignment) stmt).varRef)).symbol)
                 .findFirst();
     }
 
