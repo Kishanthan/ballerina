@@ -534,4 +534,30 @@ function testLocalVarModifyWithinClosureScope() returns (float){
     return (fsum);
 }
 
+function testVariableShadowingWithLambdaBasic() returns function (float) returns (string){
+    int b = 4;
+    int a = 9;
+
+    if (a < 10) {
+        int a = 4;
+        b = a + b;
+    }
+
+    var foo = (float f) => (string) {
+        if (a > 8) {
+            int a = 6;
+            b = a + <int>f + b;
+        }
+        return "K" + b;
+    };
+    return foo;
+}
+
+
+function test27() returns string {
+    var foo = testVariableShadowingWithLambdaBasic();
+    string a = foo(3.4);
+    return a;
+}
+
 

@@ -197,4 +197,11 @@ public class ClosureTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
     }
+
+    @Test(description = "Test variable shadowing with lambda basic")
+    public void testVariableShadowingWithLambdaBasic() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "test27");
+        Assert.assertEquals((returns[0]).stringValue(), "OutMost48Out49In38Ballerina!!!");
+    }
+
 }
