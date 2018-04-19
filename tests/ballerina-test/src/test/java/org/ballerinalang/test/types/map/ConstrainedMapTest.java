@@ -84,9 +84,7 @@ public class ConstrainedMapTest {
             expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*error: error, message: cannot find key 'names'.*")
     public void testConstrainedMapValueTypeNegative() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedMapValueTypeNegative");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), null);
+        BRunUtil.invoke(compileResult, "testConstrainedMapValueTypeNegative");
     }
 
     @Test(description = "Test Map constrained with value type index based value retrieval positive case.")
