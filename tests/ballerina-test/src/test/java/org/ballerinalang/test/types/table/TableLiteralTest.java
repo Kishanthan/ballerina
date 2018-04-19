@@ -57,7 +57,7 @@ public class TableLiteralTest {
         resultHelper = BCompileUtil.compile("test-src/types/table/table_test_helper.bal");
     }
 
-    @Test(enabled = false) //Issue #5106
+    @Test
     public void testEmptyTableCreate() {
         BValue[] returns = BRunUtil.invoke(result, "testEmptyTableCreate");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
