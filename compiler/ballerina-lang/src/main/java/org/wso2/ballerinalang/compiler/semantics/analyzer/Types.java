@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -818,7 +819,14 @@ public class Types {
 
             if (s.tag == TypeTags.STRUCT && checkStructEquivalency(s, t)) {
                 return createConversionOperatorSymbol(s, t, true, InstructionCodes.NOP);
-            } else if (s.tag == TypeTags.STRUCT || s.tag == TypeTags.ANY) {
+            } else if (s.tag == TypeTags.STRUCT) {
+                boolean isLhsToRhsEq = checkStructEquivalency(t, s);
+                if (!isLhsToRhsEq) {
+                    throw new BLangCompilerException("types '" + s.toString() + "' and '" + t.toString() +
+                            "' are not equivalent");
+                }
+                return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
+            } else if (s.tag == TypeTags.ANY) {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
             } else if (s.tag == TypeTags.MAP) {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.MAP2T);

@@ -119,6 +119,7 @@ public enum DiagnosticCode {
     INCOMPATIBLE_TYPES_CAST_WITH_SUGGESTION("incompatible.types.cast.with.suggestion"),
     INCOMPATIBLE_TYPES_CONVERSION("incompatible.types.conversion"),
     INCOMPATIBLE_TYPES_CONVERSION_WITH_SUGGESTION("incompatible.types.conversion.with.suggestion"),
+    INCOMPATIBLE_TYPES_CONVERSION_WITH_ERROR("incompatible.types.conversion.with.error"),
     UNSAFE_CAST_ATTEMPT("unsafe.cast.attempt"),
     UNSAFE_CONVERSION_ATTEMPT("unsafe.conversion.attempt"),
 

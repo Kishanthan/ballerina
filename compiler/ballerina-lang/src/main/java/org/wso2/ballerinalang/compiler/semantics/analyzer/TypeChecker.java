@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -785,7 +786,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangTypeConversionExpr conversionExpr) {
         // Set error type as the actual type.
-        BType actualType;
+        BType actualType = null;
 
         BType targetType = symResolver.resolveTypeNode(conversionExpr.typeNode, env);
         conversionExpr.targetType = targetType;
@@ -793,10 +794,21 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (conversionExpr.transformerInvocation == null) {
             // Lookup for built-in type conversion operator symbol
-            BSymbol symbol = symResolver.resolveConversionOperator(sourceType, targetType);
+            BSymbol symbol = symTable.notFoundSymbol;
+            try {
+                symbol = symResolver.resolveConversionOperator(sourceType, targetType);
+            } catch (BLangCompilerException e) {
+                dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION_WITH_ERROR, sourceType,
+                        targetType);
+            }
             if (symbol == symTable.notFoundSymbol) {
                 // If not found, look for unnamed transformers for the given types
-                actualType = checkUnNamedTransformerInvocation(conversionExpr, sourceType, targetType);
+                try {
+                    actualType = checkUnNamedTransformerInvocation(conversionExpr, sourceType, targetType);
+                } catch (BLangCompilerException e) {
+                    dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION_WITH_ERROR, sourceType,
+                            targetType);
+                }
             } else {
                 BConversionOperatorSymbol conversionSym = (BConversionOperatorSymbol) symbol;
                 conversionExpr.conversionSymbol = conversionSym;
@@ -806,7 +818,9 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = checkNamedTransformerInvocation(conversionExpr, sourceType, targetType);
         }
 
-        resultType = types.checkType(conversionExpr, actualType, expType);
+        if (actualType != null) {
+            resultType = types.checkType(conversionExpr, actualType, expType);
+        }
     }
 
     @Override
