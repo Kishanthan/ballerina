@@ -287,89 +287,115 @@ public class BLangFunctions {
 
     private static int expandLongRegs(WorkerData sf, BFunctionPointer fp) {
         int longIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeInt.getTag()) > 0) {
-            if (sf.longRegs == null) {
-                sf.longRegs = new long[0];
-            }
-            long[] newLongRegs = new long[sf.longRegs.length + fp.getAdditionalIndexCount(BTypes.typeInt.getTag())];
-            System.arraycopy(sf.longRegs, 0, newLongRegs, 0, sf.longRegs.length);
-            longIndex = sf.longRegs.length;
-            sf.longRegs = newLongRegs;
+        int additionalLongIndex = fp.getAdditionalIndexCount(BTypes.typeInt.getTag());
+
+        if (additionalLongIndex == 0) {
+            return longIndex;
         }
+
+        if (sf.longRegs == null) {
+            sf.longRegs = new long[0];
+        }
+
+        long[] newLongRegs = new long[sf.longRegs.length + additionalLongIndex];
+        System.arraycopy(sf.longRegs, 0, newLongRegs, 0, sf.longRegs.length);
+        longIndex = sf.longRegs.length;
+        sf.longRegs = newLongRegs;
         return longIndex;
     }
 
     private static int expandIntRegs(WorkerData sf, BFunctionPointer fp) {
         int intIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag()) > 0) {
-            if (sf.intRegs == null) {
-                sf.intRegs = new int[0];
-            }
-            int[] newIntRegs = new int[sf.intRegs.length + fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag())];
-            System.arraycopy(sf.intRegs, 0, newIntRegs, 0, sf.intRegs.length);
-            intIndex = sf.intRegs.length;
-            sf.intRegs = newIntRegs;
+        int additionalIntIndex = fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag());
+
+        if (additionalIntIndex == 0) {
+            return intIndex;
         }
+
+        if (sf.intRegs == null) {
+            sf.intRegs = new int[0];
+        }
+
+        int[] newIntRegs = new int[sf.intRegs.length + additionalIntIndex];
+        System.arraycopy(sf.intRegs, 0, newIntRegs, 0, sf.intRegs.length);
+        intIndex = sf.intRegs.length;
+        sf.intRegs = newIntRegs;
         return intIndex;
     }
 
     private static int expandDoubleRegs(WorkerData sf, BFunctionPointer fp) {
         int doubleIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeFloat.getTag()) > 0) {
-            if (sf.doubleRegs == null) {
-                sf.doubleRegs = new double[0];
-            }
-            double[] newDoubleRegs = new double[sf.doubleRegs.length +
-                    fp.getAdditionalIndexCount(BTypes.typeFloat.getTag())];
-            System.arraycopy(sf.doubleRegs, 0, newDoubleRegs, 0, sf.doubleRegs.length);
-            doubleIndex = sf.intRegs.length;
-            sf.doubleRegs = newDoubleRegs;
+        int additionalDoubleIndex = fp.getAdditionalIndexCount(BTypes.typeFloat.getTag());
+
+        if (additionalDoubleIndex == 0) {
+            return doubleIndex;
         }
+
+        if (sf.doubleRegs == null) {
+            sf.doubleRegs = new double[0];
+        }
+
+        double[] newDoubleRegs = new double[sf.doubleRegs.length + additionalDoubleIndex];
+        System.arraycopy(sf.doubleRegs, 0, newDoubleRegs, 0, sf.doubleRegs.length);
+        doubleIndex = sf.intRegs.length;
+        sf.doubleRegs = newDoubleRegs;
         return doubleIndex;
     }
 
     private static int expandStringRegs(WorkerData sf, BFunctionPointer fp) {
         int stringIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeString.getTag()) > 0) {
-            if (sf.stringRegs == null) {
-                sf.stringRegs = new String[0];
-            }
-            String[] newStringRegs = new String[sf.stringRegs.length +
-                    fp.getAdditionalIndexCount(BTypes.typeString.getTag())];
-            System.arraycopy(sf.stringRegs, 0, newStringRegs, 0, sf.stringRegs.length);
-            stringIndex = sf.stringRegs.length;
-            sf.stringRegs = newStringRegs;
+        int additionalStringIndex = fp.getAdditionalIndexCount(BTypes.typeString.getTag());
+
+        if (additionalStringIndex == 0) {
+            return stringIndex;
         }
+
+        if (sf.stringRegs == null) {
+            sf.stringRegs = new String[0];
+        }
+
+        String[] newStringRegs = new String[sf.stringRegs.length + additionalStringIndex];
+        System.arraycopy(sf.stringRegs, 0, newStringRegs, 0, sf.stringRegs.length);
+        stringIndex = sf.stringRegs.length;
+        sf.stringRegs = newStringRegs;
         return stringIndex;
     }
 
     private static int expandByteRegs(WorkerData sf, BFunctionPointer fp) {
         int byteIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeBlob.getTag()) > 0) {
-            if (sf.byteRegs == null) {
-                sf.byteRegs = new byte[0][];
-            }
-            byte[][] newByteRegs = new byte[sf.byteRegs.length +
-                    fp.getAdditionalIndexCount(BTypes.typeBlob.getTag())][];
-            System.arraycopy(sf.byteRegs, 0, newByteRegs, 0, sf.byteRegs.length);
-            byteIndex = sf.byteRegs.length;
-            sf.byteRegs = newByteRegs;
+        int additionalByteIndex = fp.getAdditionalIndexCount(BTypes.typeBlob.getTag());
+
+        if (additionalByteIndex == 0) {
+            return byteIndex;
         }
+
+        if (sf.byteRegs == null) {
+            sf.byteRegs = new byte[0][];
+        }
+
+        byte[][] newByteRegs = new byte[sf.byteRegs.length + additionalByteIndex][];
+        System.arraycopy(sf.byteRegs, 0, newByteRegs, 0, sf.byteRegs.length);
+        byteIndex = sf.byteRegs.length;
+        sf.byteRegs = newByteRegs;
         return byteIndex;
     }
 
     private static int expandRefRegs(WorkerData sf, BFunctionPointer fp) {
         int refIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeAny.getTag()) > 0) {
-            if (sf.refRegs == null) {
-                sf.refRegs = new BRefType[0];
-            }
-            BRefType[] newRefRegs = new BRefType[sf.refRegs.length +
-                    fp.getAdditionalIndexCount(BTypes.typeAny.getTag())];
-            System.arraycopy(sf.refRegs, 0, newRefRegs, 0, sf.refRegs.length);
-            refIndex = sf.refRegs.length;
-            sf.refRegs = newRefRegs;
+        int additionalRefIndex = fp.getAdditionalIndexCount(BTypes.typeAny.getTag());
+
+        if (additionalRefIndex == 0) {
+            return refIndex;
         }
+
+        if (sf.refRegs == null) {
+            sf.refRegs = new BRefType[0];
+        }
+        
+        BRefType[] newRefRegs = new BRefType[sf.refRegs.length + additionalRefIndex];
+        System.arraycopy(sf.refRegs, 0, newRefRegs, 0, sf.refRegs.length);
+        refIndex = sf.refRegs.length;
+        sf.refRegs = newRefRegs;
         return refIndex;
     }
 
