@@ -217,13 +217,12 @@ public class BLangFunctions {
     }
 
     public static WorkerExecutionContext invokeCallable(FunctionInfo functionInfo, WorkerExecutionContext ctx,
-                                                        BFunctionPointer functionPointer,
-                                                        FunctionCallCPEntry funcCallCPEntry) {
+                                                        BFunctionPointer functionPointer, int[] argRegs,
+                                                        int[] retRegs) {
         List<BClosure> closureVars = functionPointer.getClosureVars();
-        int[] argRegs = funcCallCPEntry.getArgRegs();
         if (closureVars.isEmpty()) {
             argRegs = expandArgRegs(argRegs, functionInfo.getParamTypes());
-            return BLangFunctions.invokeCallable(functionInfo, ctx, argRegs, funcCallCPEntry.getRetRegs(), false);
+            return BLangFunctions.invokeCallable(functionInfo, ctx, argRegs, retRegs, false);
         }
 
         int[] newArgRegs = new int[argRegs.length + closureVars.size()];
@@ -271,7 +270,7 @@ public class BLangFunctions {
             }
         }
 
-        return BLangFunctions.invokeCallable(functionInfo, ctx, newArgRegs, funcCallCPEntry.getRetRegs(), false);
+        return BLangFunctions.invokeCallable(functionInfo, ctx, newArgRegs, retRegs, false);
     }
 
     private static int[] expandArgRegs(int[] argRegs, BType[] paramTypes) {

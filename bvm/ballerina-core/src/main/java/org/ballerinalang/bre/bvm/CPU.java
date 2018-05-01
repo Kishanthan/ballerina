@@ -475,7 +475,8 @@ public class CPU {
                         BFunctionPointer bFunctionPointer = (BFunctionPointer) sf.refRegs[i];
                         funcRefCPEntry = bFunctionPointer.value();
                         functionInfo = funcRefCPEntry.getFunctionInfo();
-                        ctx = BLangFunctions.invokeCallable(functionInfo, ctx, bFunctionPointer, funcCallCPEntry);
+                        ctx = BLangFunctions.invokeCallable(functionInfo, ctx, bFunctionPointer,
+                                funcCallCPEntry.getArgRegs(), funcCallCPEntry.getRetRegs());
                         if (ctx == null) {
                             return;
                         }
