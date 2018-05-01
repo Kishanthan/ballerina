@@ -36,7 +36,15 @@ import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BCallableFuture;
+import org.ballerinalang.model.values.BClosure;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BFunctionPointer;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.FunctionFlags;
@@ -48,6 +56,7 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
+import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.observability.CallableUnitCallbackObserver;
@@ -205,6 +214,164 @@ public class BLangFunctions {
         }
         resultCtx = BLangScheduler.resume(resultCtx, true);
         return resultCtx;
+    }
+
+    public static WorkerExecutionContext invokeCallable(FunctionInfo functionInfo, WorkerExecutionContext ctx,
+                                                        BFunctionPointer functionPointer,
+                                                        FunctionCallCPEntry funcCallCPEntry) {
+        List<BClosure> closureVars = functionPointer.getClosureVars();
+        int[] argRegs = funcCallCPEntry.getArgRegs();
+        if (closureVars.isEmpty()) {
+            argRegs = expandArgRegs(argRegs, functionInfo.getParamTypes());
+            return BLangFunctions.invokeCallable(functionInfo, ctx, argRegs, funcCallCPEntry.getRetRegs(), false);
+        }
+
+        int[] newArgRegs = new int[argRegs.length + closureVars.size()];
+        System.arraycopy(argRegs, 0, newArgRegs, closureVars.size(), argRegs.length);
+        int argRegIndex = 0;
+
+        WorkerData sf = ctx.workerLocal;
+        int longIndex = expandLongRegs(sf, functionPointer);
+        int doubleIndex = expandDoubleRegs(sf, functionPointer);
+        int intIndex = expandIntRegs(sf, functionPointer);
+        int stringIndex = expandStringRegs(sf, functionPointer);
+        int byteIndex = expandByteRegs(sf, functionPointer);
+        int refIndex = expandRefRegs(sf, functionPointer);
+
+        for (BClosure closure : closureVars) {
+            switch (closure.getType().getTag()) {
+                case TypeTags.INT_TAG: {
+                    sf.longRegs[longIndex] = ((BInteger) closure.value()).intValue();
+                    newArgRegs[argRegIndex++] = longIndex++;
+                    break;
+                }
+                case TypeTags.FLOAT_TAG: {
+                    sf.doubleRegs[doubleIndex] = ((BFloat) closure.value()).floatValue();
+                    newArgRegs[argRegIndex++] = doubleIndex++;
+                    break;
+                }
+                case TypeTags.BOOLEAN_TAG: {
+                    sf.intRegs[intIndex] = ((BBoolean) closure.value()).booleanValue() ? 1 : 0;
+                    newArgRegs[argRegIndex++] = intIndex++;
+                    break;
+                }
+                case TypeTags.STRING_TAG: {
+                    sf.stringRegs[stringIndex] = (closure.value()).stringValue();
+                    newArgRegs[argRegIndex++] = stringIndex++;
+                    break;
+                }
+                case TypeTags.BLOB_TAG: {
+                    sf.byteRegs[byteIndex] = ((BBlob) closure.value()).blobValue();
+                    newArgRegs[argRegIndex++] = byteIndex++;
+                    break;
+                }
+                default:
+                    sf.refRegs[refIndex] = ((BRefType) closure.value());
+                    newArgRegs[argRegIndex++] = refIndex++;
+            }
+        }
+
+        return BLangFunctions.invokeCallable(functionInfo, ctx, newArgRegs, funcCallCPEntry.getRetRegs(), false);
+    }
+
+    private static int[] expandArgRegs(int[] argRegs, BType[] paramTypes) {
+        if (paramTypes.length == 0 || paramTypes.length == argRegs.length ||
+                TypeTags.STRUCT_TAG != paramTypes[0].getTag()) {
+            return argRegs;
+        }
+        int[] expandedArgs = new int[paramTypes.length];
+        // self object/struct param is always at the 0'th index
+        expandedArgs[0] = 0;
+        System.arraycopy(argRegs, 0, expandedArgs, 1, argRegs.length);
+        return expandedArgs;
+    }
+
+    private static int expandLongRegs(WorkerData sf, BFunctionPointer fp) {
+        int longIndex = 0;
+        if (fp.getAdditionalIndexCount(BTypes.typeInt.getTag()) > 0) {
+            if (sf.longRegs == null) {
+                sf.longRegs = new long[0];
+            }
+            long[] newLongRegs = new long[sf.longRegs.length + fp.getAdditionalIndexCount(BTypes.typeInt.getTag())];
+            System.arraycopy(sf.longRegs, 0, newLongRegs, 0, sf.longRegs.length);
+            longIndex = sf.longRegs.length;
+            sf.longRegs = newLongRegs;
+        }
+        return longIndex;
+    }
+
+    private static int expandIntRegs(WorkerData sf, BFunctionPointer fp) {
+        int intIndex = 0;
+        if (fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag()) > 0) {
+            if (sf.intRegs == null) {
+                sf.intRegs = new int[0];
+            }
+            int[] newIntRegs = new int[sf.intRegs.length + fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag())];
+            System.arraycopy(sf.intRegs, 0, newIntRegs, 0, sf.intRegs.length);
+            intIndex = sf.intRegs.length;
+            sf.intRegs = newIntRegs;
+        }
+        return intIndex;
+    }
+
+    private static int expandDoubleRegs(WorkerData sf, BFunctionPointer fp) {
+        int doubleIndex = 0;
+        if (fp.getAdditionalIndexCount(BTypes.typeFloat.getTag()) > 0) {
+            if (sf.doubleRegs == null) {
+                sf.doubleRegs = new double[0];
+            }
+            double[] newDoubleRegs = new double[sf.doubleRegs.length +
+                    fp.getAdditionalIndexCount(BTypes.typeFloat.getTag())];
+            System.arraycopy(sf.doubleRegs, 0, newDoubleRegs, 0, sf.doubleRegs.length);
+            doubleIndex = sf.intRegs.length;
+            sf.doubleRegs = newDoubleRegs;
+        }
+        return doubleIndex;
+    }
+
+    private static int expandStringRegs(WorkerData sf, BFunctionPointer fp) {
+        int stringIndex = 0;
+        if (fp.getAdditionalIndexCount(BTypes.typeString.getTag()) > 0) {
+            if (sf.stringRegs == null) {
+                sf.stringRegs = new String[0];
+            }
+            String[] newStringRegs = new String[sf.stringRegs.length +
+                    fp.getAdditionalIndexCount(BTypes.typeString.getTag())];
+            System.arraycopy(sf.stringRegs, 0, newStringRegs, 0, sf.stringRegs.length);
+            stringIndex = sf.stringRegs.length;
+            sf.stringRegs = newStringRegs;
+        }
+        return stringIndex;
+    }
+
+    private static int expandByteRegs(WorkerData sf, BFunctionPointer fp) {
+        int byteIndex = 0;
+        if (fp.getAdditionalIndexCount(BTypes.typeBlob.getTag()) > 0) {
+            if (sf.byteRegs == null) {
+                sf.byteRegs = new byte[0][];
+            }
+            byte[][] newByteRegs = new byte[sf.byteRegs.length +
+                    fp.getAdditionalIndexCount(BTypes.typeBlob.getTag())][];
+            System.arraycopy(sf.byteRegs, 0, newByteRegs, 0, sf.byteRegs.length);
+            byteIndex = sf.byteRegs.length;
+            sf.byteRegs = newByteRegs;
+        }
+        return byteIndex;
+    }
+
+    private static int expandRefRegs(WorkerData sf, BFunctionPointer fp) {
+        int refIndex = 0;
+        if (fp.getAdditionalIndexCount(BTypes.typeAny.getTag()) > 0) {
+            if (sf.refRegs == null) {
+                sf.refRegs = new BRefType[0];
+            }
+            BRefType[] newRefRegs = new BRefType[sf.refRegs.length +
+                    fp.getAdditionalIndexCount(BTypes.typeAny.getTag())];
+            System.arraycopy(sf.refRegs, 0, newRefRegs, 0, sf.refRegs.length);
+            refIndex = sf.refRegs.length;
+            sf.refRegs = newRefRegs;
+        }
+        return refIndex;
     }
 
     private static CallableWorkerResponseContext createWorkerResponseContext(BType[] retParamTypes,
