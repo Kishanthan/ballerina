@@ -222,7 +222,7 @@ public class BLangFunctions {
         List<BClosure> closureVars = functionPointer.getClosureVars();
         if (closureVars.isEmpty()) {
             argRegs = expandArgRegs(argRegs, functionInfo.getParamTypes());
-            return BLangFunctions.invokeCallable(functionInfo, ctx, argRegs, retRegs, false);
+            return invokeCallable(functionInfo, ctx, argRegs, retRegs, false);
         }
 
         int[] newArgRegs = new int[argRegs.length + closureVars.size()];
@@ -270,7 +270,7 @@ public class BLangFunctions {
             }
         }
 
-        return BLangFunctions.invokeCallable(functionInfo, ctx, newArgRegs, retRegs, false);
+        return invokeCallable(functionInfo, ctx, newArgRegs, retRegs, false);
     }
 
     private static int[] expandArgRegs(int[] argRegs, BType[] paramTypes) {
@@ -391,7 +391,7 @@ public class BLangFunctions {
         if (sf.refRegs == null) {
             sf.refRegs = new BRefType[0];
         }
-        
+
         BRefType[] newRefRegs = new BRefType[sf.refRegs.length + additionalRefIndex];
         System.arraycopy(sf.refRegs, 0, newRefRegs, 0, sf.refRegs.length);
         refIndex = sf.refRegs.length;
