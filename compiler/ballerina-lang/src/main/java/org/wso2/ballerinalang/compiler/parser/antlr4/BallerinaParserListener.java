@@ -1690,6 +1690,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitActionInvocationExpression(BallerinaParser.ActionInvocationExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code bitwiseNotExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterBitwiseNotExpression(BallerinaParser.BitwiseNotExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code bitwiseNotExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitBitwiseNotExpression(BallerinaParser.BitwiseNotExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code binaryCompareExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree

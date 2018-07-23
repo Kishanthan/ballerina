@@ -2005,6 +2005,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitBitwiseNotExpression(BallerinaParser.BitwiseNotExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.createUnaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(0).getText());
+    }
+
+    @Override
     public void exitBracedOrTupleExpression(BallerinaParser.BracedOrTupleExpressionContext ctx) {
         if (ctx.exception != null) {
             return;

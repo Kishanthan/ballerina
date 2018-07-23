@@ -348,6 +348,8 @@ public class CPU {
                     case InstructionCodes.IOR:
                     case InstructionCodes.BIOR:
                     case InstructionCodes.IXOR:
+                    case InstructionCodes.BINOT:
+                    case InstructionCodes.INOT:
                     case InstructionCodes.BIXOR:
                     case InstructionCodes.BILSHIFT:
                     case InstructionCodes.BIRSHIFT:
@@ -525,7 +527,6 @@ public class CPU {
                     case InstructionCodes.JSON2F:
                     case InstructionCodes.JSON2S:
                     case InstructionCodes.JSON2B:
-                    case InstructionCodes.NULL2S:
                     case InstructionCodes.IS_ASSIGNABLE:
                     case InstructionCodes.CHECK_CONVERSION:
                         execTypeCastOpcodes(ctx, sf, opcode, operands);
@@ -1706,6 +1707,16 @@ public class CPU {
                 j = operands[1];
                 sf.intRegs[j] = sf.intRegs[i] == 0 ? 1 : 0;
                 break;
+            case InstructionCodes.BINOT:
+                i = operands[0];
+                j = operands[1];
+                sf.intRegs[j] = (~sf.intRegs[i]);
+                break;
+            case InstructionCodes.INOT:
+                i = operands[0];
+                j = operands[1];
+                sf.longRegs[j] = (~sf.longRegs[i]);
+                break;
             case InstructionCodes.IEQ:
                 i = operands[0];
                 j = operands[1];
@@ -2142,10 +2153,6 @@ public class CPU {
                 break;
             case InstructionCodes.JSON2B:
                 castJSONToBoolean(ctx, operands, sf);
-                break;
-            case InstructionCodes.NULL2S:
-                j = operands[1];
-                sf.stringRegs[j] = null;
                 break;
             case InstructionCodes.ARRAY2JSON:
                 convertArrayToJSON(ctx, operands, sf);

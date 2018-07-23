@@ -625,6 +625,7 @@ expression
     |	CHECK expression										            # checkedExpression
     |   expression ELVIS expression                                         # elvisExpression
     |   expression (BITAND | PIPE | BITXOR) expression                      # bitwiseExpression
+    |   (BITNOT) expression                                                 # bitwiseNotExpression
     |   expression (shiftExpression) expression                             # bitwiseShiftExpression
     |   typeName                                                            # typeAccessExpression
     ;

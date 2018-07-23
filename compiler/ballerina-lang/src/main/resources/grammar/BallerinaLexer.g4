@@ -181,6 +181,7 @@ OR          : '||' ;
 
 BITAND  : '&' ;
 BITXOR  : '^' ;
+BITNOT  : '~' ;
 
 // Additional symbols 
 

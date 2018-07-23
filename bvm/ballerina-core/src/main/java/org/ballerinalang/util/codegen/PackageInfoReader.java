@@ -1168,6 +1168,8 @@ public class PackageInfoReader {
                 case InstructionCodes.INEG:
                 case InstructionCodes.FNEG:
                 case InstructionCodes.BNOT:
+                case InstructionCodes.BINOT:
+                case InstructionCodes.INOT:
                 case InstructionCodes.REQ_NULL:
                 case InstructionCodes.RNE_NULL:
                 case InstructionCodes.BR_TRUE:
@@ -1238,7 +1240,6 @@ public class PackageInfoReader {
                 case InstructionCodes.S2XML:
                 case InstructionCodes.XML2S:
                 case InstructionCodes.S2JSONX:
-                case InstructionCodes.NULL2S:
                 case InstructionCodes.AWAIT:
                 case InstructionCodes.CHECK_CONVERSION:
                 case InstructionCodes.XMLLOADALL:

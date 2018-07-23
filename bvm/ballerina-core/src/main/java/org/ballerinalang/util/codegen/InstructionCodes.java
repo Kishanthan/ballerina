@@ -215,7 +215,7 @@ public interface InstructionCodes {
 
     int ANY2TYPE = 183;
     int S2JSONX = 184;
-    int NULL2S = 185;
+    int INOT = 185;
 
     int LOCK = 186;
     int UNLOCK = 187;
@@ -265,7 +265,8 @@ public interface InstructionCodes {
     int BI2I = 225;
     int BIXOR = 226;
     int IXOR = 227;
-    int BACONST = 228;
+    int BINOT = 228;
+    int BACONST = 229;
 
     int IRET = 230;
     int FRET = 231;
