@@ -563,29 +563,29 @@ public class BByteValueTest {
         Assert.assertEquals(bByte.byteValue(), d, "Invalid byte value returned.");
     }
 
-    @Test(description = "Test bitwise not operator 1")
-    public void testBitwiseNotOperator1() {
+    @Test(description = "Test bitwise Complement operator 1")
+    public void testBitwiseComplementOperator1() {
         byte a = 34;
         int b = 234;
-        invokeBitwiseNotOperatorFunction(a, b);
+        invokeBitwiseComplementOperatorFunction(a, b);
     }
 
-    @Test(description = "Test bitwise not operator 2")
-    public void testBitwiseNotOperator2() {
+    @Test(description = "Test bitwise Complement operator 2")
+    public void testBitwiseComplementOperator2() {
         byte a = (byte) 156;
         int b = -232224;
-        invokeBitwiseNotOperatorFunction(a, b);
+        invokeBitwiseComplementOperatorFunction(a, b);
     }
 
-    @Test(description = "Test bitwise not operator 3")
-    public void testBitwiseNotOperator3() {
+    @Test(description = "Test bitwise Complement operator 3")
+    public void testBitwiseComplementOperator3() {
         byte a = -112;
         int b = 567849302;
-        invokeBitwiseNotOperatorFunction(a, b);
+        invokeBitwiseComplementOperatorFunction(a, b);
     }
 
 
-    private void invokeBitwiseNotOperatorFunction(byte a, int b) {
+    private void invokeBitwiseComplementOperatorFunction(byte a, int b) {
         BValue[] args = {new BByte(a), new BInteger(b)};
         BValue[] returns = BRunUtil.invoke(result, "testBitwiseNotOperator", args);
         Assert.assertEquals(returns.length, 2);

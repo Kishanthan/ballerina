@@ -348,8 +348,6 @@ public class CPU {
                     case InstructionCodes.IOR:
                     case InstructionCodes.BIOR:
                     case InstructionCodes.IXOR:
-                    case InstructionCodes.BINOT:
-                    case InstructionCodes.INOT:
                     case InstructionCodes.BIXOR:
                     case InstructionCodes.BILSHIFT:
                     case InstructionCodes.BIRSHIFT:
@@ -1706,16 +1704,6 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 sf.intRegs[j] = sf.intRegs[i] == 0 ? 1 : 0;
-                break;
-            case InstructionCodes.BINOT:
-                i = operands[0];
-                j = operands[1];
-                sf.intRegs[j] = (~sf.intRegs[i]);
-                break;
-            case InstructionCodes.INOT:
-                i = operands[0];
-                j = operands[1];
-                sf.longRegs[j] = (~sf.longRegs[i]);
                 break;
             case InstructionCodes.IEQ:
                 i = operands[0];

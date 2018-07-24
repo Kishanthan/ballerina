@@ -48,7 +48,7 @@ public enum OperatorKind {
     BITWISE_AND("&"),
     BITWISE_OR("|"),
     BITWISE_XOR("^"),
-    BITWISE_NOT("~"),
+    BITWISE_COMPLEMENT("~"),
     BITWISE_LEFT_SHIFT("<<"),
     BITWISE_RIGHT_SHIFT(">>"),
     CLOSED_RANGE("..."),

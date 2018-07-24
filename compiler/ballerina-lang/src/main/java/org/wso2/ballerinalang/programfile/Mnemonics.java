@@ -90,8 +90,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.BIOR] = "bior";
         mnemonics[InstructionCodes.IXOR] = "ior";
         mnemonics[InstructionCodes.BIXOR] = "bior";
-        mnemonics[InstructionCodes.BINOT] = "binot";
-        mnemonics[InstructionCodes.INOT] = "inot";
         mnemonics[InstructionCodes.BILSHIFT] = "bilshift";
         mnemonics[InstructionCodes.BIRSHIFT] = "birshift";
         mnemonics[InstructionCodes.IRSHIFT] = "irshift";
