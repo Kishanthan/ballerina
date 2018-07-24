@@ -2009,7 +2009,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitBitwiseNotExpression(BallerinaParser.BitwiseNotExpressionContext ctx) {
+    public void exitBitwiseComplementExpression(BallerinaParser.BitwiseComplementExpressionContext ctx) {
         if (ctx.exception != null) {
             return;
         }

@@ -1558,6 +1558,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitUnaryExpression(BallerinaParser.UnaryExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code bitwiseComplementExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterBitwiseComplementExpression(BallerinaParser.BitwiseComplementExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code bitwiseComplementExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitBitwiseComplementExpression(BallerinaParser.BitwiseComplementExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code bracedOrTupleExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
@@ -1689,18 +1701,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitActionInvocationExpression(BallerinaParser.ActionInvocationExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code bitwiseNotExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterBitwiseNotExpression(BallerinaParser.BitwiseNotExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code bitwiseNotExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitBitwiseNotExpression(BallerinaParser.BitwiseNotExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code binaryCompareExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.

@@ -184,9 +184,9 @@ OR          : '||' ;
 
 // Bitwise Operators
 
-BITAND  : '&' ;
-BITXOR  : '^' ;
-BITNOT  : '~' ;
+BIT_AND          : '&' ;
+BIT_XOR          : '^' ;
+BIT_COMPLEMENT   : '~' ;
 
 // Additional symbols 
 

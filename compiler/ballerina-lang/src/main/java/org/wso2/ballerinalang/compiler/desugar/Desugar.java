@@ -1410,8 +1410,8 @@ public class Desugar extends BLangNodeVisitor {
     /**
      * This method desugar a bitwise complement (~) unary expressions into a bitwise xor binary expression as below.
      * Example : ~a  -> a ^ -1;
-     * ~ 11110011 		        -> 00001100
-     * 11110011 ^ 11111111 	    -> 00001100
+     * ~ 11110011 -> 00001100
+     * 11110011 ^ 11111111 -> 00001100
      *
      * @param unaryExpr the bitwise complement expression
      */
