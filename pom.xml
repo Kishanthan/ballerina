@@ -826,6 +826,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-to-java-codegen</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-packerina</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -1547,6 +1552,11 @@
                 <version>${ballerina.examples.version}</version>
                 <type>zip</type>
             </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -1718,6 +1728,7 @@
             <id>ballerina</id>
             <modules>
                 <module>compiler/ballerina-lang</module>
+                <module>compiler/ballerina-to-java-codegen</module>
 
                 <module>stdlib/builtin</module>
                 <module>stdlib/runtime</module>
@@ -1798,6 +1809,7 @@
             </activation>
             <modules>
                 <module>compiler/ballerina-lang</module>
+                <module>compiler/ballerina-to-java-codegen</module>
 
                 <module>stdlib/builtin</module>
                 <module>stdlib/runtime</module>
@@ -2355,6 +2367,7 @@
         <chewiebug.gcviewer.version>1.35</chewiebug.gcviewer.version>
 
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
+        <asm.version>6.2.1</asm.version>
     </properties>
 
 </project>
