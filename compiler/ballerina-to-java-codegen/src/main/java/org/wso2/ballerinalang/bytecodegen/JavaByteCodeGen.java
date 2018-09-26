@@ -170,8 +170,6 @@ public class JavaByteCodeGen {
                 case InstructionCodes.FCONST_0:
                     storeFloatConstantToBalRegister(ctx, oprs[0], 0);
                     break;
-                case InstructionCodes.HALT:
-                    break;
 //                case InstructionCodes.ISTORE:
 //                    loadBalIntegerRegisterVariableToJVMStack(ctx, oprs[0]);
 //                    storeJVMStackIntegerValueToBalLocalVariable(ctx, oprs[1]);
@@ -306,6 +304,7 @@ public class JavaByteCodeGen {
                     mv.visitInsn(L2D);
                     storeJVMStackFloatValueToBalRegisterVariable(ctx, oprs[1]);
                     break;
+                case InstructionCodes.HALT:
                 case InstructionCodes.S2ANY:
                 case InstructionCodes.I2ANY:
                 case InstructionCodes.B2ANY:
