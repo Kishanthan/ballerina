@@ -47,6 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.*;
 
 public class JavaByteCodeGen {
@@ -78,12 +79,13 @@ public class JavaByteCodeGen {
     }
 
     private static byte[] processPackage(PackageInfo packageInfo, String jvmClassName) {
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        cw.visit(V1_6, ACC_PUBLIC, jvmClassName, null, Type.getInternalName(Object.class), null);
+        ClassWriter cw = new ClassWriter(COMPUTE_FRAMES);
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, jvmClassName, null, Type.getInternalName(Object.class), null);
         generateDefaultConstructor(cw);
         for (FunctionInfo funcInfo : packageInfo.getFunctionInfoEntries()) {
             processFunction(cw, packageInfo, funcInfo);
         }
+        cw.visitEnd();
         return cw.toByteArray();
     }
 
@@ -99,7 +101,7 @@ public class JavaByteCodeGen {
         String methodName = methodInfo.getName();
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, methodName, methodDesc, null, null);
-        mv.visitMaxs(100, 400);
+        mv.visitCode();
         JVMMethodContext ctx = new JVMMethodContext(mv, methodInfo);
         createFunctionResultObject(ctx, methodInfo.getRetCount());
 
@@ -170,14 +172,6 @@ public class JavaByteCodeGen {
                 case InstructionCodes.FCONST_0:
                     storeFloatConstantToBalRegister(ctx, oprs[0], 0);
                     break;
-//                case InstructionCodes.ISTORE:
-//                    loadBalIntegerRegisterVariableToJVMStack(ctx, oprs[0]);
-//                    storeJVMStackIntegerValueToBalLocalVariable(ctx, oprs[1]);
-//                    break;
-//                case InstructionCodes.FSTORE:
-//                    loadBalFloatRegisterVariableToJVMStack(ctx, oprs[0]);
-//                    storeJVMStackFloatValueToBalLocalVariable(ctx, oprs[1]);
-//                    break;
 //                case InstructionCodes.IMOVE:
 //                    loadBalIntegerLocalVariableToJVMStack(ctx, oprs[0]);
 //                    storeJVMStackIntegerValueToBalRegisterVariable(ctx, oprs[1]);
@@ -241,8 +235,8 @@ public class JavaByteCodeGen {
                     setObjectArrayFloatFieldValue(ctx, FUNC_RESULT_OBJECT_NAME, oprs[0], oprs[1]);
                     break;
                 case InstructionCodes.RET:
-                    int index = ctx.lookupJVMObjectLocalVariableIndex(FUNC_RESULT_OBJECT_NAME);
-                    mv.visitVarInsn(ALOAD, index);
+//                    int index = ctx.lookupJVMObjectLocalVariableIndex(FUNC_RESULT_OBJECT_NAME);
+//                    mv.visitVarInsn(ALOAD, index);
                     mv.visitInsn(ARETURN);
                     break;
                 case InstructionCodes.CALL:
@@ -320,6 +314,7 @@ public class JavaByteCodeGen {
                     System.out.println("*** ERROR UNKNOWN_OP: " + instr.getOpcode() + " -> execution may fail!");
             }
         }
+        mv.visitMaxs(100, 400);
         mv.visitEnd();
     }
 
@@ -327,10 +322,6 @@ public class JavaByteCodeGen {
                                          ConstantPoolEntry[] consts, Instruction.InstructionCALL instruction) {
         FunctionInfo funcInfo = ((FunctionRefCPEntry) consts[instruction.funcRefCPIndex]).getFunctionInfo();
         String pkgPath = funcInfo.getPackageInfo().getPkgPath();
-//        if (pkgPath.startsWith("ballerina/runtime") | pkgPath.startsWith("ballerina/builtin")) {
-//            return;
-//        }
-//        FunctionCallCPEntry funcCallCPE = (FunctionCallCPEntry) consts[instruction.funcRefCPIndex];
 
         int[] argRegs = instruction.argRegs;
         BType[] paramTypes = funcInfo.getParamTypes();
@@ -366,19 +357,20 @@ public class JavaByteCodeGen {
             regIndex = retRegs[i];
             //TODO support all types
             if (retTypes[i].getTag() == TypeTags.INT_TAG) {
-                storeObjectArrayIntFieldValueToRegister(ctx, CALL_RESULT_OBJ_NAME, i, regIndex);
+                storeIntFieldRetValueToRegister(ctx, CALL_RESULT_OBJ_NAME, i, regIndex);
             } else if (retTypes[i].getTag() == TypeTags.FLOAT_TAG) {
-                storeObjectArrayFloatFieldValueToRegister(ctx, CALL_RESULT_OBJ_NAME, i, regIndex);
+                storeFloatFieldRetValueToRegister(ctx, CALL_RESULT_OBJ_NAME, i, regIndex);
             }
         }
     }
 
     private static void generateDefaultConstructor(ClassWriter cw) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
-        mv.visitMaxs(1, 1);
+        mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(Object.class), "<init>", "()V", false);
         mv.visitInsn(RETURN);
+        mv.visitMaxs(1, 1);
         mv.visitEnd();
     }
 
@@ -418,7 +410,7 @@ public class JavaByteCodeGen {
             /* in the critical path, so the translation logic should be
              * optimized as much as possible */
             Object[] jvmParams = this.translateParams(params);
-            Object[] result = (Object[]) method.invoke(null, jvmParams);
+            Object result = method.invoke(null, jvmParams);
             return translateResult(result);
         }
 
@@ -437,15 +429,17 @@ public class JavaByteCodeGen {
             return result;
         }
 
-        private BValue[] translateResult(Object[] funcResult) {
+        private BValue[] translateResult(Object funcResult) {
             BValue[] result = new BValue[this.methodInfo.getRetCount()];
             int[] intRetLocations = this.methodInfo.getIntRetLocations();
             int[] floatRetLocations = this.methodInfo.getFloatRetLocations();
             for (int i = 0; i < intRetLocations.length; i++) {
-                result[intRetLocations[i]] = new BInteger((Long) funcResult[intRetLocations[i]]);
+//                result[intRetLocations[i]] = new BInteger((Long) funcResult[intRetLocations[i]]);
+                result[intRetLocations[i]] = new BInteger((Long) funcResult);
             }
             for (int i = 0; i < floatRetLocations.length; i++) {
-                result[floatRetLocations[i]] = new BFloat((Double) funcResult[floatRetLocations[i]]);
+//                result[floatRetLocations[i]] = new BFloat((Double) funcResult[floatRetLocations[i]]);
+                result[floatRetLocations[i]] = new BFloat((Double) funcResult);
             }
             //TODO support all types
             return result;
@@ -499,22 +493,22 @@ public class JavaByteCodeGen {
     }
 
     private static void createFunctionResultObject(JVMMethodContext ctx, int retCount) {
-        int index = ctx.lookupJVMObjectLocalVariableIndex(FUNC_RESULT_OBJECT_NAME);
-        ctx.mv().visitLdcInsn(retCount);
-        ctx.mv().visitTypeInsn(ANEWARRAY, Type.getInternalName(Object.class));
-        ctx.mv().visitVarInsn(ASTORE, index);
+//        int index = ctx.lookupJVMObjectLocalVariableIndex(FUNC_RESULT_OBJECT_NAME);
+//        ctx.mv().visitLdcInsn(retCount);
+//        ctx.mv().visitTypeInsn(ANEWARRAY, Type.getInternalName(Object.class));
+//        ctx.mv().visitVarInsn(ASTORE, index);
     }
 
     private static void setObjectArrayIntFieldValue(JVMMethodContext ctx, String objectName,
                                                     int arrayIndex, int regValueIndex) {
-        int varIndex = ctx.lookupJVMObjectLocalVariableIndex(objectName);
-        ctx.mv().visitVarInsn(ALOAD, varIndex);
-        ctx.mv().visitLdcInsn(arrayIndex);
+//        int varIndex = ctx.lookupJVMObjectLocalVariableIndex(objectName);
+//        ctx.mv().visitVarInsn(ALOAD, varIndex);
+//        ctx.mv().visitLdcInsn(arrayIndex);
         int valueIndex = ctx.lookupJVMLocalVariableIndex(BMemoryType.REGISTER, BValueType.INTEGER, regValueIndex);
         ctx.mv().visitVarInsn(LLOAD, valueIndex);
         ctx.mv().visitMethodInsn(INVOKESTATIC, Type.getInternalName(Long.class), "valueOf",
                 "(J)Ljava/lang/Long;", false);
-        ctx.mv().visitInsn(AASTORE);
+//        ctx.mv().visitInsn(AASTORE);
     }
 
     private static void setObjectArrayFloatFieldValue(JVMMethodContext ctx, String objectName,
@@ -529,24 +523,24 @@ public class JavaByteCodeGen {
         ctx.mv().visitInsn(AASTORE);
     }
 
-    private static void storeObjectArrayIntFieldValueToRegister(JVMMethodContext ctx, String objectName,
-                                                                int arrayIndex, int regIndex) {
+    private static void storeIntFieldRetValueToRegister(JVMMethodContext ctx, String objectName,
+                                                        int arrayIndex, int regIndex) {
         int varIndex = ctx.lookupJVMObjectLocalVariableIndex(objectName);
         ctx.mv().visitVarInsn(ALOAD, varIndex);
-        ctx.mv().visitLdcInsn(arrayIndex);
-        ctx.mv().visitInsn(AALOAD);
-        ctx.mv().visitTypeInsn(InstructionCodes.CHECKCAST, Type.getInternalName(Long.class));
+//        ctx.mv().visitLdcInsn(arrayIndex);
+//        ctx.mv().visitInsn(AALOAD);
+        ctx.mv().visitTypeInsn(CHECKCAST, Type.getInternalName(Long.class));
         ctx.mv().visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(Long.class), "longValue", "()J", false);
         storeJVMStackIntegerValueToBalRegisterVariable(ctx, regIndex);
     }
 
-    private static void storeObjectArrayFloatFieldValueToRegister(JVMMethodContext ctx, String objectName,
-                                                                  int arrayIndex, int regIndex) {
+    private static void storeFloatFieldRetValueToRegister(JVMMethodContext ctx, String objectName,
+                                                          int arrayIndex, int regIndex) {
         int varIndex = ctx.lookupJVMObjectLocalVariableIndex(objectName);
         ctx.mv().visitVarInsn(ALOAD, varIndex);
         ctx.mv().visitLdcInsn(arrayIndex);
         ctx.mv().visitInsn(AALOAD);
-        ctx.mv().visitTypeInsn(InstructionCodes.CHECKCAST, Type.getInternalName(Double.class));
+        ctx.mv().visitTypeInsn(CHECKCAST, Type.getInternalName(Double.class));
         ctx.mv().visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(Double.class), "doubleValue", "()D", false);
         storeJVMStackFloatValueToBalRegisterVariable(ctx, regIndex);
     }
@@ -617,7 +611,14 @@ public class JavaByteCodeGen {
     }
 
     private static void loadIntegerConstantToJVMStack(JVMMethodContext ctx, long value) {
-        ctx.mv().visitLdcInsn(value);
+
+        if (value == 1) {
+            ctx.mv().visitInsn(LCONST_1);
+        } else if (value == 0) {
+            ctx.mv().visitInsn(LCONST_0);
+        } else {
+            ctx.mv().visitLdcInsn(value);
+        }
     }
 
     private static void loadSmallIntegerConstantToJVMStack(JVMMethodContext ctx, int value) {
@@ -943,6 +944,25 @@ public class JavaByteCodeGen {
                         break;
                     //TODO add other types
                 }
+            } else if (BMemoryType.REGISTER.equals(memoryType)) {
+                switch (valueType) {
+                    case INTEGER:
+                        if (this.methodInfo.getIntParamCount() > index) {
+                            /* a Java long (Ballerina integer) takes two slots */
+                            return index * 2;
+                        }
+                        break;
+                    case FLOAT:
+                        if (this.methodInfo.getFloatParamCount() > index) {
+                            /* float params comes after all the int params */
+                            return (this.methodInfo.getIntParamCount() + index) * 2;
+                        }
+                        break;
+                    case SMALL_INTEGER:
+                        /* not used as method params */
+                        break;
+                    //TODO add other types
+                }
             }
             return -1;
         }
@@ -1009,7 +1029,7 @@ public class JavaByteCodeGen {
         for (int i = 0; i < methodInfo.getFloatParamCount(); i++) {
             result.append("D");
         }
-        result.append(")[Ljava/lang/Object;");
+        result.append(")Ljava/lang/Object;");
         return result.toString();
     }
 
