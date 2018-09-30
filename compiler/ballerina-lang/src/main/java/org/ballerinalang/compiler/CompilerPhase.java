@@ -42,6 +42,8 @@ public enum CompilerPhase {
 
     CODE_GEN("codeGen"),
 
+    JAVA_BYTE_CODE_GEN("javaByteCodeGen"),
+
     BIR_GEN("birGen");
 
     private String value;
@@ -68,6 +70,8 @@ public enum CompilerPhase {
                 return DESUGAR;
             case "codeGen":
                 return CODE_GEN;
+            case "javaByteCodeGen":
+                return JAVA_BYTE_CODE_GEN;
             case "birGen":
                 return BIR_GEN;
             default:
