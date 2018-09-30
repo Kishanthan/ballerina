@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -38,11 +39,14 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.programfile.Instruction;
+import org.wso2.ballerinalang.programfile.InstructionCodes;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -51,15 +55,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.model.tree.OperatorKind.*;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
+import static org.objectweb.asm.Opcodes.GOTO;
+import static org.objectweb.asm.Opcodes.IFNE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.LADD;
+import static org.objectweb.asm.Opcodes.LCMP;
 import static org.objectweb.asm.Opcodes.LCONST_0;
 import static org.objectweb.asm.Opcodes.LCONST_1;
 import static org.objectweb.asm.Opcodes.LLOAD;
@@ -284,10 +292,20 @@ public class JavaByteCodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangBinaryExpr binaryExpr) {
-        if (OperatorKind.ADD.equals(binaryExpr.opKind)) {
-            genNode(binaryExpr.lhsExpr, this.env);
-            genNode(binaryExpr.rhsExpr, this.env);
-            mv.visitInsn(LADD);
+
+        switch (binaryExpr.opKind) {
+            case ADD:
+                genNode(binaryExpr.lhsExpr, this.env);
+                genNode(binaryExpr.rhsExpr, this.env);
+                mv.visitInsn(LADD);
+                break;
+            case EQUAL:
+                genNode(binaryExpr.lhsExpr, this.env);
+                genNode(binaryExpr.rhsExpr, this.env);
+                mv.visitInsn(LCMP);
+                break;
+            default:
+                break;
         }
     }
 
@@ -300,5 +318,20 @@ public class JavaByteCodeGenerator extends BLangNodeVisitor {
         varAssignment = true;
         genNode(lhrExpr, this.env);
         varAssignment = false;
+    }
+
+    public void visit(BLangIf ifNode) {
+        genNode(ifNode.expr, this.env);
+        Label label1 = new Label();
+        mv.visitJumpInsn(IFNE, label1);
+        genNode(ifNode.body, this.env);
+        Label label2 = new Label();
+        mv.visitJumpInsn(GOTO, label2);
+        mv.visitLabel(label1);
+
+        if (ifNode.elseStmt != null) {
+            genNode(ifNode.elseStmt, this.env);
+            mv.visitLabel(label2);
+        }
     }
 }
