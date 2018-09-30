@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.codegen;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.OperatorKind;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
