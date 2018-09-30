@@ -45,8 +45,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.programfile.Instruction;
-import org.wso2.ballerinalang.programfile.InstructionCodes;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -55,7 +53,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.model.tree.OperatorKind.*;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -103,7 +100,7 @@ public class JavaByteCodeGenerator extends BLangNodeVisitor {
         try {
             Files.write(Paths.get("/Users/kishanthan/WSO2/msc/class-files/Test.class") , cw.toByteArray());
         } catch (IOException e) {
-            e.printStackTrace();
+            //ignore
         }
 
         return pkgNode;
