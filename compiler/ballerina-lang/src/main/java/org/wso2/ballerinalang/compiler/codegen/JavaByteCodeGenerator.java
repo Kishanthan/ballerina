@@ -74,7 +74,6 @@ public class JavaByteCodeGenerator extends BLangNodeVisitor {
     private SymbolEnv env;
     private SymbolTable symTable;
 
-    private CodeGenerator ballerinaCodeGen;
     private ClassWriter cw;
     private MethodVisitor mv;
 
@@ -82,7 +81,6 @@ public class JavaByteCodeGenerator extends BLangNodeVisitor {
 
     public JavaByteCodeGenerator(CompilerContext context) {
         context.put(JAVA_BYTE_CODE_GENERATOR_KEY, this);
-        ballerinaCodeGen = CodeGenerator.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.indexMap = new BalToJVMIndexMap();
     }
@@ -211,10 +209,12 @@ public class JavaByteCodeGenerator extends BLangNodeVisitor {
         if (rhsExpr != null) {
             genNode(rhsExpr, this.env);
         }
+        int index = getJVMIndexOfVar(varNode.symbol);
+        mv.visitVarInsn(LSTORE, index);
     }
 
     public void visit(BLangLocalVarRef localVarRef) {
-        int varIndex = getVarRefJVMIndex(localVarRef.varSymbol);
+        int varIndex = getJVMIndexOfVar(localVarRef.varSymbol);
         switch (localVarRef.type.tag) {
             case TypeTags.INT:
                 mv.visitVarInsn(LLOAD, varIndex);
@@ -224,35 +224,26 @@ public class JavaByteCodeGenerator extends BLangNodeVisitor {
         }
     }
 
-    private int getVarRefJVMIndex(BVarSymbol varSymbol) {
-        if (indexMap.getIndex(varSymbol) == -1) {
-            indexMap.add(varSymbol);
-        }
-
-        return indexMap.getIndex(varSymbol);
-    }
-
     @Override
     public void visit(BLangLiteral literalExpr) {
         int typeTag = literalExpr.type.tag;
-        BLangVariable var = (BLangVariable) literalExpr.parent;
-        int varIndex = getVarRefJVMIndex(var.symbol);
-
 
         switch (typeTag) {
             case TypeTags.INT:
                 long longVal = (Long) literalExpr.value;
-                storeIntegerConstantToJVMLocalVariable(varIndex, longVal);
+                loadIntegerConstantToJVMStack(longVal);
                 break;
             default:
                 break;
         }
     }
 
+    private int getJVMIndexOfVar(BVarSymbol varSymbol) {
+        if (indexMap.getIndex(varSymbol) == -1) {
+            indexMap.add(varSymbol);
+        }
 
-    private void storeIntegerConstantToJVMLocalVariable(int index, long value) {
-        loadIntegerConstantToJVMStack(value);
-        mv.visitVarInsn(LSTORE, index);
+        return indexMap.getIndex(varSymbol);
     }
 
     private void loadIntegerConstantToJVMStack(long value) {
@@ -286,11 +277,10 @@ public class JavaByteCodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangBinaryExpr binaryExpr) {
-        if (OperatorKind.AND.equals(binaryExpr.opKind)) {
+        if (OperatorKind.ADD.equals(binaryExpr.opKind)) {
             genNode(binaryExpr.lhsExpr, this.env);
             genNode(binaryExpr.rhsExpr, this.env);
             mv.visitInsn(LADD);
-            //storeJVMStackIntegerValueToBalRegisterVariable(ctx, oprs[2]);
         }
     }
 }
