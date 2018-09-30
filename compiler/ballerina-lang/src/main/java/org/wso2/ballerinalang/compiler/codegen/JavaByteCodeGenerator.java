@@ -19,12 +19,14 @@ package org.wso2.ballerinalang.compiler.codegen;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.OperatorKind;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -34,6 +36,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -58,16 +61,19 @@ import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
+import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.IFNE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.LADD;
 import static org.objectweb.asm.Opcodes.LCMP;
 import static org.objectweb.asm.Opcodes.LCONST_0;
 import static org.objectweb.asm.Opcodes.LCONST_1;
 import static org.objectweb.asm.Opcodes.LLOAD;
 import static org.objectweb.asm.Opcodes.LSTORE;
+import static org.objectweb.asm.Opcodes.LSUB;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
 
@@ -88,7 +94,6 @@ public class JavaByteCodeGenerator extends BLangNodeVisitor {
     public JavaByteCodeGenerator(CompilerContext context) {
         context.put(JAVA_BYTE_CODE_GENERATOR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
-        this.indexMap = new BalToJVMIndexMap();
     }
 
     public BLangPackage generateClass(BLangPackage pkgNode) {
@@ -129,7 +134,9 @@ public class JavaByteCodeGenerator extends BLangNodeVisitor {
     }
 
     private void generateFunctionInfo(BLangFunction funcNode) {
-        String methodDesc = generateJVMMethodDesc(funcNode);
+        indexMap = new BalToJVMIndexMap();
+
+        String methodDesc = generateJVMMethodDesc(funcNode.symbol);
         String methodName = funcNode.getName().value;
 
         mv = this.cw.visitMethod(ACC_PUBLIC + ACC_STATIC, methodName, methodDesc, null, null);
@@ -141,23 +148,23 @@ public class JavaByteCodeGenerator extends BLangNodeVisitor {
         mv.visitEnd();
     }
 
-    private String generateJVMMethodDesc(BLangFunction function) {
-        List<BLangVariable> requiredParams = function.requiredParams;
+    private String generateJVMMethodDesc(BInvokableSymbol symbol) {
+        List<BVarSymbol> requiredParams = symbol.params;
         //todo fix for default, rest params
         StringBuilder result = new StringBuilder("(");
         for (int i = 0; i < requiredParams.size(); i++) {
-            BLangVariable param = requiredParams.get(i);
-            switch (param.type.tag) {
+            BVarSymbol varSymbol = requiredParams.get(i);
+            switch (varSymbol.type.tag) {
                 case TypeTags.INT:
                     result.append("J");
-                    indexMap.add(param.symbol);
+                    indexMap.add(varSymbol);
                 default:
                     //todo other types
                     break;
             }
 
         }
-        if (TypeTags.NIL == function.returnTypeNode.type.tag) {
+        if (TypeTags.NIL == symbol.retType.tag) {
             result.append(")V");
         } else {
             result.append(")Ljava/lang/Object;");
@@ -277,7 +284,7 @@ public class JavaByteCodeGenerator extends BLangNodeVisitor {
         if (returnNode.expr.type != symTable.nilType) {
             BLangExpression expr = returnNode.expr;
             genNode(expr, this.env);
-            if (TypeTags.INT == returnNode.expr.type.tag) {
+            if (TypeTags.INT == expr.type.tag) {
                 mv.visitMethodInsn(INVOKESTATIC, Type.getInternalName(Long.class), "valueOf", "(J)Ljava/lang/Long;",
                         false);
             }
@@ -289,20 +296,35 @@ public class JavaByteCodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangBinaryExpr binaryExpr) {
 
-        switch (binaryExpr.opKind) {
+        OperatorKind opKind = binaryExpr.opKind;
+
+        if (OperatorKind.OR == opKind) {
+            visitOrExpression(binaryExpr);
+            return;
+        }
+
+        genNode(binaryExpr.lhsExpr, this.env);
+        genNode(binaryExpr.rhsExpr, this.env);
+
+        switch (opKind) {
             case ADD:
-                genNode(binaryExpr.lhsExpr, this.env);
-                genNode(binaryExpr.rhsExpr, this.env);
                 mv.visitInsn(LADD);
                 break;
+            case SUB:
+                mv.visitInsn(LSUB);
+                break;
             case EQUAL:
-                genNode(binaryExpr.lhsExpr, this.env);
-                genNode(binaryExpr.rhsExpr, this.env);
                 mv.visitInsn(LCMP);
                 break;
             default:
                 break;
         }
+    }
+
+    private void visitOrExpression(BLangBinaryExpr binaryExpr) {
+        genNode(binaryExpr.lhsExpr, this.env);
+
+        genNode(binaryExpr.rhsExpr, this.env);
     }
 
     public void visit(BLangAssignment assignNode) {
@@ -328,6 +350,27 @@ public class JavaByteCodeGenerator extends BLangNodeVisitor {
         if (ifNode.elseStmt != null) {
             genNode(ifNode.elseStmt, this.env);
             mv.visitLabel(label2);
+        }
+    }
+
+    public void visit(BLangInvocation iExpr) {
+        if (iExpr.expr != null) {
+            return;
+        }
+
+        for (BLangExpression argExpr : iExpr.requiredArgs) {
+            genNode(argExpr, this.env);
+        }
+
+        BInvokableSymbol symbol = (BInvokableSymbol) iExpr.symbol;
+        String jvmClass = ballerinaPackageToJVMClass(symbol.pkgID);
+        String methodName = symbol.name.value;
+        String methodDesc = generateJVMMethodDesc(symbol);
+        mv.visitMethodInsn(INVOKESTATIC, jvmClass, methodName, methodDesc, false);
+
+        if (TypeTags.INT == symbol.retType.tag) {
+            mv.visitTypeInsn(CHECKCAST, Type.getInternalName(Long.class));
+            mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(Long.class), "longValue", "()J", false);
         }
     }
 }
