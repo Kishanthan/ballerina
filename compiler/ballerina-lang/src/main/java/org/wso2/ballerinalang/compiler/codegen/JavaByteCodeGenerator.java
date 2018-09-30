@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -78,6 +79,7 @@ public class JavaByteCodeGenerator extends BLangNodeVisitor {
     private MethodVisitor mv;
 
     private BalToJVMIndexMap indexMap;
+    private boolean varAssignment;
 
     public JavaByteCodeGenerator(CompilerContext context) {
         context.put(JAVA_BYTE_CODE_GENERATOR_KEY, this);
@@ -214,10 +216,15 @@ public class JavaByteCodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangLocalVarRef localVarRef) {
+        int opcode = LLOAD;
+        if (varAssignment) {
+            opcode = LSTORE;
+        }
+
         int varIndex = getJVMIndexOfVar(localVarRef.varSymbol);
         switch (localVarRef.type.tag) {
             case TypeTags.INT:
-                mv.visitVarInsn(LLOAD, varIndex);
+                mv.visitVarInsn(opcode, varIndex);
                 break;
             default:
                 break;
@@ -282,5 +289,16 @@ public class JavaByteCodeGenerator extends BLangNodeVisitor {
             genNode(binaryExpr.rhsExpr, this.env);
             mv.visitInsn(LADD);
         }
+    }
+
+    public void visit(BLangAssignment assignNode) {
+        BLangExpression lhrExpr = assignNode.varRef;
+        BLangExpression rhsExpr = assignNode.expr;
+
+        genNode(rhsExpr, this.env);
+
+        varAssignment = true;
+        genNode(lhrExpr, this.env);
+        varAssignment = false;
     }
 }
