@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>ballerina-to-java-codegen</artifactId>
+    <artifactId>ballerina-backend-jvm</artifactId>
 
 
     <dependencies>
