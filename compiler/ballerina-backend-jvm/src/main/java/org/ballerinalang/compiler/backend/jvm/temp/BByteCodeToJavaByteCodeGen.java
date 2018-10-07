@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerinalang.bytecodegen;
+package org.ballerinalang.compiler.backend.jvm.temp;
 
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -39,6 +39,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
+import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -48,10 +49,50 @@ import java.util.List;
 import java.util.Map;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
-import static org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Opcodes.AALOAD;
+import static org.objectweb.asm.Opcodes.AASTORE;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
+import static org.objectweb.asm.Opcodes.ACC_SUPER;
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ARETURN;
+import static org.objectweb.asm.Opcodes.ASTORE;
+import static org.objectweb.asm.Opcodes.CHECKCAST;
+import static org.objectweb.asm.Opcodes.DADD;
+import static org.objectweb.asm.Opcodes.DCMPG;
+import static org.objectweb.asm.Opcodes.DDIV;
+import static org.objectweb.asm.Opcodes.DLOAD;
+import static org.objectweb.asm.Opcodes.DMUL;
+import static org.objectweb.asm.Opcodes.DSTORE;
+import static org.objectweb.asm.Opcodes.DSUB;
+import static org.objectweb.asm.Opcodes.GOTO;
+import static org.objectweb.asm.Opcodes.IFGT;
+import static org.objectweb.asm.Opcodes.IFLE;
+import static org.objectweb.asm.Opcodes.IFNE;
+import static org.objectweb.asm.Opcodes.ILOAD;
+import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.ISTORE;
+import static org.objectweb.asm.Opcodes.L2D;
+import static org.objectweb.asm.Opcodes.LADD;
+import static org.objectweb.asm.Opcodes.LCMP;
+import static org.objectweb.asm.Opcodes.LCONST_0;
+import static org.objectweb.asm.Opcodes.LCONST_1;
+import static org.objectweb.asm.Opcodes.LDIV;
+import static org.objectweb.asm.Opcodes.LLOAD;
+import static org.objectweb.asm.Opcodes.LMUL;
+import static org.objectweb.asm.Opcodes.LSTORE;
+import static org.objectweb.asm.Opcodes.LSUB;
+import static org.objectweb.asm.Opcodes.RETURN;
+import static org.objectweb.asm.Opcodes.V1_8;
 
-public class JavaByteCodeGen {
+/**
+ * BByteCodeToJavaByteCodeGen class.
+ */
+public class BByteCodeToJavaByteCodeGen {
 
+    private static PrintStream console = System.out;
 
     private static final String CALL_RESULT_OBJ_NAME = "CALL_RESULT";
 
@@ -64,6 +105,7 @@ public class JavaByteCodeGen {
     private static Map<String, MethodInfo> methodInfoMap = new HashMap<>();
 
     public static void registerProgramFile(ProgramFile programFile) throws Exception {
+
         byte[] classBytes;
         String jvmClassName;
         for (PackageInfo packageInfo : programFile.getPackageInfoEntries()) {
@@ -73,12 +115,13 @@ public class JavaByteCodeGen {
             }
             jvmClassName = ballerinaPackageToJVMClass(packageInfo.getPkgPath());
             classBytes = processPackage(packageInfo, jvmClassName);
-            JavaByteCodeGen.classData.put(jvmClassName, classBytes);
-            Files.write(Paths.get("/Users/kishanthan/WSO2/msc/class-files/DEFAULT_CLASS.class") , classBytes);
+            BByteCodeToJavaByteCodeGen.classData.put(jvmClassName, classBytes);
+            Files.write(Paths.get("/Users/kishanthan/WSO2/msc/class-files/DEFAULT_CLASS.class"), classBytes);
         }
     }
 
     private static byte[] processPackage(PackageInfo packageInfo, String jvmClassName) {
+
         ClassWriter cw = new ClassWriter(COMPUTE_FRAMES);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, jvmClassName, null, Type.getInternalName(Object.class), null);
         generateDefaultConstructor(cw);
@@ -90,12 +133,14 @@ public class JavaByteCodeGen {
     }
 
     private static void processFunction(ClassWriter cw, PackageInfo packageInfo, FunctionInfo functionInfo) {
+
         if (functionInfo.isNative() || functionInfo.getName().contains("<init>") ||
                 functionInfo.getName().contains("<start>") || functionInfo.getName().contains("<stop>")) {
             return;
         }
         MethodInfo methodInfo = new MethodInfo(functionInfo);
-        JavaByteCodeGen.methodInfoMap.put(generateKeyForFuncID(packageInfo.getPkgPath(), functionInfo.getName()),
+        BByteCodeToJavaByteCodeGen.methodInfoMap.put(generateKeyForFuncID(packageInfo.getPkgPath(),
+                functionInfo.getName()),
                 methodInfo);
         String methodDesc = generateJVMMethodDesc(methodInfo);
         String methodName = methodInfo.getName();
@@ -109,11 +154,13 @@ public class JavaByteCodeGen {
     }
 
     private static String generateKeyForFuncID(String pkgPath, String funcName) {
+
         return pkgPath + "#" + funcName;
     }
 
     private static void processInstructions(MethodVisitor mv, Instruction[] instrs, int startIP,
                                             JVMMethodContext ctx) {
+
         int codeLength = ctx.getMethodInfo().getCodeLength();
         ConstantPoolEntry[] consts = ctx.getMethodInfo().getConsts();
         Map<Integer, Label> labelMap = allocateLabels(startIP, codeLength);
@@ -311,7 +358,7 @@ public class JavaByteCodeGen {
                 case InstructionCodes.SCONST:
                     break;
                 default:
-                    System.out.println("*** ERROR UNKNOWN_OP: " + instr.getOpcode() + " -> execution may fail!");
+                    console.println("*** ERROR UNKNOWN_OP: " + instr.getOpcode() + " -> execution may fail!");
             }
         }
         mv.visitMaxs(100, 400);
@@ -320,6 +367,7 @@ public class JavaByteCodeGen {
 
     private static void processCallInstr(MethodVisitor mv, JVMMethodContext ctx,
                                          ConstantPoolEntry[] consts, Instruction.InstructionCALL instruction) {
+
         FunctionInfo funcInfo = ((FunctionRefCPEntry) consts[instruction.funcRefCPIndex]).getFunctionInfo();
         String pkgPath = funcInfo.getPackageInfo().getPkgPath();
 
@@ -365,6 +413,7 @@ public class JavaByteCodeGen {
     }
 
     private static void generateDefaultConstructor(ClassWriter cw) {
+
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
@@ -375,6 +424,7 @@ public class JavaByteCodeGen {
     }
 
     private static String ballerinaPackageToJVMClass(String pkgPath) {
+
         if (".".equals(pkgPath)) {
             return DEFAULT_CLASS_NAME;
         } else {
@@ -383,13 +433,15 @@ public class JavaByteCodeGen {
     }
 
     public static BJVMPackage lookupPackage(String pkgPath) throws Exception {
+
         String className = ballerinaPackageToJVMClass(pkgPath);
         Class<?> clazz = new BJVMClassLoader().loadClass(className);
         return new BJVMPackage(pkgPath, clazz);
     }
 
     public static MethodInfo lookupMethodInfo(String pkgPath, String functionName) {
-        return JavaByteCodeGen.methodInfoMap.get(generateKeyForFuncID(pkgPath, functionName));
+
+        return BByteCodeToJavaByteCodeGen.methodInfoMap.get(generateKeyForFuncID(pkgPath, functionName));
     }
 
     /**
@@ -402,6 +454,7 @@ public class JavaByteCodeGen {
         private MethodInfo methodInfo;
 
         public BJVMFunction(Method method, MethodInfo methodInfo) {
+
             this.method = method;
             this.methodInfo = methodInfo;
         }
@@ -415,6 +468,7 @@ public class JavaByteCodeGen {
         }
 
         private Object[] translateParams(BValue[] params) {
+
             Object[] result = new Object[this.methodInfo.getParamCount()];
             int i = 0;
             for (int j : this.methodInfo.getIntParamLocations()) {
@@ -430,6 +484,7 @@ public class JavaByteCodeGen {
         }
 
         private BValue[] translateResult(Object funcResult) {
+
             BValue[] result = new BValue[this.methodInfo.getRetCount()];
             int[] intRetLocations = this.methodInfo.getIntRetLocations();
             int[] floatRetLocations = this.methodInfo.getFloatRetLocations();
@@ -457,11 +512,13 @@ public class JavaByteCodeGen {
         private Class<?> clazz;
 
         public BJVMPackage(String pkgPath, Class<?> clazz) {
+
             this.pkgPath = pkgPath;
             this.clazz = clazz;
         }
 
         public BJVMFunction getFunction(String name) throws Exception {
+
             MethodInfo mi = lookupMethodInfo(this.pkgPath, name);
             if (mi == null) {
                 throw new RuntimeException("The function '" + name +
@@ -471,6 +528,7 @@ public class JavaByteCodeGen {
         }
 
         private Class<?>[] generateJVMParams(MethodInfo mi) {
+
             List<Class<?>> params = new ArrayList<>();
             for (int i = 0; i < mi.getIntParamCount(); i++) {
                 params.add(long.class);
@@ -485,6 +543,7 @@ public class JavaByteCodeGen {
     }
 
     private static Map<Integer, Label> allocateLabels(int startIP, int codeLength) {
+
         Map<Integer, Label> labelMap = new HashMap<>();
         for (int i = 0; i < codeLength; i++) {
             labelMap.put(i + startIP, new Label());
@@ -513,6 +572,7 @@ public class JavaByteCodeGen {
 
     private static void setObjectArrayFloatFieldValue(JVMMethodContext ctx, String objectName,
                                                       int arrayIndex, int regValueIndex) {
+
         int varIndex = ctx.lookupJVMObjectLocalVariableIndex(objectName);
         ctx.mv().visitVarInsn(ALOAD, varIndex);
         ctx.mv().visitLdcInsn(arrayIndex);
@@ -525,6 +585,7 @@ public class JavaByteCodeGen {
 
     private static void storeIntFieldRetValueToRegister(JVMMethodContext ctx, String objectName,
                                                         int arrayIndex, int regIndex) {
+
         int varIndex = ctx.lookupJVMObjectLocalVariableIndex(objectName);
         ctx.mv().visitVarInsn(ALOAD, varIndex);
 //        ctx.mv().visitLdcInsn(arrayIndex);
@@ -536,6 +597,7 @@ public class JavaByteCodeGen {
 
     private static void storeFloatFieldRetValueToRegister(JVMMethodContext ctx, String objectName,
                                                           int arrayIndex, int regIndex) {
+
         int varIndex = ctx.lookupJVMObjectLocalVariableIndex(objectName);
         ctx.mv().visitVarInsn(ALOAD, varIndex);
         ctx.mv().visitLdcInsn(arrayIndex);
@@ -546,66 +608,79 @@ public class JavaByteCodeGen {
     }
 
     private static void loadBalIntegerLocalVariableToJVMStack(JVMMethodContext ctx, int localIndex) {
+
         int index = ctx.lookupJVMLocalVariableIndex(BMemoryType.LOCAL, BValueType.INTEGER, localIndex);
         loadJVMIntegerLocalVariableToStack(ctx, index);
     }
 
     private static void loadBalFloatLocalVariableToJVMStack(JVMMethodContext ctx, int localIndex) {
+
         int index = ctx.lookupJVMLocalVariableIndex(BMemoryType.LOCAL, BValueType.FLOAT, localIndex);
         loadJVMFloatLocalVariableToStack(ctx, index);
     }
 
     private static void loadBalIntegerRegisterVariableToJVMStack(JVMMethodContext ctx, int regIndex) {
+
         int index = ctx.lookupJVMLocalVariableIndex(BMemoryType.REGISTER, BValueType.INTEGER, regIndex);
         loadJVMIntegerLocalVariableToStack(ctx, index);
     }
 
     private static void loadBalFloatRegisterVariableToJVMStack(JVMMethodContext ctx, int regIndex) {
+
         int index = ctx.lookupJVMLocalVariableIndex(BMemoryType.REGISTER, BValueType.FLOAT, regIndex);
         loadJVMFloatLocalVariableToStack(ctx, index);
     }
 
     private static void storeJVMStackIntegerValueToBalLocalVariable(JVMMethodContext ctx, int localIndex) {
+
         int index = ctx.lookupJVMLocalVariableIndex(BMemoryType.LOCAL, BValueType.INTEGER, localIndex);
         storeJVMIntegerStackValueToLocalVariable(ctx, index);
     }
 
     private static void storeJVMStackFloatValueToBalLocalVariable(JVMMethodContext ctx, int localIndex) {
+
         int index = ctx.lookupJVMLocalVariableIndex(BMemoryType.LOCAL, BValueType.FLOAT, localIndex);
         storeJVMFloatStackValueToLocalVariable(ctx, index);
     }
 
     private static void storeJVMStackIntegerValueToBalRegisterVariable(JVMMethodContext ctx, int regIndex) {
+
         int index = ctx.lookupJVMLocalVariableIndex(BMemoryType.REGISTER, BValueType.INTEGER, regIndex);
         storeJVMIntegerStackValueToLocalVariable(ctx, index);
     }
 
     private static void storeJVMStackFloatValueToBalRegisterVariable(JVMMethodContext ctx, int regIndex) {
+
         int index = ctx.lookupJVMLocalVariableIndex(BMemoryType.REGISTER, BValueType.FLOAT, regIndex);
         storeJVMFloatStackValueToLocalVariable(ctx, index);
     }
 
     private static void storeJVMStackSmallIntegerValueToBalRegisterVariable(JVMMethodContext ctx, int regIndex) {
+
         int index = ctx.lookupJVMLocalVariableIndex(BMemoryType.REGISTER, BValueType.SMALL_INTEGER, regIndex);
         storeJVMSmallIntegerStackValueToLocalVariable(ctx, index);
     }
 
     private static void loadBalSmallIntegerRegisterVariableToJVMStack(JVMMethodContext ctx, int regIndex) {
+
         int index = ctx.lookupJVMLocalVariableIndex(BMemoryType.REGISTER, BValueType.SMALL_INTEGER, regIndex);
         loadJVMSmallIntegerLocalVariableToStack(ctx, index);
     }
 
     private static void storeIntegerConstantToBalRegister(JVMMethodContext ctx, int regIndex, long value) {
+
         int index = ctx.lookupJVMLocalVariableIndex(BMemoryType.REGISTER, BValueType.INTEGER, regIndex);
         storeIntegerConstantToJVMLocalVariable(ctx, index, value);
     }
 
     private static void storeSmallIntegerConstantToBalRegister(JVMMethodContext ctx, int regIndex, int value) {
+
         int index = ctx.lookupJVMLocalVariableIndex(BMemoryType.REGISTER, BValueType.SMALL_INTEGER, regIndex);
         storeSmallIntegerConstantToJVMLocalVariable(ctx, index, value);
     }
 
     private static void storeFloatConstantToBalRegister(JVMMethodContext ctx, int regIndex, double value) {
+
         int index = ctx.lookupJVMLocalVariableIndex(BMemoryType.REGISTER, BValueType.FLOAT, regIndex);
         storeFloatConstantToJVMLocalVariable(ctx, index, value);
     }
@@ -622,48 +697,59 @@ public class JavaByteCodeGen {
     }
 
     private static void loadSmallIntegerConstantToJVMStack(JVMMethodContext ctx, int value) {
+
         ctx.mv().visitLdcInsn(value);
     }
 
     private static void loadFloatConstantToJVMStack(JVMMethodContext ctx, double value) {
+
         ctx.mv().visitLdcInsn(value);
     }
 
     private static void loadJVMIntegerLocalVariableToStack(JVMMethodContext ctx, int index) {
+
         ctx.mv().visitVarInsn(LLOAD, index);
     }
 
     private static void loadJVMFloatLocalVariableToStack(JVMMethodContext ctx, int index) {
+
         ctx.mv().visitVarInsn(DLOAD, index);
     }
 
     private static void loadJVMSmallIntegerLocalVariableToStack(JVMMethodContext ctx, int index) {
+
         ctx.mv().visitVarInsn(ILOAD, index);
     }
 
     private static void storeJVMIntegerStackValueToLocalVariable(JVMMethodContext ctx, int index) {
+
         ctx.mv().visitVarInsn(LSTORE, index);
     }
 
     private static void storeJVMFloatStackValueToLocalVariable(JVMMethodContext ctx, int index) {
+
         ctx.mv().visitVarInsn(DSTORE, index);
     }
 
     private static void storeJVMSmallIntegerStackValueToLocalVariable(JVMMethodContext ctx, int index) {
+
         ctx.mv().visitVarInsn(ISTORE, index);
     }
 
     private static void storeIntegerConstantToJVMLocalVariable(JVMMethodContext ctx, int index, long value) {
+
         loadIntegerConstantToJVMStack(ctx, value);
         ctx.mv().visitVarInsn(LSTORE, index);
     }
 
     private static void storeSmallIntegerConstantToJVMLocalVariable(JVMMethodContext ctx, int index, int value) {
+
         loadSmallIntegerConstantToJVMStack(ctx, value);
         ctx.mv().visitVarInsn(ISTORE, index);
     }
 
     private static void storeFloatConstantToJVMLocalVariable(JVMMethodContext ctx, int index, double value) {
+
         loadFloatConstantToJVMStack(ctx, value);
         ctx.mv().visitVarInsn(DSTORE, index);
     }
@@ -700,6 +786,7 @@ public class JavaByteCodeGen {
         private int codeLength;
 
         public MethodInfo(FunctionInfo functionInfo) {
+
             this.functionInfo = functionInfo;
             this.processParams();
             this.processReturnValues();
@@ -734,6 +821,7 @@ public class JavaByteCodeGen {
         }
 
         private void processReturnValues() {
+
             List<Integer> intRetLocationList = new ArrayList<>();
             List<Integer> floatRetLocationList = new ArrayList<>();
             BType[] types = this.functionInfo.getRetParamTypes();
@@ -802,74 +890,92 @@ public class JavaByteCodeGen {
         }
 
         public int[] getCallRetValueTypeValueLengths() {
+
             return callRetValueTypeValueLengths;
         }
 
         public ConstantPoolEntry[] getConsts() {
+
             return this.functionInfo.getPackageInfo().getConstPoolEntries();
         }
 
         public Instruction[] getInstrs() {
+
             return this.functionInfo.getPackageInfo().getInstructions();
         }
 
         public int getCallRetValueLength() {
+
             return callRetValueLength;
         }
 
         public String getName() {
+
             return this.functionInfo.getName();
         }
 
         public int getCodeLength() {
+
             return codeLength;
         }
 
         public int getStartIP() {
+
             return this.functionInfo.getDefaultWorkerInfo().getCodeAttributeInfo().getCodeAddrs();
         }
 
         public int getParamCount() {
+
             return this.functionInfo.getParamTypes().length;
         }
 
         public int getParamLength() {
+
             return paramLength;
         }
 
         public int getRetCount() {
+
             return this.functionInfo.getRetParamTypes().length;
         }
 
         public int[] getIntParamLocations() {
+
             return intParamLocations;
         }
 
         public int[] getFloatParamLocations() {
+
             return floatParamLocations;
         }
 
         public int getIntParamCount() {
+
             return this.intParamLocations.length;
         }
 
         public int getFloatParamCount() {
+
             return this.floatParamLocations.length;
         }
 
         public int getIntRetCount() {
+
             return intRetLocations.length;
         }
 
         public int getFloatRetCount() {
+
             return floatRetLocations.length;
         }
 
         public int[] getIntRetLocations() {
+
             return intRetLocations;
         }
 
         public int[] getFloatRetLocations() {
+
             return floatRetLocations;
         }
 
@@ -889,6 +995,7 @@ public class JavaByteCodeGen {
         private MethodInfo methodInfo;
 
         public JVMMethodContext(MethodVisitor mv, MethodInfo methodInfo) {
+
             this.mv = mv;
             this.methodInfo = methodInfo;
             this.currentLocalMemoryLocation += this.methodInfo.getParamLength() +
@@ -896,10 +1003,12 @@ public class JavaByteCodeGen {
         }
 
         public MethodVisitor mv() {
+
             return mv;
         }
 
         private int lookupReturnValueLocation(BMemoryType memoryType, BValueType valueType, int index) {
+
             if (BMemoryType.REGISTER.equals(memoryType)) {
                 switch (valueType) {
                     case INTEGER:
@@ -925,6 +1034,7 @@ public class JavaByteCodeGen {
         }
 
         private int lookupMethodParamLocation(BMemoryType memoryType, BValueType valueType, int index) {
+
             if (BMemoryType.LOCAL.equals(memoryType)) {
                 switch (valueType) {
                     case INTEGER:
@@ -968,6 +1078,7 @@ public class JavaByteCodeGen {
         }
 
         public int lookupJVMObjectLocalVariableIndex(String name) {
+
             String key = this.generateLocalVariableLocationKey(name);
             Integer location = this.localVariableLocationMap.get(key);
             if (location == null) {
@@ -979,6 +1090,7 @@ public class JavaByteCodeGen {
         }
 
         public int lookupJVMLocalVariableIndex(BMemoryType memoryType, BValueType valueType, int index) {
+
             String key = this.generateLocalVariableLocationKey(memoryType, valueType, index);
             Integer location = this.localVariableLocationMap.get(key);
             if (location == null) {
@@ -1000,14 +1112,17 @@ public class JavaByteCodeGen {
         }
 
         private String generateLocalVariableLocationKey(BMemoryType memoryType, BValueType valueType, int index) {
+
             return memoryType.name() + "_" + valueType.name() + "_" + index;
         }
 
         private String generateLocalVariableLocationKey(String name) {
+
             return "OBJECT_" + name;
         }
 
         private boolean isWideMemoryType(BValueType type) {
+
             if (type.equals(BValueType.INTEGER) || type.equals(BValueType.FLOAT)) {
                 return true;
             }
@@ -1016,12 +1131,14 @@ public class JavaByteCodeGen {
         }
 
         public MethodInfo getMethodInfo() {
+
             return methodInfo;
         }
 
     }
 
     private static String generateJVMMethodDesc(MethodInfo methodInfo) {
+
         StringBuffer result = new StringBuffer("(");
         for (int i = 0; i < methodInfo.getIntParamCount(); i++) {
             result.append("J");
@@ -1034,6 +1151,7 @@ public class JavaByteCodeGen {
     }
 
     private static void printBVals(BValue[] vals) {
+
         StringBuilder builder = new StringBuilder("[");
         for (int i = 0; i < vals.length; i++) {
             if (i > 0) {
@@ -1047,7 +1165,7 @@ public class JavaByteCodeGen {
             //TODO support all types
         }
         builder.append("]");
-        System.out.println(builder.toString());
+        console.println(builder.toString());
     }
 
     /**
@@ -1056,12 +1174,14 @@ public class JavaByteCodeGen {
     private static class BJVMClassLoader extends ClassLoader {
 
         public Class<?> findClass(String name) {
+
             byte[] b = this.loadClassData(name);
             return defineClass(name, b, 0, b.length);
         }
 
         public byte[] loadClassData(String name) {
-            byte[] data = JavaByteCodeGen.classData.get(name);
+
+            byte[] data = BByteCodeToJavaByteCodeGen.classData.get(name);
             if (data == null) {
                 throw new RuntimeException("The class '" + name + "' is not registered in the environment");
             }
@@ -1075,8 +1195,8 @@ public class JavaByteCodeGen {
 //
 //        ProgramFile programFile = BCompileUtil.compile(progDir + File.separator + sourceFile).getProgFile();
 //
-//        JavaByteCodeGen.registerProgramFile(programFile);
-//        BJVMPackage pkg = JavaByteCodeGen.lookupPackage(".");
+//        BByteCodeToJavaByteCodeGen.registerProgramFile(programFile);
+//        BJVMPackage pkg = BByteCodeToJavaByteCodeGen.lookupPackage(".");
 //
 //        int count1 = 1000000, count2 = 200000;
 //        int fibn = 33;
@@ -1091,61 +1211,67 @@ public class JavaByteCodeGen {
 //    }
 
     public static void fibBalVM(ProgramFile programFile, long n) {
-        System.out.println("#Fibonnacci BAL VM");
+
+        console.println("#Fibonnacci BAL VM");
         long start = System.currentTimeMillis();
         Debugger debugger = new Debugger(programFile);
         programFile.setDebugger(debugger);
-        BValue[] vals = BLangFunctions.invokeEntrypointCallable(programFile, ".", "fib", new BValue[] { new BInteger(n) });
+        BValue[] vals = BLangFunctions.invokeEntrypointCallable(programFile, ".", "fib", new BValue[]{new BInteger(n)});
         long end = System.currentTimeMillis();
         printBVals(vals);
-        System.out.println("Time: " + (end - start) + " ms.");
+        console.println("Time: " + (end - start) + " ms.");
     }
 
     public static void loopTestBalVM(ProgramFile programFile, long count, long x) {
-        System.out.println("#LoopTest BAL VM");
+
+        console.println("#LoopTest BAL VM");
         long start = System.currentTimeMillis();
         BValue[] vals = BLangFunctions.invokeEntrypointCallable(programFile, ".", "loopTest",
-                new BValue[] { new BInteger(count), new BInteger(x) });
+                new BValue[]{new BInteger(count), new BInteger(x)});
         long end = System.currentTimeMillis();
         printBVals(vals);
-        System.out.println("Time: " + (end - start) + " ms.");
+        console.println("Time: " + (end - start) + " ms.");
     }
 
     public static void smallOpMultipleCallsBalVM(ProgramFile programFile, long count, long b, long c) {
-        System.out.println("#Small Op Multiple Calls BAL VM");
+
+        console.println("#Small Op Multiple Calls BAL VM");
         long start = System.currentTimeMillis();
         BValue[] vals = null;
         for (long i = 0; i < count; i++) {
             vals = BLangFunctions.invokeEntrypointCallable(programFile, ".", "smallOp",
-                    new BValue[] { new BInteger(i), new BInteger(b), new BInteger(c) });
+                    new BValue[]{new BInteger(i), new BInteger(b), new BInteger(c)});
         }
         long end = System.currentTimeMillis();
         printBVals(vals);
-        System.out.println("Time: " + (end - start) + " ms.");
+        console.println("Time: " + (end - start) + " ms.");
     }
 
-    public static void fibBalJVM(BJVMPackage pkg, long n)throws Exception {
-        System.out.println("#Fibonnacci BAL JVM");
+    public static void fibBalJVM(BJVMPackage pkg, long n) throws Exception {
+
+        console.println("#Fibonnacci BAL JVM");
         BJVMFunction func = pkg.getFunction("fib");
         long start = System.currentTimeMillis();
         BValue[] vals = func.invoke(new BInteger(n));
         long end = System.currentTimeMillis();
         printBVals(vals);
-        System.out.println("Time: " + (end - start) + " ms.");
+        console.println("Time: " + (end - start) + " ms.");
     }
 
-    public static void loopTestBalJVM(BJVMPackage pkg, int count, int x)throws Exception {
-        System.out.println("#LoopTest BAL JVM");
+    public static void loopTestBalJVM(BJVMPackage pkg, int count, int x) throws Exception {
+
+        console.println("#LoopTest BAL JVM");
         BJVMFunction func = pkg.getFunction("loopTest");
         long start = System.currentTimeMillis();
         BValue[] vals = func.invoke(new BInteger(count), new BInteger(x));
         long end = System.currentTimeMillis();
         printBVals(vals);
-        System.out.println("Time: " + (end - start) + " ms.");
+        console.println("Time: " + (end - start) + " ms.");
     }
 
-    public static void smallOpMultipleCallsBalJVM(BJVMPackage pkg, long count, long b, long c)throws Exception {
-        System.out.println("#Small Op Multiple Calls BAL JVM");
+    public static void smallOpMultipleCallsBalJVM(BJVMPackage pkg, long count, long b, long c) throws Exception {
+
+        console.println("#Small Op Multiple Calls BAL JVM");
         BJVMFunction func = pkg.getFunction("smallOp");
         long start = System.currentTimeMillis();
         BValue[] vals = null;
@@ -1154,6 +1280,6 @@ public class JavaByteCodeGen {
         }
         long end = System.currentTimeMillis();
         printBVals(vals);
-        System.out.println("Time: " + (end - start) + " ms.");
+        console.println("Time: " + (end - start) + " ms.");
     }
 }

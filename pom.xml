@@ -371,6 +371,27 @@
                 <classifier>ballerina-sources</classifier>
             </dependency>
 
+            <!-- ballerina-jvm -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jvm</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jvm</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jvm</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+
             <!-- ballerina-bir -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -812,6 +833,11 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-backend-llvm</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-backend-jvm</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <!--<dependency>-->
@@ -1728,7 +1754,6 @@
             <id>ballerina</id>
             <modules>
                 <module>compiler/ballerina-lang</module>
-                <module>compiler/ballerina-to-java-codegen</module>
 
                 <module>stdlib/builtin</module>
                 <module>stdlib/runtime</module>
@@ -1745,6 +1770,7 @@
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
                 <module>stdlib/llvm</module>
+                <module>stdlib/jvm</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
@@ -1771,6 +1797,7 @@
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
                 <module>compiler/ballerina-backend-llvm</module>
+                <module>compiler/ballerina-backend-jvm</module>
                 <!--<module>compiler/ballerina-backend-bvm</module>-->
 
                 <!--Should Run Before tests/ballerina-test-->
@@ -1809,7 +1836,6 @@
             </activation>
             <modules>
                 <module>compiler/ballerina-lang</module>
-                <module>compiler/ballerina-to-java-codegen</module>
 
                 <module>stdlib/builtin</module>
                 <module>stdlib/runtime</module>
@@ -1826,6 +1852,7 @@
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
                 <module>stdlib/llvm</module>
+                <module>stdlib/jvm</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
@@ -1852,6 +1879,7 @@
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
                 <module>compiler/ballerina-backend-llvm</module>
+                <module>compiler/ballerina-backend-jvm</module>
                 <!--<module>compiler/ballerina-backend-bvm</module>-->
 
                 <!--Should Run Before tests/ballerina-test-->
