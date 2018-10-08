@@ -19,19 +19,17 @@ package org.ballerinalang.nativeimpl.jvm;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Type;
 
 import static org.ballerinalang.model.types.TypeKind.ARRAY;
-import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.STRING;
 import static org.objectweb.asm.Opcodes.GOTO;
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.IFGT;
+import static org.objectweb.asm.Opcodes.IFLT;
 
 /**
  * Native class for jvm method byte code creation.
@@ -55,10 +53,25 @@ public class JVMLabelVisitor extends BlockingNativeCallableUnit {
         BStringArray args = (BStringArray) context.getRefArgument(0);
 
         switch (LabelVisitType.valueOf(type.toUpperCase())) {
-            case GOTO:
+            case CREATE:
                 String labelId = args.get(0);
-                Label label = JVMCodeGenUtil.getInstance().getLabel(labelId);
+                Label label = new Label();
+                JVMCodeGenUtil.getInstance().addLebel(labelId, label);
+                break;
+            case GOTO:
+                labelId = args.get(0);
+                label = JVMCodeGenUtil.getInstance().getLabel(labelId);
                 mv.visitJumpInsn(GOTO, label);
+                break;
+            case GREATER_THAN_0:
+                labelId = args.get(0);
+                label = JVMCodeGenUtil.getInstance().getLabel(labelId);
+                mv.visitJumpInsn(IFGT, label);
+                break;
+            case LESS_THAN_0:
+                labelId = args.get(0);
+                label = JVMCodeGenUtil.getInstance().getLabel(labelId);
+                mv.visitJumpInsn(IFLT, label);
                 break;
             case VISIT:
                 labelId = args.get(0);
@@ -71,6 +84,6 @@ public class JVMLabelVisitor extends BlockingNativeCallableUnit {
     }
 
     enum LabelVisitType {
-        GOTO, VISIT;
+        CREATE, GOTO, VISIT, COMPARE, GREATER_THAN_0, LESS_THAN_0;
     }
 }

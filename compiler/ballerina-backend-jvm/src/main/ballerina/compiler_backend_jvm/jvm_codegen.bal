@@ -91,12 +91,12 @@ function generateMethodBody(bir:Function func) {
 
         // visit instructions
         int j = 0;
-        while(j < lengthof bb.instructions) {
+        while (j < lengthof bb.instructions) {
             bir:Instruction inst = bb.instructions[j];
             match inst {
                 bir:ConstantLoad constIns => visitConstantLoadIns(constIns);
                 bir:Move moveIns => visitMoveIns(moveIns);
-                bir:BinaryOp binaryIns => int b = 5; //todo not supported yet
+                bir:BinaryOp binaryIns => visitBinaryOpIns(binaryIns);
             }
             j++;
         }
@@ -132,12 +132,55 @@ function visitMoveIns(bir:Move moveIns) {
     jvm:methodVisit("var_ins", [LSTORE, lhsLndex]);
 }
 
+function visitBinaryOpIns(bir:BinaryOp binaryIns) {
+    int rhsOps1Index = getJVMIndexOfVarRef(binaryIns.rhsOp1.variableDcl) but {() => 0};
+    jvm:methodVisit("var_ins", [LLOAD, rhsOps1Index]);
+
+    int rhsOps2Index = getJVMIndexOfVarRef(binaryIns.rhsOp2.variableDcl) but {() => 0};
+    jvm:methodVisit("var_ins", [LLOAD, rhsOps2Index]);
+
+    match binaryIns.kind {
+        bir:LESS_THAN lessThanIns => visitLessThanIns(lessThanIns, binaryIns.lhsOp);
+        bir:ADD => int a = 5; // todo not supported yet
+        bir:DIV => int a = 5; // todo not supported yet
+        bir:EQUAL => int a = 5; // todo not supported yet
+        bir:GREATER_EQUAL => int a = 5; // todo not supported yet
+        bir:GREATER_THAN => int a = 5; // todo not supported yet
+        bir:LESS_EQUAL => int a = 5; // todo not supported yet
+        bir:MUL => int a = 5; // todo not supported yet
+        bir:NOT_EQUAL => int a = 5; // todo not supported yet
+        bir:SUB => int a = 5; // todo not supported yet
+    }
+
+}
+
+function visitLessThanIns(bir:LESS_THAN lessThanIns, bir:VarRef lhsOp) {
+    int lhsOpIndex = getJVMIndexOfVarRef(lhsOp.variableDcl) but {() => 0};
+
+    string label1 = io:sprintf("%s", lhsOp.variableDcl) + "01";
+    string label2 = io:sprintf("%s", lhsOp.variableDcl) + "02";
+
+    jvm:labelVisit("create", [label1]);
+    jvm:labelVisit("create", [label2]);
+
+    jvm:methodVisit("ins", [LCMP]);
+    jvm:labelVisit("less_than_0", [label1]);
+
+    jvm:methodVisit("ins", [ICONST_0]);
+    jvm:labelVisit("goto", [label2]);
+
+    jvm:labelVisit("visit", [label1]);
+    jvm:methodVisit("ins", [ICONST_1]);
+
+    jvm:labelVisit("visit", [label2]);
+    jvm:methodVisit("var_ins", [ISTORE, lhsOpIndex]);
+}
 
 function visitTerminator(bir:BasicBlock bb, boolean isVoidFunc) {
     match bb.terminator {
         bir:GOTO gotoIns => genGoToTerm(gotoIns);
         bir:Return returnIns => genReturnTerm(returnIns, isVoidFunc);
-        bir:Branch brIns => int a = 4; //todo not supported yet
+        bir:Branch brIns => genBranchTerm(brIns);
         bir:Call callIns => int b = 4; //todo not supported yet
     }
 }
@@ -154,6 +197,16 @@ function genReturnTerm(bir:Return returnIns, boolean isVoidFunc) {
         jvm:methodVisit("method_ins", []);
         jvm:methodVisit("ins", [ARETURN]);
     }
+}
+
+function genBranchTerm(bir:Branch branchIns) {
+    string trueBBId = branchIns.trueBB.id.value;
+    string falseBBId = branchIns.falseBB.id.value;
+
+    int opIndex = getJVMIndexOfVarRef(branchIns.op.variableDcl) but {() => 0};
+    jvm:methodVisit("var_ins", [ILOAD, opIndex]);
+    jvm:labelVisit("greater_than_0", [trueBBId]);
+    jvm:labelVisit("goto", [falseBBId]);
 }
 
 function generateReturnType(bir:BType bType) returns string {

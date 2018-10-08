@@ -55,6 +55,10 @@ class JVMCodeGenUtil {
         this.methodVisitor = methodVisitor;
     }
 
+    void addLebel(String labelId, Label label) {
+        labels.put(labelId, label);
+    }
+
     Label getLabel(String labelId) {
         if (!(labels.containsKey(labelId))) {
             labels.put(labelId, new Label());
