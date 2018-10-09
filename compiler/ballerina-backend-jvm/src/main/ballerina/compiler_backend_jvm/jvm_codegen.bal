@@ -3,8 +3,9 @@ import ballerina/bir;
 import ballerina/jvm;
 import ballerina/reflect;
 
-BalToJVMIndexMap indexMap = new();
+BalToJVMIndexMap indexMap;
 int returnVarRefIndex;
+string currentFuncName;
 
 public function main(string... args) {
     //do nothing
@@ -35,13 +36,14 @@ function defineClass(bir:Name orgName, bir:Name pkgName, bir:Name ver) {
 
 function generateMethods(bir:Function[] funcs) {
     foreach func in funcs {
+        indexMap = new();
         generateMethodDesc(func);
         generateMethodBody(func);
     }
 }
 
 function generateMethodDesc(bir:Function func) {
-    string name = func.name.value;
+    currentFuncName = untaint func.name.value;
 
     string desc = "(";
     int i;
@@ -55,7 +57,7 @@ function generateMethodDesc(bir:Function func) {
 
     desc = desc + returnType;
 
-    jvm:classVisit("method", [name, desc]);
+    jvm:classVisit("method", [currentFuncName, desc]);
 }
 
 function generateMethodBody(bir:Function func) {
@@ -87,7 +89,7 @@ function generateMethodBody(bir:Function func) {
         io:println("Basic Block Is : ", bb.id.value);
 
         // create jvm label
-        jvm:labelVisit("visit", [bb.id.value]);
+        jvm:labelVisit("visit", [currentFuncName + bb.id.value]);
 
         // visit instructions
         int j = 0;
@@ -141,7 +143,7 @@ function visitBinaryOpIns(bir:BinaryOp binaryIns) {
 
     match binaryIns.kind {
         bir:LESS_THAN lessThanIns => visitLessThanIns(lessThanIns, binaryIns.lhsOp);
-        bir:ADD => int a = 5; // todo not supported yet
+        bir:ADD addIns => visitAddIns(addIns, binaryIns.lhsOp);
         bir:DIV => int a = 5; // todo not supported yet
         bir:EQUAL => int a = 5; // todo not supported yet
         bir:GREATER_EQUAL => int a = 5; // todo not supported yet
@@ -176,17 +178,24 @@ function visitLessThanIns(bir:LESS_THAN lessThanIns, bir:VarRef lhsOp) {
     jvm:methodVisit("var_ins", [ISTORE, lhsOpIndex]);
 }
 
+function visitAddIns(bir:ADD addIns, bir:VarRef lhsOp) {
+    int lhsOpIndex = getJVMIndexOfVarRef(lhsOp.variableDcl) but {() => 0};
+
+    jvm:methodVisit("ins", [LADD]);
+    jvm:methodVisit("var_ins", [LSTORE, lhsOpIndex]);
+}
+
 function visitTerminator(bir:BasicBlock bb, boolean isVoidFunc) {
     match bb.terminator {
         bir:GOTO gotoIns => genGoToTerm(gotoIns);
         bir:Return returnIns => genReturnTerm(returnIns, isVoidFunc);
         bir:Branch brIns => genBranchTerm(brIns);
-        bir:Call callIns => int b = 4; //todo not supported yet
+        bir:Call callIns => genCallTerm(callIns);
     }
 }
 
 function genGoToTerm(bir:GOTO gotoIns) {
-    jvm:labelVisit("goto", [gotoIns.targetBB.id.value]);
+    jvm:labelVisit("goto", [currentFuncName + gotoIns.targetBB.id.value]);
 }
 
 function genReturnTerm(bir:Return returnIns, boolean isVoidFunc) {
@@ -205,9 +214,38 @@ function genBranchTerm(bir:Branch branchIns) {
 
     int opIndex = getJVMIndexOfVarRef(branchIns.op.variableDcl) but {() => 0};
     jvm:methodVisit("var_ins", [ILOAD, opIndex]);
-    jvm:labelVisit("greater_than_0", [trueBBId]);
-    jvm:labelVisit("goto", [falseBBId]);
+    jvm:labelVisit("greater_than_0", [currentFuncName + trueBBId]);
+    jvm:labelVisit("goto", [currentFuncName + falseBBId]);
 }
+
+function genCallTerm(bir:Call callIns) {
+    string jvmClass = "DEFAULT_CLASS"; //todo get the correct class name
+    string methodName = callIns.name.value;
+    string methodDesc = "(";
+    foreach arg in callIns.args {
+        int argIndex = getJVMIndexOfVarRef(arg.variableDcl) but {() => 0};
+        jvm:methodVisit("var_ins", [LLOAD, argIndex]);
+        methodDesc = methodDesc + "J";
+    }
+
+    methodDesc = methodDesc + ")Ljava/lang/Object;";
+
+    // call method
+    jvm:methodInvokeVisit("invoke_static", [jvmClass, methodName, methodDesc]);
+
+    jvm:methodInvokeVisit("type_cast", []);
+    jvm:methodInvokeVisit("invoke_virtual", [jvmClass, methodName, methodDesc]);
+
+    // store return
+    bir:VariableDcl lhsOpVarDcl = callIns.lhsOp.variableDcl but {() => {}};
+
+    int lhsLndex = getJVMIndexOfVarRef(lhsOpVarDcl) but {() => 0};
+    jvm:methodVisit("var_ins", [LSTORE, lhsLndex]);
+
+    // goto thenBB
+    jvm:labelVisit("goto", [currentFuncName + callIns.thenBB.id.value]);
+}
+
 
 function generateReturnType(bir:BType bType) returns string {
     match bType {
