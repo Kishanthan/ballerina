@@ -288,8 +288,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     private final SymbolTable symTable;
     private final PackageCache packageCache;
 
-//    private final JavaByteCodeGenerator javaByteCodeGenerator;
-
     PackageInfo currentPkgInfo;
     private PackageID currentPkgID;
     private int currentPackageRefCPIndex;
@@ -333,7 +331,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         context.put(CODE_GENERATOR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.packageCache = PackageCache.getInstance(context);
-//        this.javaByteCodeGenerator = new JavaByteCodeGenerator(context);
     }
 
     public ProgramFile generateBALX(BLangPackage pkgNode) {
@@ -445,8 +442,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         });
 
         currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE, lineNoAttrInfo);
-
-//        javaByteCodeGenerator.generateClass(pkgNode);
 
         currentPackageRefCPIndex = -1;
         currentPkgID = null;
