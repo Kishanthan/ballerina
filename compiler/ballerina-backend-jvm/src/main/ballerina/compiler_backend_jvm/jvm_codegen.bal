@@ -87,7 +87,7 @@ function generateMethodBody(bir:Function func) {
     bir:BasicBlock[] basicBlocks = func.basicBlocks;
     while (i < lengthof basicBlocks) {
         bir:BasicBlock bb = basicBlocks[i];
-        io:println("Basic Block Is : ", bb.id.value);
+        //io:println("Basic Block Is : ", bb.id.value);
         currentBBName = io:sprintf("%s", bb.id.value);
 
         // create jvm label
@@ -120,19 +120,19 @@ function visitConstantLoadIns(bir:ConstantLoad loadIns) {
 
     //store
     int index = getJVMIndexOfVarRef(loadIns.lhsOp.variableDcl) but {() => 0};
-    io:println("Const Store Index is :::::::::::", index);
+    //io:println("Const Store Index is :::::::::::", index);
     jvm:methodVisit("var_ins", [LSTORE, index]);
 }
 
 function visitMoveIns(bir:Move moveIns) {
     //load
     int rhsIndex = getJVMIndexOfVarRef(moveIns.rhsOp.variableDcl) but {() => 0};
-    io:println("RHS Index is :::::::::::", rhsIndex);
+    //io:println("RHS Index is :::::::::::", rhsIndex);
     jvm:methodVisit("var_ins", [LLOAD, rhsIndex]);
 
      //store
     int lhsLndex = getJVMIndexOfVarRef(moveIns.lhsOp.variableDcl) but {() => 0};
-    io:println("LHS Index is :::::::::::", lhsLndex);
+    //io:println("LHS Index is :::::::::::", lhsLndex);
     jvm:methodVisit("var_ins", [LSTORE, lhsLndex]);
 }
 
