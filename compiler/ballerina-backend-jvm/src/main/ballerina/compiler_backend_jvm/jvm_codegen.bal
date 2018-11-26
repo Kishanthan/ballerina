@@ -13,7 +13,8 @@ public function main(string... args) {
 }
 
 function genJVMClassFile(byte[] birBinary) returns byte[] {
-    io:ByteChannel byteChannel = io:createMemoryChannel(birBinary);
+//    io:ByteChannel byteChannel = io:createMemoryChannel(birBinary);
+    io:ReadableByteChannel byteChannel = io:createReadableChannel(birBinary);
     bir:ChannelReader reader = new(byteChannel);
     checkValidBirChannel(reader);
     bir:ConstPoolParser cpParser = new(reader);
@@ -310,10 +311,10 @@ function checkVersion(bir:ChannelReader reader) {
     }
 }
 
-function openFileForReading(string filePath) returns io:ByteChannel {
-    io:ByteChannel byteChannel = io:openFile(filePath, io:READ);
-    return byteChannel;
-}
+//function openFileForReading(string filePath) returns io:ByteChannel {
+//    io:ByteChannel byteChannel = io:openFile(filePath, io:READ);
+//    return byteChannel;
+//}
 
 function arrayEq(byte[] x, byte[] y) returns boolean {
     var xLen = lengthof x;
