@@ -28,6 +28,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.StringJoiner;
 
+import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ArrayAccess;
+import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.BinaryOp;
+import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ConstantLoad;
+import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.Move;
+import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
+import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
+
 /**
  * This class emits the text version of the BIR.
  *
@@ -104,7 +111,7 @@ public class BIREmitter extends BIRVisitor {
     }
 
     // Non-terminating instructions
-    public void visit(BIRNonTerminator.Move birMove) {
+    public void visit(Move birMove) {
         sb.append("\t\t");
         birMove.lhsOp.accept(this);
         sb.append(" = ");
@@ -112,7 +119,7 @@ public class BIREmitter extends BIRVisitor {
         sb.append(";\n");
     }
 
-    public void visit(BIRNonTerminator.BinaryOp birBinaryOp) {
+    public void visit(BinaryOp birBinaryOp) {
         sb.append("\t\t");
         birBinaryOp.lhsOp.accept(this);
         sb.append(" = ").append(birBinaryOp.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
@@ -122,11 +129,11 @@ public class BIREmitter extends BIRVisitor {
         sb.append(";\n");
     }
 
-    public void visit(BIRNonTerminator.UnaryOP birUnaryOp) {
+    public void visit(UnaryOP birUnaryOp) {
         throw new AssertionError();
     }
 
-    public void visit(BIRNonTerminator.ConstantLoad birConstantLoad) {
+    public void visit(ConstantLoad birConstantLoad) {
         sb.append("\t\t");
         birConstantLoad.lhsOp.accept(this);
         sb.append(" = ").append(birConstantLoad.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
@@ -159,5 +166,37 @@ public class BIREmitter extends BIRVisitor {
 
     public void visit(BIROperand.BIRConstant birConstant) {
         sb.append("const ").append(birConstant.value);
+    }
+
+    @Override
+    public void visit(NewArray newArray) {
+        sb.append("\t\t");
+        newArray.lhsOp.accept(this);
+        sb.append(" = new ");
+        sb.append(newArray.type.toString());
+        sb.append("\n");
+    }
+
+    @Override
+    public void visit(ArrayAccess arrayAccess) {
+        sb.append("\t\t");
+        arrayAccess.lhsOp.accept(this);
+        sb.append(" = ").append(arrayAccess.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        arrayAccess.rhsOp.accept(this);
+        sb.append("[");
+        arrayAccess.index.accept(this);
+        sb.append("]\n");
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.ArrayStore arrayStore) {
+        sb.append("\t\t");
+        arrayStore.lhsOp.accept(this);
+        sb.append("[");
+        arrayStore.index.accept(this);
+        sb.append("] = ");
+        arrayStore.rhsOp.accept(this);
+        sb.append("\n");
+
     }
 }

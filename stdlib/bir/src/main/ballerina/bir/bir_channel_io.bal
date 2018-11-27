@@ -7,17 +7,6 @@ public type BirChannelReader object {
     public new(reader, cp){
     }
 
-    public function readBType() returns BType {
-        string sginatureAlias = readStringCpRef();
-        if (sginatureAlias == "I"){
-            return "int";
-        } else if (sginatureAlias == "B"){
-            return "boolean";
-        }
-        error err = { message: "type signature " + sginatureAlias + " not supported." };
-        throw err;
-    }
-
     public function readStringCpRef() returns string {
         return cp.strings[reader.readInt32()];
     }

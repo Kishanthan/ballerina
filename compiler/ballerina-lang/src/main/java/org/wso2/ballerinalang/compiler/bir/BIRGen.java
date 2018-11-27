@@ -24,14 +24,17 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ArrayAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.BinaryOp;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.Move;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand.BIRVarRef;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.Visibility;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -61,6 +64,8 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
+
 /**
  * Lower the AST to BIR.
  *
@@ -70,6 +75,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<BIRGen> BIR_GEN =
             new CompilerContext.Key<>();
+    private final SymbolTable symbolTable;
 
     private BIRGenEnv env;
     private Names names;
@@ -86,6 +92,7 @@ public class BIRGen extends BLangNodeVisitor {
     private BIRGen(CompilerContext context) {
         context.put(BIR_GEN, this);
 
+        symbolTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
     }
 
@@ -369,6 +376,49 @@ public class BIRGen extends BLangNodeVisitor {
         BIRVarRef toVarRef = new BIRVarRef(tempVarDcl);
         emit(new BIRNonTerminator.ConstantLoad(astLiteralExpr.value, astLiteralExpr.type, toVarRef));
         this.env.targetOperand = toVarRef;
+    }
+
+    public void visit(BLangArrayLiteral arrayLiteral) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(arrayLiteral.type,
+                                                       this.env.nextLocalVarId(names), VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIRVarRef toVarRef = new BIRVarRef(tempVarDcl);
+        List<Object> initValues = new ArrayList<>();
+
+        emit(new NewArray(initValues, arrayLiteral.type, toVarRef));
+
+        List<BLangExpression> exprs = arrayLiteral.exprs;
+        for (int i = 0; i < exprs.size(); i++) {
+            BLangExpression expr = exprs.get(i);
+            expr.accept(this);
+            BIROperand rhsOp1 = this.env.targetOperand;
+
+            BIRVariableDcl tempVarDcl2 = new BIRVariableDcl(symbolTable.intType,
+                                                            this.env.nextLocalVarId(names), VarKind.TEMP);
+            this.env.enclFunc.localVars.add(tempVarDcl2);
+            BIRVarRef toVarRef2 = new BIRVarRef(tempVarDcl2);
+            emit(new BIRNonTerminator.ConstantLoad(i, symbolTable.intType, toVarRef2));
+            this.env.targetOperand = toVarRef2;
+
+            emit(new BIRNonTerminator.ArrayStore(rhsOp1, toVarRef2, toVarRef));
+        }
+
+        this.env.targetOperand = toVarRef;
+    }
+
+    public void visit(BLangArrayAccessExpr arrayIndexAccessExpr) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(arrayIndexAccessExpr.type,
+                                                       this.env.nextLocalVarId(names),
+                                                       VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIRVarRef toVarRef = new BIRVarRef(tempVarDcl);
+
+        arrayIndexAccessExpr.indexExpr.accept(this);
+        BIROperand indexExpr = this.env.targetOperand;
+        BIRVarRef fromVarRef = new BIRVarRef(this.env.symbolVarMap.get(arrayIndexAccessExpr.expr.symbol));
+        emit(new ArrayAccess(fromVarRef, indexExpr, toVarRef));
+        this.env.targetOperand = toVarRef;
+
     }
 
     public void visit(BLangLocalVarRef astVarRefExpr) {

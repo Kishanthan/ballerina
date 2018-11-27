@@ -8,7 +8,7 @@ public type PackageParser object {
     public function parseVariableDcl() returns VariableDcl {
         var kind = parseVarKind();
         VariableDcl dcl = {
-            typeValue: reader.readBType(),
+            typeValue: typeParser.parseType(),
             name: { value: reader.readStringCpRef() },
             kind:kind
         };
@@ -37,7 +37,7 @@ public type PackageParser object {
             localVarMap[dcl.name.value] = dcl;
             i++;
         }
-        FuncBodyParser bodyParser = new(reader, localVarMap);
+        FuncBodyParser bodyParser = new(reader, typeParser, localVarMap);
 
         BasicBlock[] basicBlocks;
         var numBB = reader.readInt32();

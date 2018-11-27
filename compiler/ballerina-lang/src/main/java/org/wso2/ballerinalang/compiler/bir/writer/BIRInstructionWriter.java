@@ -27,10 +27,19 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.BooleanCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
+import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.List;
+
+import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ArrayAccess;
+import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ArrayStore;
+import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.BinaryOp;
+import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ConstantLoad;
+import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.Move;
+import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
+import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
 
 /**
  * Responsible for serializing BIR instructions and operands.
@@ -40,10 +49,12 @@ import java.util.List;
 public class BIRInstructionWriter extends BIRVisitor {
     private ByteBuf buf;
     private ConstantPool cp;
+    private TypeVisitor typeWriter;
 
-    public BIRInstructionWriter(ByteBuf buf, ConstantPool cp) {
+    public BIRInstructionWriter(ByteBuf buf, ConstantPool cp, TypeVisitor typeWriter) {
         this.buf = buf;
         this.cp = cp;
+        this.typeWriter = typeWriter;
     }
 
     public void writeBBs(List<BIRBasicBlock> bbList) {
@@ -88,7 +99,7 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     // Non-terminating instructions
 
-    public void visit(BIRNonTerminator.Move birMove) {
+    public void visit(Move birMove) {
         buf.writeByte(birMove.kind.getValue());
         birMove.rhsOp.accept(this);
         birMove.lhsOp.accept(this);
@@ -116,26 +127,26 @@ public class BIRInstructionWriter extends BIRVisitor {
         addCpAndWriteString(birCall.thenBB.id.value);
     }
 
-    public void visit(BIRNonTerminator.BinaryOp birBinaryOp) {
+    public void visit(BinaryOp birBinaryOp) {
         buf.writeByte(birBinaryOp.kind.getValue());
         birBinaryOp.rhsOp1.accept(this);
         birBinaryOp.rhsOp2.accept(this);
         birBinaryOp.lhsOp.accept(this);
     }
 
-    public void visit(BIRNonTerminator.UnaryOP birUnaryOp) {
+    public void visit(UnaryOP birUnaryOp) {
         throw new AssertionError();
     }
 
-    public void visit(BIRNonTerminator.ConstantLoad birConstantLoad) {
+    public void visit(ConstantLoad birConstantLoad) {
         buf.writeByte(birConstantLoad.kind.getValue());
-        addCpAndWriteString(birConstantLoad.type.getDesc());
+        birConstantLoad.type.accept(typeWriter);
         birConstantLoad.lhsOp.accept(this);
 
         BType type = birConstantLoad.type;
         switch (type.tag) {
             case TypeTags.INT:
-                buf.writeInt(cp.addCPEntry(new IntegerCPEntry((Long) birConstantLoad.value)));
+                buf.writeInt(cp.addCPEntry(new IntegerCPEntry(((Number) birConstantLoad.value).longValue())));
                 break;
             case TypeTags.BOOLEAN:
                 buf.writeInt(cp.addCPEntry(new BooleanCPEntry((Boolean) birConstantLoad.value)));
@@ -145,6 +156,29 @@ public class BIRInstructionWriter extends BIRVisitor {
             default:
                 throw new IllegalStateException("unsupported constant type: " + type.getDesc());
         }
+    }
+
+    @Override
+    public void visit(NewArray newArray) {
+        buf.writeByte(newArray.kind.getValue());
+        newArray.type.accept(typeWriter);
+        newArray.lhsOp.accept(this);
+    }
+
+    @Override
+    public void visit(ArrayAccess arrayAccess) {
+        buf.writeByte(arrayAccess.kind.getValue());
+        arrayAccess.rhsOp.accept(this);
+        arrayAccess.index.accept(this);
+        arrayAccess.lhsOp.accept(this);
+    }
+
+    @Override
+    public void visit(ArrayStore arrayStore) {
+        buf.writeByte(arrayStore.kind.getValue());
+        arrayStore.rhsOp.accept(this);
+        arrayStore.index.accept(this);
+        arrayStore.lhsOp.accept(this);
     }
 
     // Operands

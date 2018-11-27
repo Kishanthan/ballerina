@@ -3,7 +3,8 @@ import ballerina/internal;
 public type FuncBodyParser object {
     BirChannelReader reader;
     map<VariableDcl> localVarMap;
-    public new(reader, localVarMap) {
+    TypeParser typeParser;
+    public new(reader, typeParser, localVarMap) {
     }
 
     public function parseBB() returns BasicBlock {
@@ -25,8 +26,7 @@ public type FuncBodyParser object {
         InstructionKind kind = "CONST_LOAD";
         // this is hacky to init to a fake val, but ballerina dosn't support un intialized vers
         if (kindTag == 6){
-            //TODO: remove redundent
-            var bType = reader.readBType();
+            var bType = typeParser.parseType();
             kind = "CONST_LOAD";
             var constLoad = new ConstantLoad(kind,
                 parseVarRef(),
@@ -115,6 +115,8 @@ public type FuncBodyParser object {
         } else if (kindTag == 16){
             kind = "LESS_THAN";
         } else if (kindTag == 17){
+            kind = "LESS_EQUAL";
+        } else if (kindTag == 18){
             kind = "LESS_EQUAL";
         } else {
             error err = { message: "instrucion kind " + kindTag + " not impl." };

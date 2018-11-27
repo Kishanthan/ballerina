@@ -1,4 +1,5 @@
 import ballerina/llvm;
+import ballerina/bir;
 
 type BbBodyGenrator object {
 

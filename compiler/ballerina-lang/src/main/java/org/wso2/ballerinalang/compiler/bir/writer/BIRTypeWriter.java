@@ -6,6 +6,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -28,9 +29,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
  */
 public class BIRTypeWriter implements TypeVisitor {
     private final ByteBuf buff;
+    private ConstantPool cp;
 
     public BIRTypeWriter(ByteBuf buff, ConstantPool cp) {
         this.buff = buff;
+        this.cp = cp;
     }
 
     @Override
@@ -106,8 +109,13 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BStructureType bStructureType) {
-
-        throwUnimplementedError(bStructureType);
+        buff.writeByte(14);
+        String name = bStructureType.tsymbol.name.value;
+        buff.writeInt(cp.addStringCPEntry(name));
+        buff.writeInt(bStructureType.fields.size());
+        for (BField field : bStructureType.fields) {
+            buff.writeInt(cp.addStringCPEntry(field.name.value));
+        }
     }
 
     @Override

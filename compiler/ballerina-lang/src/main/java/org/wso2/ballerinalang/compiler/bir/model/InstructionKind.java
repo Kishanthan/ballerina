@@ -44,7 +44,11 @@ public enum InstructionKind {
     GREATER_THAN((byte) 14),
     GREATER_EQUAL((byte) 15),
     LESS_THAN((byte) 16),
-    LESS_EQUAL((byte) 17);
+    LESS_EQUAL((byte) 17),
+
+    NEW_ARRAY((byte) 18),
+    ARRAY_STORE((byte) 19),
+    ARRAY_ACCESS((byte) 20);
 
     byte value;
 

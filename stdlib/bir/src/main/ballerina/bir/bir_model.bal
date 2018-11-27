@@ -77,8 +77,12 @@ public type BArrayType record {
    BType eType;
 };
 
+public type BStructureType record {
+    Name name;
+};
+
 public type BType BTypeInt | BTypeBoolean | BTypeNil | "byte" | "float" | "string" | BUnionType |
-                  BInvokableType | BArrayType;
+                  BInvokableType | BArrayType | BStructureType ;
 
 public type BTypeSymbol record {
     boolean closure;

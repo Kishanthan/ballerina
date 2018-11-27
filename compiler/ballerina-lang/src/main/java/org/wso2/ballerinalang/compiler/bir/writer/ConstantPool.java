@@ -45,6 +45,10 @@ public class ConstantPool {
         return cpEntries.size() - 1;
     }
 
+    public int addStringCPEntry(String value) {
+        return this.addCPEntry(new CPEntry.StringCPEntry(value));
+    }
+
     public byte[] serialize()  {
         ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
         try (DataOutputStream dataStream = new DataOutputStream(byteArrayStream)) {

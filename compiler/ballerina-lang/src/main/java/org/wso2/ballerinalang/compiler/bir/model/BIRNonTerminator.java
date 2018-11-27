@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler.bir.model;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand.BIRVarRef;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
+import java.util.List;
+
 /**
  * A non-terminating instruction.
  * <p>
@@ -140,6 +142,96 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
             this.value = value;
             this.type = type;
             this.lhsOp = lhsOp;
+        }
+
+        @Override
+        public BIRVarRef getLhsOperand() {
+            return lhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+
+    /**
+     * A constant value load instruction.
+     * <p>
+     * e.g., _1 = new int[1, 2, 3]
+     *
+     * @since 0.980.0
+     */
+    public static class NewArray extends BIRNonTerminator implements BIRAssignInstruction {
+        public BIRVarRef lhsOp;
+        public BType type;
+
+        public NewArray(List<Object> initValues, BType type, BIRVarRef lhsOp) {
+            super(InstructionKind.NEW_ARRAY);
+            this.type = type;
+            this.lhsOp = lhsOp;
+        }
+
+        @Override
+        public BIRVarRef getLhsOperand() {
+            return lhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A constant value load instruction.
+     * <p>
+     * e.g., _1[1] = _2
+     *
+     * @since 0.980.0
+     */
+    public static class ArrayStore extends BIRNonTerminator implements BIRAssignInstruction {
+        public BIRVarRef lhsOp;
+        public BIROperand index;
+        public BIROperand rhsOp;
+
+
+        public ArrayStore(BIROperand rhsOp, BIROperand index, BIRVarRef lhsOp) {
+            super(InstructionKind.ARRAY_ACCESS);
+            this.lhsOp = lhsOp;
+            this.index = index;
+            this.rhsOp = rhsOp;
+        }
+
+        @Override
+        public BIRVarRef getLhsOperand() {
+            return lhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * read a value from array
+     * <p>
+     * e.g., _2 = _1[1]
+     *
+     * @since 0.980.0
+     */
+    public static class ArrayAccess extends BIRNonTerminator implements BIRAssignInstruction {
+        public BIRVarRef lhsOp;
+        public BIROperand rhsOp;
+        public BIROperand index;
+
+        public ArrayAccess(BIROperand rhsOp, BIROperand index, BIRVarRef lhsOp) {
+            super(InstructionKind.ARRAY_ACCESS);
+            this.index = index;
+            this.lhsOp = lhsOp;
+            this.rhsOp = rhsOp;
         }
 
         @Override

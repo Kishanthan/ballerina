@@ -24,12 +24,15 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.BinaryOp;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ConstantLoad;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.Move;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewArray;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand.BIRConstant;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand.BIRVarRef;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Call;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
+
+import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.*;
 
 /**
  * A BIR node visitor.
@@ -100,4 +103,10 @@ public abstract class BIRVisitor {
     public void visit(BIRConstant birConstant) {
         throw new AssertionError();
     }
+
+    public abstract void visit(NewArray newArray);
+
+    public abstract void visit(ArrayAccess arrayAccess);
+
+    public abstract void visit(ArrayStore arrayStore);
 }

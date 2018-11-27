@@ -11,6 +11,7 @@ public type TypeParser object {
     public int TYPE_TAG_UNION = 10;
     public int TYPE_TAG_ARRAY = 11;
     public int TYPE_TAG_INVOKABL_TYPE = 12;
+    public int TYPE_TAG_STRUCTURE_TYPE = 14;
 
     public new(reader) {
     }
@@ -35,6 +36,8 @@ public type TypeParser object {
             return parseArrayType();
         } else if (typeTag == TYPE_TAG_INVOKABL_TYPE){
             return parseInvokableType();
+        } else if (typeTag == TYPE_TAG_STRUCTURE_TYPE){
+            return parseStructureType();
         }
         error err = { message: "Unknown type tag :" + typeTag };
         throw err;
@@ -50,6 +53,10 @@ public type TypeParser object {
 
     function parseInvokableType() returns BInvokableType {
         return { paramTypes:parseTypes(), retType: parseType() };
+    }
+
+    function parseStructureType() returns BInvokableType {
+        return {  };
     }
 
     function parseTypes() returns BType[] {
