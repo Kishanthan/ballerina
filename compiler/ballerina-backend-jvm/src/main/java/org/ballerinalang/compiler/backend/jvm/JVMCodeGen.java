@@ -91,8 +91,8 @@ public class JVMCodeGen {
         Path classFileOutputPath = outputPath.resolve(DEFAULT_CLASS_FILE_NAME);
 
         BValue[] args = new BValue[1];
-        BIRBinaryWriter binaryWriter = new BIRBinaryWriter();
-        args[0] = new BByteArray(binaryWriter.write(bir));
+        BIRBinaryWriter binaryWriter = new BIRBinaryWriter(bir);
+        args[0] = new BByteArray(binaryWriter.serialize());
 
         // Generate the class file
         try {

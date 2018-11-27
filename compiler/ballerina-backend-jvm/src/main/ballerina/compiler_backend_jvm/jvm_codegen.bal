@@ -18,8 +18,9 @@ function genJVMClassFile(byte[] birBinary) returns byte[] {
     checkValidBirChannel(reader);
     bir:ConstPoolParser cpParser = new(reader);
     bir:BirChannelReader birReader = new(reader, cpParser.parse());
-    bir:PackageParser p = new(birReader);
-    bir:Package pkg = p.parsePackage();
+    bir:TypeParser typeParser = new (birReader);
+    bir:PackageParser pkgParser = new(birReader, typeParser);
+    bir:Package pkg = pkgParser.parsePackage();
     return generateJVMClass(pkg);
 }
 
@@ -283,6 +284,10 @@ function generateReturnType(bir:BType bType) returns string {
         bir:BTypeInt => return ")Ljava/lang/Object;";
         bir:BTypeBoolean => return ")Ljava/lang/Object;";
         bir:BTypeNil => return ")V";
+        any => {
+            error err = { message: "JVM generation is not supported for type" };
+            throw err;
+        }
     }
 }
 
