@@ -288,7 +288,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     private final SymbolTable symTable;
     private final PackageCache packageCache;
 
-    private PackageInfo currentPkgInfo;
+    PackageInfo currentPkgInfo;
     private PackageID currentPkgID;
     private int currentPackageRefCPIndex;
 
@@ -442,6 +442,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         });
 
         currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE, lineNoAttrInfo);
+
         currentPackageRefCPIndex = -1;
         currentPkgID = null;
         pkgNode.completedPhases.add(CompilerPhase.CODE_GEN);

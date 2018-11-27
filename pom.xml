@@ -371,6 +371,27 @@
                 <classifier>ballerina-sources</classifier>
             </dependency>
 
+            <!-- ballerina-jvm -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jvm</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jvm</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jvm</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+
             <!-- ballerina-bir -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -814,6 +835,11 @@
                 <artifactId>ballerina-backend-llvm</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-backend-jvm</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
             <!--<dependency>-->
                 <!--<groupId>org.ballerinalang</groupId>-->
                 <!--<artifactId>ballerina-backend-bvm</artifactId>-->
@@ -822,6 +848,11 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-launcher</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-to-java-codegen</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -1547,6 +1578,11 @@
                 <version>${ballerina.examples.version}</version>
                 <type>zip</type>
             </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -1734,6 +1770,7 @@
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
                 <module>stdlib/llvm</module>
+                <module>stdlib/jvm</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
@@ -1760,6 +1797,7 @@
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
                 <module>compiler/ballerina-backend-llvm</module>
+                <module>compiler/ballerina-backend-jvm</module>
                 <!--<module>compiler/ballerina-backend-bvm</module>-->
 
                 <!--Should Run Before tests/ballerina-test-->
@@ -1814,6 +1852,7 @@
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
                 <module>stdlib/llvm</module>
+                <module>stdlib/jvm</module>
                 <module>stdlib/bir</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
@@ -1840,6 +1879,7 @@
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
                 <module>compiler/ballerina-backend-llvm</module>
+                <module>compiler/ballerina-backend-jvm</module>
                 <!--<module>compiler/ballerina-backend-bvm</module>-->
 
                 <!--Should Run Before tests/ballerina-test-->
@@ -2355,6 +2395,7 @@
         <chewiebug.gcviewer.version>1.35</chewiebug.gcviewer.version>
 
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
+        <asm.version>6.2.1</asm.version>
     </properties>
 
 </project>
