@@ -198,7 +198,7 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
 
 
         public ArrayStore(BIROperand rhsOp, BIROperand index, BIRVarRef lhsOp) {
-            super(InstructionKind.ARRAY_ACCESS);
+            super(InstructionKind.ARRAY_STORE);
             this.lhsOp = lhsOp;
             this.index = index;
             this.rhsOp = rhsOp;

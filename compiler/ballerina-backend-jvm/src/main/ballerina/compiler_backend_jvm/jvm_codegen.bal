@@ -51,7 +51,8 @@ function generateMethodDesc(bir:Function func) {
     int i;
     while (i < func.argsCount) {
         //todo check the type
-        desc = desc + "J";
+        //desc = desc + "J";
+        desc = desc + "[J";
         i++;
     }
 
@@ -102,6 +103,9 @@ function generateMethodBody(bir:Function func) {
                 bir:ConstantLoad constIns => visitConstantLoadIns(constIns);
                 bir:Move moveIns => visitMoveIns(moveIns);
                 bir:BinaryOp binaryIns => visitBinaryOpIns(binaryIns);
+                bir:ArrayAccess arrayAccessIns => visitArrayAccessIns(arrayAccessIns);
+                bir:NewArray newArrayIns => visitNewArrayIns(newArrayIns);
+                bir:ArrayStore arrayStoreIns => visitArrayStoreIns(arrayStoreIns);
             }
             j++;
         }
@@ -135,6 +139,34 @@ function visitMoveIns(bir:Move moveIns) {
     int lhsLndex = getJVMIndexOfVarRef(moveIns.lhsOp.variableDcl) but {() => 0};
     //io:println("LHS Index is :::::::::::", lhsLndex);
     jvm:methodVisit("var_ins", [LSTORE, lhsLndex]);
+}
+
+function visitNewArrayIns(bir:NewArray newArrayIns) {
+    //todo
+}
+
+function visitArrayStoreIns(bir:ArrayStore arrayStoreIns) {
+    //todo
+}
+
+function visitArrayAccessIns(bir:ArrayAccess arrayAccessIns) {
+    // ALOAD
+    // LLOAD
+    // L2I
+    // LALOAD
+
+    int rhsIndex = getJVMIndexOfVarRef(arrayAccessIns.rhsOp.variableDcl) but {() => 0};
+    jvm:methodVisit("var_ins", [ALOAD, rhsIndex]);
+
+    int accessIndex = getJVMIndexOfVarRef(arrayAccessIns.accessIndex.variableDcl) but {() => 0};
+    jvm:methodVisit("var_ins", [LLOAD, accessIndex]);
+
+    jvm:methodVisit("ins", [L2I]);
+
+    int lhsIndex = getJVMIndexOfVarRef(arrayAccessIns.lhsOp.variableDcl) but {() => 0};
+    jvm:methodVisit("ins", [LALOAD]);
+
+    jvm:methodVisit("var_ins", [LSTORE, lhsIndex]);
 }
 
 function visitBinaryOpIns(bir:BinaryOp binaryIns) {

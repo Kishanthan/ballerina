@@ -32,7 +32,7 @@ public type Name record {
     string value;
 };
 
-public type Instruction Move|BinaryOp|ConstantLoad;
+public type Instruction Move|BinaryOp|NewArray|ArrayStore|ArrayAccess|ConstantLoad;
 
 public type Terminator Call|Branch|GOTO|Return;
 
@@ -48,7 +48,7 @@ public type LESS_THAN "LESS_THAN";
 public type LESS_EQUAL "LESS_EQUAL";
 
 
-public type InstructionKind "GOTO"|"CALL"|"BRANCH"|"RETURN"|"MOVE"|"CONST_LOAD"|BinaryOpInstructionKind;
+public type InstructionKind "GOTO"|"CALL"|"BRANCH"|"RETURN"|"MOVE"|"CONST_LOAD"|"NEW_ARRAY"|"ARRAY_STORE"|"ARRAY_ACCESS"|BinaryOpInstructionKind;
 
 public type BinaryOpInstructionKind ADD|SUB|MUL|DIV|EQUAL|NOT_EQUAL|GREATER_THAN|GREATER_EQUAL|LESS_THAN|LESS_EQUAL;
 
@@ -161,6 +161,29 @@ public type ConstantLoad object {
     public BType typeValue;
     public int value;
     public new(kind, lhsOp, typeValue, value) {}
+};
+
+public type NewArray object {
+    public InstructionKind kind;
+    public VarRef lhsOp;
+    public BType typeValue;
+    public new(kind, lhsOp, typeValue) {}
+};
+
+public type ArrayStore object {
+    public InstructionKind kind;
+    public Operand rhsOp;
+    public Operand storeIndex;
+    public VarRef lhsOp;
+    public new(kind, rhsOp, storeIndex, lhsOp) {}
+};
+
+public type ArrayAccess object {
+    public InstructionKind kind;
+    public Operand rhsOp;
+    public Operand accessIndex;
+    public VarRef lhsOp;
+    public new(kind, rhsOp, accessIndex, lhsOp) {}
 };
 
 public type VarRef object {

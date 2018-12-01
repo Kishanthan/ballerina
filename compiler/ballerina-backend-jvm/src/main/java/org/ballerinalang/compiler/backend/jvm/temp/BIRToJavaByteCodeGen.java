@@ -21,6 +21,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -103,6 +104,21 @@ public class BIRToJavaByteCodeGen extends BIRVisitor {
 
         mv.visitMaxs(100, 400);
         mv.visitEnd();
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.NewArray newArray) {
+
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.ArrayAccess arrayAccess) {
+
+    }
+
+    @Override
+    public void visit(BIRNonTerminator.ArrayStore arrayStore) {
+
     }
 
     private String generateJVMMethodDesc(BIRNode.BIRFunction birFunction) {

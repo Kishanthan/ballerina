@@ -24,6 +24,10 @@ type BbBodyGenrator object {
             bir:Move moveIns => genMoveIns(moveIns);
             bir:BinaryOp binaryIns => genBinaryOpIns(binaryIns);
             bir:ConstantLoad constIns => genConstantLoadIns(constIns);
+            any => {
+                error err = { message: "instruction not supported" };
+                throw err;
+            }
         }
     }
 
