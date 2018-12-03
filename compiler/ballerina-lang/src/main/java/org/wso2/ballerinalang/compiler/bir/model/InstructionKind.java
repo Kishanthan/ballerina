@@ -48,7 +48,8 @@ public enum InstructionKind {
 
     NEW_ARRAY((byte) 18),
     ARRAY_STORE((byte) 19),
-    ARRAY_ACCESS((byte) 20);
+    ARRAY_ACCESS((byte) 20),
+    LENGTH((byte) 21);
 
     byte value;
 

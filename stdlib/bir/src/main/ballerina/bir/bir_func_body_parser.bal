@@ -56,6 +56,11 @@ public type FuncBodyParser object {
             var accessIndex = parseVarRef();
             var lhsOp = parseVarRef();
             return new ArrayAccess(kind, rhsOp, accessIndex, lhsOp);
+        } else if (kindTag == 21) {
+            kind = "LENGTH";
+            var rhsOp = parseVarRef();
+            var lhsOp = parseVarRef();
+            return new Length(kind, rhsOp, lhsOp);
         } else {
             return parseBinaryOpInstruction(kindTag);
         }

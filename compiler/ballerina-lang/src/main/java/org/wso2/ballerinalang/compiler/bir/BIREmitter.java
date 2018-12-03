@@ -130,7 +130,11 @@ public class BIREmitter extends BIRVisitor {
     }
 
     public void visit(UnaryOP birUnaryOp) {
-        throw new AssertionError();
+        sb.append("\t\t");
+        birUnaryOp.lhsOp.accept(this);
+        sb.append(" = ").append(birUnaryOp.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
+        birUnaryOp.rhsOp.accept(this);
+        sb.append(";\n");
     }
 
     public void visit(ConstantLoad birConstantLoad) {

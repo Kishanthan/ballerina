@@ -135,7 +135,9 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     public void visit(UnaryOP birUnaryOp) {
-        throw new AssertionError();
+        buf.writeByte(birUnaryOp.kind.getValue());
+        birUnaryOp.rhsOp.accept(this);
+        birUnaryOp.lhsOp.accept(this);
     }
 
     public void visit(ConstantLoad birConstantLoad) {

@@ -108,10 +108,12 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
      */
     public static class UnaryOP extends BIRNonTerminator implements BIRAssignInstruction {
         public BIRVarRef lhsOp;
+        public BIROperand rhsOp;
 
-        public UnaryOP(InstructionKind kind, BIRVarRef lhsOp) {
+        public UnaryOP(InstructionKind kind, BIROperand rhsOp, BIRVarRef lhsOp) {
             super(kind);
             this.lhsOp = lhsOp;
+            this.rhsOp = rhsOp;
         }
 
         @Override

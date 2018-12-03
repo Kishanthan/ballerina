@@ -32,7 +32,7 @@ public type Name record {
     string value;
 };
 
-public type Instruction Move|BinaryOp|NewArray|ArrayStore|ArrayAccess|ConstantLoad;
+public type Instruction Move|BinaryOp|NewArray|ArrayStore|ArrayAccess|ConstantLoad|Length;
 
 public type Terminator Call|Branch|GOTO|Return;
 
@@ -48,7 +48,7 @@ public type LESS_THAN "LESS_THAN";
 public type LESS_EQUAL "LESS_EQUAL";
 
 
-public type InstructionKind "GOTO"|"CALL"|"BRANCH"|"RETURN"|"MOVE"|"CONST_LOAD"|"NEW_ARRAY"|"ARRAY_STORE"|"ARRAY_ACCESS"|BinaryOpInstructionKind;
+public type InstructionKind "GOTO"|"CALL"|"BRANCH"|"RETURN"|"MOVE"|"CONST_LOAD"|"LENGTH"|"NEW_ARRAY"|"ARRAY_STORE"|"ARRAY_ACCESS"|BinaryOpInstructionKind;
 
 public type BinaryOpInstructionKind ADD|SUB|MUL|DIV|EQUAL|NOT_EQUAL|GREATER_THAN|GREATER_EQUAL|LESS_THAN|LESS_EQUAL;
 
@@ -200,6 +200,13 @@ public type Move object {
     public VarRef lhsOp;
     public Operand rhsOp;
     public new(kind, lhsOp, rhsOp) {}
+};
+
+public type Length object {
+    public InstructionKind kind;
+    public VarRef lhsOp;
+    public Operand lengthVarOp;
+    public new(kind, lengthVarOp, lhsOp) {}
 };
 
 public type Operand VarRef;

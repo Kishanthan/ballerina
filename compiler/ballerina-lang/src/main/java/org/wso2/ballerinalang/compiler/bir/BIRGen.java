@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -64,6 +65,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.model.tree.OperatorKind.LENGTHOF;
 import static org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 
 /**
@@ -451,6 +453,21 @@ public class BIRGen extends BLangNodeVisitor {
         emit(binaryIns);
     }
 
+    public void visit(BLangUnaryExpr unaryExpr) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(unaryExpr.type, this.env.nextLocalVarId(names), VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIRVarRef toVarRef = new BIRVarRef(tempVarDcl);
+        unaryExpr.expr.accept(this);
+        BIROperand rhsOp = this.env.targetOperand;
+        switch (unaryExpr.operator) {
+            case LENGTHOF:
+                emit(new BIRNonTerminator.UnaryOP(InstructionKind.LENGTH, rhsOp, toVarRef));
+                this.env.targetOperand = toVarRef;
+                break;
+            default:
+                throw new UnsupportedOperationException("Operator not supported");
+        }
+    }
 
     // private methods
 
