@@ -8,6 +8,8 @@ int returnVarRefIndex;
 string currentFuncName;
 string currentBBName;
 
+bir:Function currentFunc = {};
+
 public function main(string... args) {
     //do nothing
 }
@@ -39,6 +41,7 @@ function defineClass(bir:Name orgName, bir:Name pkgName, bir:Name ver) {
 function generateMethods(bir:Function[] funcs) {
     foreach func in funcs {
         indexMap = new();
+        currentFunc = untaint func;
         generateMethodDesc(func);
         generateMethodBody(func);
     }
@@ -50,9 +53,19 @@ function generateMethodDesc(bir:Function func) {
     string desc = "(";
     int i;
     while (i < func.argsCount) {
-        //todo check the type
-        //desc = desc + "J";
-        desc = desc + "[J";
+        match (func.typeValue.paramTypes[i]) {
+            bir:BTypeInt => {
+                desc = desc + "J";
+            }
+            bir:BArrayType => {
+                desc = desc + "[J";
+            }
+            any => {
+                error err = { message: "JVM generation is not supported for type " +
+                                io:sprintf("%s", func.typeValue.paramTypes[i])};
+                throw err;
+            }
+        }
         i++;
     }
 
@@ -112,7 +125,7 @@ function generateMethodBody(bir:Function func) {
         }
 
         // visit terminator
-        visitTerminator(bb, isVoidFunc);
+        visitTerminator(bb);
         i++;
     }
 
@@ -152,18 +165,55 @@ function visitMoveIns(bir:Move moveIns) {
 }
 
 function visitNewArrayIns(bir:NewArray newArrayIns) {
-    //todo
+    //io:println("NewArray Ins : ", io:sprintf("%s", newArrayIns));
+    // LDC 10000000
+    // L2I
+    // NEWARRAY T_LONG
+    // ASTORE
+
+    // todo array length is hardcoded - fix me
+    jvm:methodVisit("ldc_ins", [1000000]);
+    jvm:methodVisit("ins", [L2I]);
+
+    int T_LONG = 11;
+
+    jvm:methodVisit("int_ins", [NEWARRAY, T_LONG]);
+
+    int lhsIndex = getJVMIndexOfVarRef(newArrayIns.lhsOp.variableDcl) but {() => 0};
+
+    jvm:methodVisit("var_ins", [ASTORE, lhsIndex]);
 }
 
 function visitArrayStoreIns(bir:ArrayStore arrayStoreIns) {
-    //todo
+    //io:println("ArrayStore Ins : ", io:sprintf("%s", arrayStoreIns));
+    // ALOAD
+    // LLOAD
+    // L2I
+    // LLOAD
+    // LASTORE
+
+    int lhsIndex = getJVMIndexOfVarRef(arrayStoreIns.lhsOp.variableDcl) but {() => 0};
+    jvm:methodVisit("var_ins", [ALOAD, lhsIndex]);
+
+    int accessIndex = getJVMIndexOfVarRef(arrayStoreIns.storeIndex.variableDcl) but {() => 0};
+    jvm:methodVisit("var_ins", [LLOAD, accessIndex]);
+
+    jvm:methodVisit("ins", [L2I]);
+
+    int rhsIndex = getJVMIndexOfVarRef(arrayStoreIns.rhsOp.variableDcl) but {() => 0};
+    jvm:methodVisit("var_ins", [LLOAD, rhsIndex]);
+
+    jvm:methodVisit("ins", [LASTORE]);
 }
 
 function visitArrayAccessIns(bir:ArrayAccess arrayAccessIns) {
+    //io:println("ArrayAccess Ins : ", io:sprintf("%s", arrayAccessIns));
+
     // ALOAD
     // LLOAD
     // L2I
     // LALOAD
+
 
     int rhsIndex = getJVMIndexOfVarRef(arrayAccessIns.rhsOp.variableDcl) but {() => 0};
     jvm:methodVisit("var_ins", [ALOAD, rhsIndex]);
@@ -180,12 +230,12 @@ function visitArrayAccessIns(bir:ArrayAccess arrayAccessIns) {
 }
 
 function visitLengthIns(bir:Length lengthIns) {
+    //io:println("Length Ins : ", io:sprintf("%s", lengthIns));
+
     //  ALOAD
     //  ARRAYLENGTH
     //  I2L
     //  LSTORE
-
-    //io:println("Length Ins : ", io:sprintf("%s", lengthIns));
 
     int rhsIndex = getJVMIndexOfVarRef(lengthIns.lengthVarOp.variableDcl) but {() => 0};
     jvm:methodVisit("var_ins", [ALOAD, rhsIndex]);
@@ -208,7 +258,7 @@ function visitBinaryOpIns(bir:BinaryOp binaryIns) {
     match binaryIns.kind {
         bir:LESS_THAN lessThanIns => visitLessThanIns(lessThanIns, binaryIns.lhsOp);
         bir:ADD addIns => visitAddIns(addIns, binaryIns.lhsOp);
-        bir:EQUAL equalIns => visitEqualIns(equalIns, binaryIns.lhsOp); // todo not supported yet
+        bir:EQUAL equalIns => visitEqualIns(equalIns, binaryIns.lhsOp);
         bir:SUB subIns => visitSubIns(subIns, binaryIns.lhsOp);
         bir:DIV => int a = 5; // todo not supported yet
         bir:GREATER_EQUAL => int a = 5; // todo not supported yet
@@ -278,10 +328,10 @@ function visitSubIns(bir:SUB subIns, bir:VarRef lhsOp) {
     jvm:methodVisit("var_ins", [LSTORE, lhsOpIndex]);
 }
 
-function visitTerminator(bir:BasicBlock bb, boolean isVoidFunc) {
+function visitTerminator(bir:BasicBlock bb) {
     match bb.terminator {
         bir:GOTO gotoIns => genGoToTerm(gotoIns);
-        bir:Return returnIns => genReturnTerm(returnIns, isVoidFunc);
+        bir:Return returnIns => genReturnTerm(returnIns);
         bir:Branch brIns => genBranchTerm(brIns);
         bir:Call callIns => genCallTerm(callIns);
     }
@@ -291,12 +341,24 @@ function genGoToTerm(bir:GOTO gotoIns) {
     jvm:labelVisit("goto", [currentFuncName + gotoIns.targetBB.id.value]);
 }
 
-function genReturnTerm(bir:Return returnIns, boolean isVoidFunc) {
-    if (isVoidFunc) {
+function genReturnTerm(bir:Return returnIns) {
+    if (reflect:equals(bir:BTypeNil, currentFunc.typeValue.retType)) {
         jvm:methodVisit("ins", [RETURN]);
     } else {
-        jvm:methodVisit("var_ins", [LLOAD, returnVarRefIndex]);
-        jvm:methodVisit("method_ins", []);
+        match (currentFunc.typeValue.retType) {
+            bir:BArrayType => {
+                jvm:methodVisit("var_ins", [ALOAD, returnVarRefIndex]);
+            }
+            bir:BTypeInt => {
+                jvm:methodVisit("var_ins", [LLOAD, returnVarRefIndex]);
+                jvm:methodVisit("method_ins", []);
+            }
+            any => {
+                error err = { message: "JVM generation is not supported for type " +
+                                io:sprintf("%s", currentFunc.typeValue.retType)};
+                throw err;
+            }
+        }
         jvm:methodVisit("ins", [ARETURN]);
     }
 }
@@ -343,7 +405,7 @@ function genCallTerm(bir:Call callIns) {
 function generateReturnType(bir:BType bType) returns string {
     match bType {
         bir:BTypeInt => return ")Ljava/lang/Object;";
-        bir:BTypeBoolean => return ")Ljava/lang/Object;";
+        bir:BArrayType => return ")Ljava/lang/Object;";
         bir:BTypeNil => return ")V";
         any => {
             error err = { message: "JVM generation is not supported for type" };
@@ -371,7 +433,7 @@ function checkVersion(bir:ChannelReader reader) {
     var birVersion = reader.readInt32();
     var supportedBirVersion = 1;
     if (birVersion != 1){
-        error err = { message: "Unsupported BIR version " + birVersion + ", supports version " + supportedBirVersion };
+        error err = {message: "Unsupported BIR version " + birVersion + ", supports version " + supportedBirVersion};
         throw err;
     }
 }

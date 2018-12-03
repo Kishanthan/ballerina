@@ -80,12 +80,17 @@ public class JVMMethodVisitor extends BlockingNativeCallableUnit {
                 Long value = args.get(0);
                 mv.visitLdcInsn(value);
                 break;
+            case INT_INS:
+                opCode = (int) args.get(0);
+                int operand = (int) args.get(1);
+                mv.visitIntInsn(opCode, operand);
+                break;
             default:
                 throw new UnsupportedOperationException();
         }
     }
 
     enum MethodVisitType {
-        CODE, MAX, END, VAR_INS, METHOD_INS, INS, LDC_INS, JUMP_INS, TYPE_INS;
+        CODE, MAX, END, VAR_INS, METHOD_INS, INS, LDC_INS, JUMP_INS, TYPE_INS, INT_INS;
     }
 }
