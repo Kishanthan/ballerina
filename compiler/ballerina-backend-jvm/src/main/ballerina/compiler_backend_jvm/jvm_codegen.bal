@@ -106,6 +106,7 @@ function generateMethodBody(bir:Function func) {
                 bir:ArrayAccess arrayAccessIns => visitArrayAccessIns(arrayAccessIns);
                 bir:NewArray newArrayIns => visitNewArrayIns(newArrayIns);
                 bir:ArrayStore arrayStoreIns => visitArrayStoreIns(arrayStoreIns);
+                bir:Length lengthIns => visitLengthIns(lengthIns);
             }
             j++;
         }
@@ -130,15 +131,24 @@ function visitConstantLoadIns(bir:ConstantLoad loadIns) {
 }
 
 function visitMoveIns(bir:Move moveIns) {
-    //load
     int rhsIndex = getJVMIndexOfVarRef(moveIns.rhsOp.variableDcl) but {() => 0};
     //io:println("RHS Index is :::::::::::", rhsIndex);
-    jvm:methodVisit("var_ins", [LLOAD, rhsIndex]);
-
-     //store
     int lhsLndex = getJVMIndexOfVarRef(moveIns.lhsOp.variableDcl) but {() => 0};
     //io:println("LHS Index is :::::::::::", lhsLndex);
-    jvm:methodVisit("var_ins", [LSTORE, lhsLndex]);
+    match (moveIns.rhsOp.typeValue ) {
+        bir:BTypeInt => {
+            jvm:methodVisit("var_ins", [LLOAD, rhsIndex]);
+            jvm:methodVisit("var_ins", [LSTORE, lhsLndex]);
+        }
+        bir:BArrayType => {
+            jvm:methodVisit("var_ins", [ALOAD, rhsIndex]);
+            jvm:methodVisit("var_ins", [ASTORE, lhsLndex]);
+        }
+        any => {
+            error err = { message: "JVM generation is not supported for type" };
+            throw err;
+        }
+    }
 }
 
 function visitNewArrayIns(bir:NewArray newArrayIns) {
@@ -165,6 +175,25 @@ function visitArrayAccessIns(bir:ArrayAccess arrayAccessIns) {
 
     int lhsIndex = getJVMIndexOfVarRef(arrayAccessIns.lhsOp.variableDcl) but {() => 0};
     jvm:methodVisit("ins", [LALOAD]);
+
+    jvm:methodVisit("var_ins", [LSTORE, lhsIndex]);
+}
+
+function visitLengthIns(bir:Length lengthIns) {
+    //  ALOAD
+    //  ARRAYLENGTH
+    //  I2L
+    //  LSTORE
+
+    //io:println("Length Ins : ", io:sprintf("%s", lengthIns));
+
+    int rhsIndex = getJVMIndexOfVarRef(lengthIns.lengthVarOp.variableDcl) but {() => 0};
+    jvm:methodVisit("var_ins", [ALOAD, rhsIndex]);
+
+    jvm:methodVisit("ins", [ARRAYLENGTH]);
+    jvm:methodVisit("ins", [I2L]);
+
+    int lhsIndex = getJVMIndexOfVarRef(lengthIns.lhsOp.variableDcl) but {() => 0};
 
     jvm:methodVisit("var_ins", [LSTORE, lhsIndex]);
 }
