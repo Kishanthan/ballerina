@@ -209,9 +209,11 @@ public class BIRGen extends BLangNodeVisitor {
             BIROperand fromOp = this.env.targetOperand;
 
             astAssignStmt.varRef.accept(this);
-            BIRVarRef toOp = (BIRVarRef) this.env.targetOperand;
+            if (this.env.targetOperand != null) {
+                BIRVarRef toOp = (BIRVarRef) this.env.targetOperand;
 
-            emit(new Move(fromOp, toOp));
+                emit(new Move(fromOp, toOp));
+            }
         }
     }
 
@@ -419,7 +421,6 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     public void visit(BLangArrayAccessExpr arrayIndexAccessExpr) {
-
         if (arrayIndexAccessExpr.lhsVar) {
             BIROperand rhsOp = this.env.targetOperand;
 
@@ -429,6 +430,7 @@ public class BIRGen extends BLangNodeVisitor {
             BIRVarRef lhsOp = new BIRVarRef(this.env.symbolVarMap.get(arrayIndexAccessExpr.expr.symbol));
 
             emit(new BIRNonTerminator.ArrayStore(rhsOp, indexExpr, lhsOp));
+            this.env.targetOperand = null;
         } else {
             BIRVariableDcl tempVarDcl = new BIRVariableDcl(arrayIndexAccessExpr.type, this.env.nextLocalVarId(names),
                     VarKind.TEMP);

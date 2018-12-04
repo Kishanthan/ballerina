@@ -7,6 +7,7 @@ BalToJVMIndexMap indexMap;
 int returnVarRefIndex;
 string currentFuncName;
 string currentBBName;
+int arrayInitLengthIndex = -1;
 
 bir:Function currentFunc = {};
 
@@ -166,13 +167,17 @@ function visitMoveIns(bir:Move moveIns) {
 
 function visitNewArrayIns(bir:NewArray newArrayIns) {
     //io:println("NewArray Ins : ", io:sprintf("%s", newArrayIns));
-    // LDC 10000000
+    // LDC
     // L2I
     // NEWARRAY T_LONG
     // ASTORE
 
-    // todo array length is hardcoded - fix me
-    jvm:methodVisit("ldc_ins", [1000000]);
+    if (arrayInitLengthIndex == -1){
+        // todo array length is hardcoded - fix me
+        jvm:methodVisit("ldc_ins", [100]);
+    } else {
+        jvm:methodVisit("var_ins", [LLOAD, arrayInitLengthIndex]);
+    }
     jvm:methodVisit("ins", [L2I]);
 
     int T_LONG = 11;
@@ -246,6 +251,8 @@ function visitLengthIns(bir:Length lengthIns) {
     int lhsIndex = getJVMIndexOfVarRef(lengthIns.lhsOp.variableDcl) but {() => 0};
 
     jvm:methodVisit("var_ins", [LSTORE, lhsIndex]);
+
+    arrayInitLengthIndex = lhsIndex;
 }
 
 function visitBinaryOpIns(bir:BinaryOp binaryIns) {
