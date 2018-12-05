@@ -256,28 +256,31 @@ function visitLengthIns(bir:Length lengthIns) {
 }
 
 function visitBinaryOpIns(bir:BinaryOp binaryIns) {
+    match binaryIns.kind {
+        bir:LESS_THAN => visitLessThanIns(binaryIns);
+        bir:ADD => visitAddIns(binaryIns);
+        bir:EQUAL => visitEqualIns(binaryIns);
+        bir:SUB => visitSubIns(binaryIns);
+        bir:DIV => visitDivIns(binaryIns);
+        bir:AND => visitAndIns(binaryIns);
+        any => {
+            error err = {message: "JVM generation is not supported for type : " + io:sprintf("%s", binaryIns.kind)};
+            throw err;
+        }
+    }
+}
+
+function visitBinaryRhsAndLhsLoad(bir:BinaryOp binaryIns) {
     int rhsOps1Index = getJVMIndexOfVarRef(binaryIns.rhsOp1.variableDcl) but {() => 0};
     jvm:methodVisit("var_ins", [LLOAD, rhsOps1Index]);
 
     int rhsOps2Index = getJVMIndexOfVarRef(binaryIns.rhsOp2.variableDcl) but {() => 0};
     jvm:methodVisit("var_ins", [LLOAD, rhsOps2Index]);
-
-    match binaryIns.kind {
-        bir:LESS_THAN lessThanIns => visitLessThanIns(lessThanIns, binaryIns.lhsOp);
-        bir:ADD addIns => visitAddIns(addIns, binaryIns.lhsOp);
-        bir:EQUAL equalIns => visitEqualIns(equalIns, binaryIns.lhsOp);
-        bir:SUB subIns => visitSubIns(subIns, binaryIns.lhsOp);
-        bir:DIV => int a = 5; // todo not supported yet
-        bir:GREATER_EQUAL => int a = 5; // todo not supported yet
-        bir:GREATER_THAN => int a = 5; // todo not supported yet
-        bir:LESS_EQUAL => int a = 5; // todo not supported yet
-        bir:MUL => int a = 5; // todo not supported yet
-        bir:NOT_EQUAL => int a = 5; // todo not supported yet
-    }
-
 }
 
-function visitLessThanIns(bir:LESS_THAN lessThanIns, bir:VarRef lhsOp) {
+function visitLessThanIns(bir:BinaryOp binaryIns) {
+    bir:VarRef lhsOp = binaryIns.lhsOp;
+    visitBinaryRhsAndLhsLoad(binaryIns);
     int lhsOpIndex = getJVMIndexOfVarRef(lhsOp.variableDcl) but {() => 0};
 
     string label1 = currentFuncName + currentBBName + io:sprintf("%s", lhsOp.variableDcl) + "01";
@@ -299,14 +302,18 @@ function visitLessThanIns(bir:LESS_THAN lessThanIns, bir:VarRef lhsOp) {
     jvm:methodVisit("var_ins", [ISTORE, lhsOpIndex]);
 }
 
-function visitAddIns(bir:ADD addIns, bir:VarRef lhsOp) {
+function visitAddIns(bir:BinaryOp binaryIns) {
+    bir:VarRef lhsOp = binaryIns.lhsOp;
+    visitBinaryRhsAndLhsLoad(binaryIns);
     int lhsOpIndex = getJVMIndexOfVarRef(lhsOp.variableDcl) but {() => 0};
 
     jvm:methodVisit("ins", [LADD]);
     jvm:methodVisit("var_ins", [LSTORE, lhsOpIndex]);
 }
 
-function visitEqualIns(bir:EQUAL addIns, bir:VarRef lhsOp) {
+function visitEqualIns(bir:BinaryOp binaryIns) {
+    bir:VarRef lhsOp = binaryIns.lhsOp;
+    visitBinaryRhsAndLhsLoad(binaryIns);
     int lhsOpIndex = getJVMIndexOfVarRef(lhsOp.variableDcl) but {() => 0};
 
     string label1 = currentFuncName + currentBBName + io:sprintf("%s", lhsOp.variableDcl) + "01";
@@ -328,11 +335,67 @@ function visitEqualIns(bir:EQUAL addIns, bir:VarRef lhsOp) {
     jvm:methodVisit("var_ins", [ISTORE, lhsOpIndex]);
 }
 
-function visitSubIns(bir:SUB subIns, bir:VarRef lhsOp) {
+function visitSubIns(bir:BinaryOp binaryIns) {
+    bir:VarRef lhsOp = binaryIns.lhsOp;
+    visitBinaryRhsAndLhsLoad(binaryIns);
     int lhsOpIndex = getJVMIndexOfVarRef(lhsOp.variableDcl) but {() => 0};
 
     jvm:methodVisit("ins", [LSUB]);
     jvm:methodVisit("var_ins", [LSTORE, lhsOpIndex]);
+}
+
+function visitDivIns(bir:BinaryOp binaryIns) {
+    bir:VarRef lhsOp = binaryIns.lhsOp;
+    visitBinaryRhsAndLhsLoad(binaryIns);
+    //io:println("DIV ins : " + io:sprintf("%s", lhsOp));
+    int lhsOpIndex = getJVMIndexOfVarRef(lhsOp.variableDcl) but {() => 0};
+
+    jvm:methodVisit("ins", [LDIV]);
+    jvm:methodVisit("var_ins", [LSTORE, lhsOpIndex]);
+}
+
+function visitAndIns(bir:BinaryOp binaryIns) {
+    // ILOAD
+    // ICONST_1
+    // IF_ICMPNE L0
+    // ILOAD
+    // ICONST_1
+    // IF_ICMPNE L0
+    // ICONST_1
+    // ISTORE
+
+    bir:VarRef lhsOp = binaryIns.lhsOp;
+
+    io:println("AND ins : " + io:sprintf("%s", binaryIns));
+
+    string label1 = currentFuncName + currentBBName + io:sprintf("%s", lhsOp.variableDcl) + "01";
+    string label2 = currentFuncName + currentBBName + io:sprintf("%s", lhsOp.variableDcl) + "02";
+
+    jvm:labelVisit("create", [label1]);
+    jvm:labelVisit("create", [label2]);
+
+    int rhsOps1Index = getJVMIndexOfVarRef(binaryIns.rhsOp1.variableDcl) but {() => 0};
+    jvm:methodVisit("var_ins", [ILOAD, rhsOps1Index]);
+
+    jvm:methodVisit("ins", [ICONST_1]);
+    jvm:labelVisit("if_icmpne", [label1]);
+
+    int rhsOps2Index = getJVMIndexOfVarRef(binaryIns.rhsOp2.variableDcl) but {() => 0};
+    jvm:methodVisit("var_ins", [ILOAD, rhsOps2Index]);
+
+    jvm:methodVisit("ins", [ICONST_1]);
+    jvm:labelVisit("if_icmpne", [label1]);
+
+    jvm:methodVisit("ins", [ICONST_1]);
+    jvm:labelVisit("goto", [label2]);
+
+    jvm:labelVisit("visit", [label1]);
+    jvm:methodVisit("ins", [ICONST_0]);
+
+    jvm:labelVisit("visit", [label2]);
+
+    int lhsOpIndex = getJVMIndexOfVarRef(lhsOp.variableDcl) but {() => 0};
+    jvm:methodVisit("var_ins", [ISTORE, lhsOpIndex]);
 }
 
 function visitTerminator(bir:BasicBlock bb) {

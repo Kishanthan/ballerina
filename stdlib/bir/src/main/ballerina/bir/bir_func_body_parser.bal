@@ -141,6 +141,10 @@ public type FuncBodyParser object {
             kind = "LESS_EQUAL";
         } else if (kindTag == 18){
             kind = "LESS_EQUAL";
+        } else if (kindTag == 22){
+            kind = "AND";
+        } else if (kindTag == 23){
+            kind = "OR";
         } else {
             error err = { message: "instrucion kind " + kindTag + " not impl." };
             throw err;

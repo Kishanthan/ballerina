@@ -31,6 +31,7 @@ import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.IFGT;
 import static org.objectweb.asm.Opcodes.IFLT;
 import static org.objectweb.asm.Opcodes.IFNE;
+import static org.objectweb.asm.Opcodes.IF_ICMPNE;
 
 /**
  * Native class for jvm method byte code creation.
@@ -74,6 +75,11 @@ public class JVMLabelVisitor extends BlockingNativeCallableUnit {
                 label = JVMCodeGenUtil.getInstance().getLabel(labelId);
                 mv.visitJumpInsn(IFLT, label);
                 break;
+            case IF_ICMPNE:
+                labelId = args.get(0);
+                label = JVMCodeGenUtil.getInstance().getLabel(labelId);
+                mv.visitJumpInsn(IF_ICMPNE, label);
+                break;
             case NOT_EQUAL_0:
                 labelId = args.get(0);
                 label = JVMCodeGenUtil.getInstance().getLabel(labelId);
@@ -90,6 +96,6 @@ public class JVMLabelVisitor extends BlockingNativeCallableUnit {
     }
 
     enum LabelVisitType {
-        CREATE, GOTO, VISIT, COMPARE, GREATER_THAN_0, LESS_THAN_0, NOT_EQUAL_0;
+        CREATE, GOTO, VISIT, COMPARE, GREATER_THAN_0, LESS_THAN_0, NOT_EQUAL_0, IF_ICMPNE;
     }
 }

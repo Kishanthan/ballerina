@@ -57,6 +57,10 @@ type BbBodyGenrator object {
             bir:MUL => binaryGen.genMul();
             bir:NOT_EQUAL => binaryGen.genNotEqual();
             bir:SUB => binaryGen.genSub();
+            any => {
+                error err = { message: "binary instruction not supported" };
+                throw err;
+            }
         }
 
     }
