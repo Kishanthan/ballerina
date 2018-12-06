@@ -59,14 +59,15 @@ public class JVMMethodInvokeVisitor extends BlockingNativeCallableUnit {
                 String methodDesc = args.get(2);
                 mv.visitMethodInsn(INVOKESTATIC, className, methodName, methodDesc, false);
                 break;
-            case INVOKE_VIRTUAL:
-                className = args.get(0);
-                methodName = args.get(1);
-                methodDesc = args.get(2);
+            case INVOKE_VIRTUAL_LONG:
                 mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(Long.class), "longValue", "()J", false);
                 break;
-            case TYPE_CAST:
-                className = Type.getInternalName(Long.class);
+            case TYPE_CAST_LONG:
+                className = Type.getInternalName(long.class);
+                mv.visitTypeInsn(CHECKCAST, className);
+                break;
+            case TYPE_CAST_LONG_ARRAY:
+                className = Type.getInternalName(long[].class);
                 mv.visitTypeInsn(CHECKCAST, className);
                 break;
             default:
@@ -75,6 +76,6 @@ public class JVMMethodInvokeVisitor extends BlockingNativeCallableUnit {
     }
 
     enum MethodInvokeVisitType {
-        INVOKE_STATIC, INVOKE_VIRTUAL, TYPE_CAST;
+        INVOKE_STATIC, INVOKE_VIRTUAL_LONG, TYPE_CAST_LONG, TYPE_CAST_LONG_ARRAY;
     }
 }

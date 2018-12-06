@@ -80,6 +80,8 @@ public class BIRGen extends BLangNodeVisitor {
             new CompilerContext.Key<>();
     private final SymbolTable symbolTable;
 
+    private final static String JVM_ARRAY_LENGTH = "arrayLength";
+
     private BIRGenEnv env;
     private Names names;
 
@@ -195,6 +197,10 @@ public class BIRGen extends BLangNodeVisitor {
         // Create a variable reference and
         BIRVarRef varRef = new BIRVarRef(birVarDcl);
         emit(new Move(this.env.targetOperand, varRef));
+
+        if (JVM_ARRAY_LENGTH.equals(astVarDefStmt.var.symbol.name.value)) {
+            emit(new BIRNonTerminator.UnaryOP(InstructionKind.LENGTH, this.env.targetOperand, varRef));
+        }
     }
 
     public void visit(BLangAssignment astAssignStmt) {

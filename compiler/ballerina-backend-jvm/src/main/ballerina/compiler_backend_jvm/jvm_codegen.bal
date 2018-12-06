@@ -45,6 +45,7 @@ function generateMethods(bir:Function[] funcs) {
         currentFunc = untaint func;
         generateMethodDesc(func);
         generateMethodBody(func);
+        arrayInitLengthIndex = -1;
     }
 }
 
@@ -243,10 +244,22 @@ function visitLengthIns(bir:Length lengthIns) {
     //  LSTORE
 
     int rhsIndex = getJVMIndexOfVarRef(lengthIns.lengthVarOp.variableDcl) but {() => 0};
-    jvm:methodVisit("var_ins", [ALOAD, rhsIndex]);
 
-    jvm:methodVisit("ins", [ARRAYLENGTH]);
-    jvm:methodVisit("ins", [I2L]);
+    match lengthIns.lengthVarOp.typeValue {
+        bir:BArrayType => {
+            jvm:methodVisit("var_ins", [ALOAD, rhsIndex]);
+            jvm:methodVisit("ins", [ARRAYLENGTH]);
+            jvm:methodVisit("ins", [I2L]);
+        }
+        bir:BTypeInt => {
+            jvm:methodVisit("var_ins", [LLOAD, rhsIndex]);
+        }
+        any => {
+            error err = {message: "JVM generation is not supported for type " +
+                            io:sprintf("%s", lengthIns.lengthVarOp.typeValue)};
+            throw err;
+        }
+    }
 
     int lhsIndex = getJVMIndexOfVarRef(lengthIns.lhsOp.variableDcl) but {() => 0};
 
@@ -444,13 +457,29 @@ function genBranchTerm(bir:Branch branchIns) {
 }
 
 function genCallTerm(bir:Call callIns) {
+    //io:println("Call Ins : " + io:sprintf("%s", callIns));
     string jvmClass = "DEFAULT_CLASS"; //todo get the correct class name
     string methodName = callIns.name.value;
     string methodDesc = "(";
     foreach arg in callIns.args {
+
         int argIndex = getJVMIndexOfVarRef(arg.variableDcl) but {() => 0};
-        jvm:methodVisit("var_ins", [LLOAD, argIndex]);
-        methodDesc = methodDesc + "J";
+
+        match (arg.typeValue) {
+            bir:BTypeInt => {
+                jvm:methodVisit("var_ins", [LLOAD, argIndex]);
+                methodDesc = methodDesc + "J";
+            }
+            bir:BArrayType => {
+                jvm:methodVisit("var_ins", [ALOAD, argIndex]);
+                methodDesc = methodDesc + "[J";
+            }
+            any => {
+                error err = { message: "JVM generation is not supported for type " +
+                                io:sprintf("%s", arg.typeValue)};
+                throw err;
+            }
+        }
     }
 
     methodDesc = methodDesc + ")Ljava/lang/Object;";
@@ -458,14 +487,27 @@ function genCallTerm(bir:Call callIns) {
     // call method
     jvm:methodInvokeVisit("invoke_static", [jvmClass, methodName, methodDesc]);
 
-    jvm:methodInvokeVisit("type_cast", []);
-    jvm:methodInvokeVisit("invoke_virtual", [jvmClass, methodName, methodDesc]);
-
     // store return
     bir:VariableDcl lhsOpVarDcl = callIns.lhsOp.variableDcl but {() => {}};
-
     int lhsLndex = getJVMIndexOfVarRef(lhsOpVarDcl) but {() => 0};
-    jvm:methodVisit("var_ins", [LSTORE, lhsLndex]);
+
+    match callIns.lhsOp.typeValue {
+        bir:BTypeInt => {
+            jvm:methodInvokeVisit("type_cast_long", []);
+            jvm:methodInvokeVisit("invoke_virtual_long", []);
+            jvm:methodVisit("var_ins", [LSTORE, lhsLndex]);
+        }
+        bir:BArrayType => {
+            jvm:methodInvokeVisit("type_cast_long_array", []);
+            jvm:methodInvokeVisit("type_cast_long_array", []);
+            jvm:methodVisit("var_ins", [ASTORE, lhsLndex]);
+        }
+        any => {
+            error err = { message: "JVM generation is not supported for type " +
+                            io:sprintf("%s", callIns.lhsOp.typeValue)};
+            throw err;
+        }
+    }
 
     // goto thenBB
     jvm:labelVisit("goto", [currentFuncName + callIns.thenBB.id.value]);
@@ -545,7 +587,14 @@ type BalToJVMIndexMap object {
     function add(bir:VariableDcl varDcl) {
         string varRefName = getVarRefName(varDcl);
         jvmLocalVarIndexMap[varRefName] = localVarIndex;
-        localVarIndex = localVarIndex + 2;
+        match varDcl.typeValue {
+            bir:BTypeInt => {
+                localVarIndex = localVarIndex + 2;
+            }
+            any => {
+                localVarIndex = localVarIndex + 1;
+            }
+        }
     }
 
     function getIndex(bir:VariableDcl varDcl) returns int? {
