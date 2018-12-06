@@ -379,7 +379,7 @@ function visitAndIns(bir:BinaryOp binaryIns) {
 
     bir:VarRef lhsOp = binaryIns.lhsOp;
 
-    io:println("AND ins : " + io:sprintf("%s", binaryIns));
+    //io:println("AND ins : " + io:sprintf("%s", binaryIns));
 
     string label1 = currentFuncName + currentBBName + io:sprintf("%s", lhsOp.variableDcl) + "01";
     string label2 = currentFuncName + currentBBName + io:sprintf("%s", lhsOp.variableDcl) + "02";
