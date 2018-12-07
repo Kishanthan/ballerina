@@ -29,6 +29,7 @@ import static org.ballerinalang.model.types.TypeKind.ARRAY;
 import static org.ballerinalang.model.types.TypeKind.STRING;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.IFGT;
+import static org.objectweb.asm.Opcodes.IFLE;
 import static org.objectweb.asm.Opcodes.IFLT;
 import static org.objectweb.asm.Opcodes.IFNE;
 import static org.objectweb.asm.Opcodes.IF_ICMPNE;
@@ -85,6 +86,11 @@ public class JVMLabelVisitor extends BlockingNativeCallableUnit {
                 label = JVMCodeGenUtil.getInstance().getLabel(labelId);
                 mv.visitJumpInsn(IFNE, label);
                 break;
+            case LESS_THAN_EQUAL_0:
+                labelId = args.get(0);
+                label = JVMCodeGenUtil.getInstance().getLabel(labelId);
+                mv.visitJumpInsn(IFLE, label);
+                break;
             case VISIT:
                 labelId = args.get(0);
                 label = JVMCodeGenUtil.getInstance().getLabel(labelId);
@@ -96,6 +102,6 @@ public class JVMLabelVisitor extends BlockingNativeCallableUnit {
     }
 
     enum LabelVisitType {
-        CREATE, GOTO, VISIT, COMPARE, GREATER_THAN_0, LESS_THAN_0, NOT_EQUAL_0, IF_ICMPNE;
+        CREATE, GOTO, VISIT, COMPARE, GREATER_THAN_0, LESS_THAN_0, NOT_EQUAL_0, LESS_THAN_EQUAL_0, IF_ICMPNE;
     }
 }

@@ -276,6 +276,7 @@ function visitBinaryOpIns(bir:BinaryOp binaryIns) {
         bir:SUB => visitSubIns(binaryIns);
         bir:DIV => visitDivIns(binaryIns);
         bir:AND => visitAndIns(binaryIns);
+        bir:LESS_EQUAL => visitLessEqualIns(binaryIns);
         any => {
             error err = {message: "JVM generation is not supported for type : " + io:sprintf("%s", binaryIns.kind)};
             throw err;
@@ -315,13 +316,28 @@ function visitLessThanIns(bir:BinaryOp binaryIns) {
     jvm:methodVisit("var_ins", [ISTORE, lhsOpIndex]);
 }
 
-function visitAddIns(bir:BinaryOp binaryIns) {
+function visitLessEqualIns(bir:BinaryOp binaryIns) {
     bir:VarRef lhsOp = binaryIns.lhsOp;
     visitBinaryRhsAndLhsLoad(binaryIns);
     int lhsOpIndex = getJVMIndexOfVarRef(lhsOp.variableDcl) but {() => 0};
 
-    jvm:methodVisit("ins", [LADD]);
-    jvm:methodVisit("var_ins", [LSTORE, lhsOpIndex]);
+    string label1 = currentFuncName + currentBBName + io:sprintf("%s", lhsOp.variableDcl) + "01";
+    string label2 = currentFuncName + currentBBName + io:sprintf("%s", lhsOp.variableDcl) + "02";
+
+    jvm:labelVisit("create", [label1]);
+    jvm:labelVisit("create", [label2]);
+
+    jvm:methodVisit("ins", [LCMP]);
+    jvm:labelVisit("less_than_equal_0", [label1]);
+
+    jvm:methodVisit("ins", [ICONST_0]);
+    jvm:labelVisit("goto", [label2]);
+
+    jvm:labelVisit("visit", [label1]);
+    jvm:methodVisit("ins", [ICONST_1]);
+
+    jvm:labelVisit("visit", [label2]);
+    jvm:methodVisit("var_ins", [ISTORE, lhsOpIndex]);
 }
 
 function visitEqualIns(bir:BinaryOp binaryIns) {
@@ -346,6 +362,15 @@ function visitEqualIns(bir:BinaryOp binaryIns) {
 
     jvm:labelVisit("visit", [label2]);
     jvm:methodVisit("var_ins", [ISTORE, lhsOpIndex]);
+}
+
+function visitAddIns(bir:BinaryOp binaryIns) {
+    bir:VarRef lhsOp = binaryIns.lhsOp;
+    visitBinaryRhsAndLhsLoad(binaryIns);
+    int lhsOpIndex = getJVMIndexOfVarRef(lhsOp.variableDcl) but {() => 0};
+
+    jvm:methodVisit("ins", [LADD]);
+    jvm:methodVisit("var_ins", [LSTORE, lhsOpIndex]);
 }
 
 function visitSubIns(bir:BinaryOp binaryIns) {

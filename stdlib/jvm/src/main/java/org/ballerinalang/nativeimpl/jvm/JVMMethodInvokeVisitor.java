@@ -63,7 +63,7 @@ public class JVMMethodInvokeVisitor extends BlockingNativeCallableUnit {
                 mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(Long.class), "longValue", "()J", false);
                 break;
             case TYPE_CAST_LONG:
-                className = Type.getInternalName(long.class);
+                className = Type.getInternalName(Long.class);
                 mv.visitTypeInsn(CHECKCAST, className);
                 break;
             case TYPE_CAST_LONG_ARRAY:
