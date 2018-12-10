@@ -67,8 +67,17 @@ type BbBodyGenrator object {
 
     function genConstantLoadIns(bir:ConstantLoad constLoad) {
         llvm:LLVMValueRef lhsRef = parent.getLocalVarRefById(constLoad.lhsOp.variableDcl.name.value);
-        var constRef = llvm:LLVMConstInt(llvm:LLVMInt64Type(), constLoad.value, 0);
-        var loaded = llvm:LLVMBuildStore(builder, constRef, lhsRef);
+
+        bir:BType bType = constLoad.typeValue;
+
+        if (bType == "int"){
+            any value = constLoad.value;
+            var constRef = llvm:LLVMConstInt(llvm:LLVMInt64Type(), check <int>value, 0);
+            var loaded = llvm:LLVMBuildStore(builder, constRef, lhsRef);
+        }  else {
+            error err = { message: "CONST_LOAD is not supported for type " + io:sprintf("%s", bType)};
+            throw err;
+        }
     }
 
 };

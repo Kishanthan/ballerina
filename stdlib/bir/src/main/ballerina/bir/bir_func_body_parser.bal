@@ -29,10 +29,25 @@ public type FuncBodyParser object {
         if (kindTag == 6){
             var bType = typeParser.parseType();
             kind = "CONST_LOAD";
-            var constLoad = new ConstantLoad(kind,
-                parseVarRef(),
-                bType,
-                reader.readIntCpRef());
+
+            VarRef varRef = parseVarRef();
+
+            int|string value;
+
+            match bType {
+                BTypeInt => {
+                    value = reader.readIntCpRef();
+                }
+                BTypeString => {
+                    value = reader.readStringCpRef();
+                }
+                any => {
+                    error err = { message: "CONST_LOAD is not supported for type " + io:sprintf("%s", bType)};
+                    throw err;
+                }
+            }
+
+            var constLoad = new ConstantLoad(kind, varRef, bType, value);
             return constLoad;
         } else if (kindTag == 5){
             kind = "MOVE";

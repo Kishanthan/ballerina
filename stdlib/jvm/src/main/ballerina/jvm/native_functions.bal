@@ -18,8 +18,10 @@ public extern function classVisit(string visitType, string[] args);
 
 public extern function methodVisit(string visitType, int[] args);
 
-public extern function methodInvokeVisit(string visitType, string[] args);
-
 public extern function labelVisit(string visitType, string[] args);
 
 public extern function getClassFileContent() returns byte[];
+
+public extern function longTypeVisit(string visitType, string[] args);
+
+public extern function stringTypeVisit(string visitType, string[] args);

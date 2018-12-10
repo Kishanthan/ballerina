@@ -69,6 +69,8 @@ public type BTypeNil "()";
 
 public type BTypeInt "int";
 
+public type BTypeString "string";
+
 public type BTypeBoolean "boolean";
 
 public type BUnionType record {
@@ -83,7 +85,7 @@ public type BStructureType record {
     Name name;
 };
 
-public type BType BTypeInt | BTypeBoolean | BTypeNil | "byte" | "float" | "string" | BUnionType |
+public type BType BTypeInt | BTypeBoolean | BTypeNil | "byte" | "float" | BTypeString | BUnionType |
                   BInvokableType | BArrayType | BStructureType ;
 
 public type BTypeSymbol record {
@@ -161,7 +163,7 @@ public type ConstantLoad object {
     public InstructionKind kind;
     public VarRef lhsOp;
     public BType typeValue;
-    public int value;
+    public int|string value;
     public new(kind, lhsOp, typeValue, value) {}
 };
 

@@ -36,13 +36,13 @@ import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jvm",
-        functionName = "methodInvokeVisit",
+        functionName = "longTypeVisit",
         args = {
                 @Argument(name = "visitType", type = STRING),
                 @Argument(name = "args", type = ARRAY, elementType = STRING),
         }
 )
-public class JVMMethodInvokeVisitor extends BlockingNativeCallableUnit {
+public class JVMLongTypeVisitor extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {

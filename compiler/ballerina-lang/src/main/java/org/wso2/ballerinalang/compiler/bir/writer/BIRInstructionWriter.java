@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.BooleanCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
+import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -152,6 +153,9 @@ public class BIRInstructionWriter extends BIRVisitor {
                 break;
             case TypeTags.BOOLEAN:
                 buf.writeInt(cp.addCPEntry(new BooleanCPEntry((Boolean) birConstantLoad.value)));
+                break;
+            case TypeTags.STRING:
+                buf.writeInt(cp.addStringCPEntry((String) birConstantLoad.value));
                 break;
             case TypeTags.NIL:
                 break;
