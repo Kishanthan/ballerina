@@ -74,6 +74,12 @@ public class JVMStringTypeVisitor extends BlockingNativeCallableUnit {
             case TO_STRING:
                 mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false);
                 break;
+            case CONTAINS:
+                mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "contains", "(Ljava/lang/CharSequence;)Z", false);
+                break;
+            case MATCHES:
+                mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "matches", "(Ljava/lang/String;)Z", false);
+                break;
             case CHECKCAST:
                 mv.visitTypeInsn(CHECKCAST, "java/lang/String");
                 break;
@@ -83,6 +89,6 @@ public class JVMStringTypeVisitor extends BlockingNativeCallableUnit {
     }
 
     enum MethodVisitType {
-        METHOD_INS, LDC_INS, NEW, APPEND, TO_STRING, CHECKCAST, CONCAT;
+        METHOD_INS, LDC_INS, NEW, APPEND, TO_STRING, CHECKCAST, CONCAT, CONTAINS, MATCHES;
     }
 }

@@ -74,8 +74,21 @@ function getFunctionArgDesc(bir:BType bType) returns string {
         bir:BTypeString => {
             return "Ljava/lang/String;";
         }
-        bir:BArrayType => {
-            return "[J";
+        bir:BArrayType arrType => {
+            match arrType.eType {
+                bir:BTypeInt => {
+                    return "[J";
+                }
+                bir:BTypeString => {
+                    return "[Ljava/lang/String;";
+                }
+                any => {
+                    error err = { message: "JVM generation is not supported for type " +
+                                    io:sprintf("%s", arrType.eType)};
+                    throw err;
+                }
+            }
+
         }
         any => {
             error err = { message: "JVM generation is not supported for type " + io:sprintf("%s", bType)};
@@ -175,10 +188,14 @@ function visitMoveIns(bir:Move moveIns) {
     //io:println("RHS Index is :::::::::::", rhsIndex);
     int lhsLndex = getJVMIndexOfVarRef(moveIns.lhsOp.variableDcl) but {() => 0};
     //io:println("LHS Index is :::::::::::", lhsLndex);
-    match (moveIns.rhsOp.typeValue ) {
+    match (moveIns.rhsOp.typeValue) {
         bir:BTypeInt => {
             jvm:methodVisit("var_ins", [LLOAD, rhsIndex]);
             jvm:methodVisit("var_ins", [LSTORE, lhsLndex]);
+        }
+        bir:BTypeBoolean => {
+            jvm:methodVisit("var_ins", [ILOAD, rhsIndex]);
+            jvm:methodVisit("var_ins", [ISTORE, lhsLndex]);
         }
         bir:BTypeString => {
             jvm:methodVisit("var_ins", [ALOAD, rhsIndex]);
@@ -189,7 +206,8 @@ function visitMoveIns(bir:Move moveIns) {
             jvm:methodVisit("var_ins", [ASTORE, lhsLndex]);
         }
         any => {
-            error err = { message: "JVM generation is not supported for type" };
+            error err = { message: "JVM generation is not supported for type " +
+                                io:sprintf("%s", moveIns.rhsOp.typeValue)};
             throw err;
         }
     }
@@ -244,11 +262,6 @@ function visitArrayStoreIns(bir:ArrayStore arrayStoreIns) {
 function visitArrayAccessIns(bir:ArrayAccess arrayAccessIns) {
     //io:println("ArrayAccess Ins : ", io:sprintf("%s", arrayAccessIns));
 
-    // ALOAD
-    // LLOAD
-    // L2I
-    // LALOAD
-
 
     int rhsIndex = getJVMIndexOfVarRef(arrayAccessIns.rhsOp.variableDcl) but {() => 0};
     jvm:methodVisit("var_ins", [ALOAD, rhsIndex]);
@@ -259,9 +272,22 @@ function visitArrayAccessIns(bir:ArrayAccess arrayAccessIns) {
     jvm:methodVisit("ins", [L2I]);
 
     int lhsIndex = getJVMIndexOfVarRef(arrayAccessIns.lhsOp.variableDcl) but {() => 0};
-    jvm:methodVisit("ins", [LALOAD]);
 
-    jvm:methodVisit("var_ins", [LSTORE, lhsIndex]);
+    match arrayAccessIns.lhsOp.typeValue {
+        bir:BTypeInt => {
+            jvm:methodVisit("ins", [LALOAD]);
+            jvm:methodVisit("var_ins", [LSTORE, lhsIndex]);
+        }
+        bir:BTypeString => {
+            jvm:methodVisit("ins", [AALOAD]);
+            jvm:methodVisit("var_ins", [ASTORE, lhsIndex]);
+        }
+        any => {
+            error err = {message: "JVM generation is not supported for type " +
+                            io:sprintf("%s", arrayAccessIns.lhsOp.typeValue)};
+            throw err;
+        }
+    }
 }
 
 function visitLengthIns(bir:Length lengthIns) {
@@ -543,38 +569,61 @@ function genBranchTerm(bir:Branch branchIns) {
 
 function genCallTerm(bir:Call callIns) {
     //io:println("Call Ins : " + io:sprintf("%s", callIns));
-    string jvmClass = "DEFAULT_CLASS"; //todo get the correct class name
-    string methodName = callIns.name.value;
-    string methodDesc = "(";
-    foreach arg in callIns.args {
+    if (!isNativeCall(callIns)){
+        string jvmClass = "DEFAULT_CLASS"; //todo get the correct class name
+        string methodName = callIns.name.value;
+        string methodDesc = "(";
+        foreach arg in callIns.args {
 
-        int argIndex = getJVMIndexOfVarRef(arg.variableDcl) but {() => 0};
+            int argIndex = getJVMIndexOfVarRef(arg.variableDcl) but {() => 0};
 
-        match (arg.typeValue) {
-            bir:BTypeInt => {
-                jvm:methodVisit("var_ins", [LLOAD, argIndex]);
-                methodDesc = methodDesc + "J";
-            }
-            bir:BTypeString => {
-                jvm:methodVisit("var_ins", [ALOAD, argIndex]);
-                methodDesc = methodDesc + "Ljava/lang/String;";
-            }
-            bir:BArrayType => {
-                jvm:methodVisit("var_ins", [ALOAD, argIndex]);
-                methodDesc = methodDesc + "[J";
-            }
-            any => {
-                error err = { message: "JVM generation is not supported for type " +
-                                io:sprintf("%s", arg.typeValue)};
-                throw err;
+            match (arg.typeValue) {
+                bir:BTypeInt => {
+                    jvm:methodVisit("var_ins", [LLOAD, argIndex]);
+                    methodDesc = methodDesc + "J";
+                }
+                bir:BTypeString => {
+                    jvm:methodVisit("var_ins", [ALOAD, argIndex]);
+                    methodDesc = methodDesc + "Ljava/lang/String;";
+                }
+                bir:BArrayType => {
+                    jvm:methodVisit("var_ins", [ALOAD, argIndex]);
+                    methodDesc = methodDesc + "[J";
+                }
+                any => {
+                    error err = { message: "JVM generation is not supported for type " +
+                                    io:sprintf("%s", arg.typeValue)};
+                    throw err;
+                }
             }
         }
+
+        methodDesc = methodDesc + ")Ljava/lang/Object;";
+
+        // call method
+        jvm:longTypeVisit("invoke_static", [jvmClass, methodName, methodDesc]);
+    } else {
+        // supporting string.contains only
+        foreach arg in callIns.args {
+            int argIndex = getJVMIndexOfVarRef(arg.variableDcl) but {() => 0};
+
+            match (arg.typeValue) {
+                bir:BTypeString => {
+                    jvm:methodVisit("var_ins", [ALOAD, argIndex]);
+                }
+                any => {
+                    error err = { message: "JVM generation is not supported for type " +
+                                    io:sprintf("%s", arg.typeValue)};
+                    throw err;
+                }
+            }
+        }
+        if (callIns.name.value.contains("contains")) {
+            jvm:stringTypeVisit("contains", []);
+        } else if (callIns.name.value.contains("matches")) {
+            jvm:stringTypeVisit("matches", []);
+        }
     }
-
-    methodDesc = methodDesc + ")Ljava/lang/Object;";
-
-    // call method
-    jvm:longTypeVisit("invoke_static", [jvmClass, methodName, methodDesc]);
 
     // store return
     bir:VariableDcl lhsOpVarDcl = callIns.lhsOp.variableDcl but {() => {}};
@@ -595,6 +644,9 @@ function genCallTerm(bir:Call callIns) {
             jvm:longTypeVisit("type_cast_long_array", []);
             jvm:methodVisit("var_ins", [ASTORE, lhsLndex]);
         }
+        bir:BTypeBoolean => {
+            jvm:methodVisit("var_ins", [ISTORE, lhsLndex]);
+        }
         any => {
             error err = { message: "JVM generation is not supported for type " +
                             io:sprintf("%s", callIns.lhsOp.typeValue)};
@@ -604,6 +656,11 @@ function genCallTerm(bir:Call callIns) {
 
     // goto thenBB
     jvm:labelVisit("goto", [currentFuncName + callIns.thenBB.id.value]);
+}
+
+function isNativeCall(bir:Call callIns) returns boolean {
+    // todo need proper check
+    return callIns.name.value.contains("contains") || callIns.name.value.contains("matches");
 }
 
 

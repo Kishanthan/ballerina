@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -39,6 +40,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -46,9 +49,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -65,9 +70,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.ballerinalang.model.tree.OperatorKind.LENGTHOF;
-import static org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 
 /**
  * Lower the AST to BIR.
@@ -179,7 +181,7 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     public void visit(BLangVariableDef astVarDefStmt) {
-        BIRVariableDcl birVarDcl = new BIRVariableDcl(astVarDefStmt.var.symbol.type,
+        BIRVariableDcl birVarDcl = new BIRVariableDcl(getType(astVarDefStmt.var.symbol.type),
                 this.env.nextLocalVarId(names), VarKind.LOCAL);
         this.env.enclFunc.localVars.add(birVarDcl);
 
@@ -280,6 +282,45 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBB = thenBB;
     }
 
+    public void visit(BLangInvocation.BLangAttachedFunctionInvocation invocationExpr) {
+        BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
+        this.env.enclFunc.basicBlocks.add(thenBB);
+        List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
+        List<BIROperand> args = new ArrayList<>();
+
+        for (BLangExpression requiredArg : requiredArgs) {
+            requiredArg.accept(this);
+            args.add(this.env.targetOperand);
+        }
+
+        BIRVarRef lhsOp = null;
+        if (invocationExpr.type.tag != TypeTags.NIL) {
+            // Create a temporary variable to store the return operation result.
+            BIRVariableDcl tempVarDcl = new BIRVariableDcl(getType(invocationExpr.type),
+                    this.env.nextLocalVarId(names), VarKind.TEMP);
+            this.env.enclFunc.localVars.add(tempVarDcl);
+            lhsOp = new BIRVarRef(tempVarDcl);
+            this.env.targetOperand = lhsOp;
+        }
+
+        this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.symbol.pkgID,
+                names.fromString(invocationExpr.symbol.name.value),
+                args,
+                lhsOp,
+                thenBB);
+
+        this.env.enclBB = thenBB;
+    }
+
+    private BType getType(BType bType) {
+        if (TypeKind.UNION == bType.getKind()) {
+            BUnionType unionType = (BUnionType) bType;
+            return unionType.memberTypes.stream().findFirst().get();
+        }
+
+        return bType;
+    }
+
 
     public void visit(BLangReturn astReturnStmt) {
         if (astReturnStmt.expr.type.tag != TypeTags.NIL) {
@@ -348,6 +389,17 @@ public class BIRGen extends BLangNodeVisitor {
         // Set the elseBB as the basic block for the rest of statements followed by this if.
         this.env.enclFunc.basicBlocks.add(nextBB);
         this.env.enclBB = nextBB;
+    }
+
+    public void visit(BLangStatementExpression bLangStatementExpression) {
+        // TODO this is only for avoiding check expression
+        if (NodeKind.BLOCK == bLangStatementExpression.stmt.getKind()) {
+            BLangBlockStmt blockStmt = (BLangBlockStmt) bLangStatementExpression.stmt;
+            if (blockStmt.stmts.size() > 1 && NodeKind.BLOCK == blockStmt.stmts.get(1).getKind()) {
+                BLangBlockStmt innerBlock = (BLangBlockStmt) blockStmt.stmts.get(1);
+                innerBlock.stmts.get(0).accept(this);
+            }
+        }
     }
 
     public void visit(BLangWhile astWhileStmt) {
