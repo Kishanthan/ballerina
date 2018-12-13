@@ -70,12 +70,16 @@ public class JVMLongTypeVisitor extends BlockingNativeCallableUnit {
                 className = Type.getInternalName(long[].class);
                 mv.visitTypeInsn(CHECKCAST, className);
                 break;
+            case TYPE_CAST_LONG_ARRAY_OF_ARRAY:
+                className = Type.getInternalName(long[][].class);
+                mv.visitTypeInsn(CHECKCAST, className);
+                break;
             default:
                 throw new UnsupportedOperationException();
         }
     }
 
     enum MethodInvokeVisitType {
-        INVOKE_STATIC, INVOKE_VIRTUAL_LONG, TYPE_CAST_LONG, TYPE_CAST_LONG_ARRAY;
+        INVOKE_STATIC, INVOKE_VIRTUAL_LONG, TYPE_CAST_LONG, TYPE_CAST_LONG_ARRAY, TYPE_CAST_LONG_ARRAY_OF_ARRAY;
     }
 }

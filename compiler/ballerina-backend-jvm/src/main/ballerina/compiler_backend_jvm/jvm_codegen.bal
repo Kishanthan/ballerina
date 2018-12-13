@@ -82,6 +82,9 @@ function getFunctionArgDesc(bir:BType bType) returns string {
                 bir:BTypeString => {
                     return "[Ljava/lang/String;";
                 }
+                bir:BArrayType => {
+                    return "[[J";
+                }
                 any => {
                     error err = { message: "JVM generation is not supported for type " +
                                     io:sprintf("%s", arrType.eType)};
@@ -215,22 +218,46 @@ function visitMoveIns(bir:Move moveIns) {
 
 function visitNewArrayIns(bir:NewArray newArrayIns) {
     //io:println("NewArray Ins : ", io:sprintf("%s", newArrayIns));
-    // LDC
-    // L2I
-    // NEWARRAY T_LONG
-    // ASTORE
 
-    if (arrayInitLengthIndex == -1){
-        // todo array length is hardcoded - fix me
-        jvm:methodVisit("ldc_ins", [100]);
-    } else {
-        jvm:methodVisit("var_ins", [LLOAD, arrayInitLengthIndex]);
+    match newArrayIns.typeValue {
+        bir:BArrayType arrType => {
+            match arrType.eType {
+                bir:BTypeInt => {
+                    if (arrayInitLengthIndex == -1){
+                        // todo array length is hardcoded - fix me
+                        jvm:methodVisit("ldc_ins", [100]);
+                    } else {
+                        jvm:methodVisit("var_ins", [LLOAD, arrayInitLengthIndex]);
+                    }
+                    jvm:methodVisit("ins", [L2I]);
+
+                    int T_LONG = 11;
+
+                    jvm:methodVisit("int_ins", [NEWARRAY, T_LONG]);
+                }
+                bir:BArrayType => {
+                    //ICONST_4
+                    //ICONST_4
+                    //MULTIANEWARRAY [[J 2
+
+                    // todo array length is hardcoded - fix me
+                    jvm:methodVisit("ins", [ICONST_4]);
+                    jvm:methodVisit("ins", [ICONST_4]);
+                    jvm:methodVisit("multi_new_array_ins", [2]);
+                }
+                any => {
+                    error err = {message: "JVM generation is not supported for type " +
+                                              io:sprintf("%s", arrType.eType)};
+                    throw err;
+                }
+            }
+        }
+        any => {
+            error err = {message: "JVM generation is not supported for type " +
+                                      io:sprintf("%s", newArrayIns.typeValue)};
+            throw err;
+        }
     }
-    jvm:methodVisit("ins", [L2I]);
-
-    int T_LONG = 11;
-
-    jvm:methodVisit("int_ins", [NEWARRAY, T_LONG]);
 
     int lhsIndex = getJVMIndexOfVarRef(newArrayIns.lhsOp.variableDcl) but {() => 0};
 
@@ -282,6 +309,10 @@ function visitArrayAccessIns(bir:ArrayAccess arrayAccessIns) {
             jvm:methodVisit("ins", [AALOAD]);
             jvm:methodVisit("var_ins", [ASTORE, lhsIndex]);
         }
+        bir:BArrayType => {
+            jvm:methodVisit("ins", [AALOAD]);
+            jvm:methodVisit("var_ins", [ASTORE, lhsIndex]);
+        }
         any => {
             error err = {message: "JVM generation is not supported for type " +
                             io:sprintf("%s", arrayAccessIns.lhsOp.typeValue)};
@@ -330,6 +361,7 @@ function visitBinaryOpIns(bir:BinaryOp binaryIns) {
         bir:EQUAL => visitEqualIns(binaryIns);
         bir:SUB => visitSubIns(binaryIns);
         bir:DIV => visitDivIns(binaryIns);
+        bir:MUL => visitMulIns(binaryIns);
         bir:AND => visitAndIns(binaryIns);
         bir:LESS_EQUAL => visitLessEqualIns(binaryIns);
         any => {
@@ -475,6 +507,16 @@ function visitDivIns(bir:BinaryOp binaryIns) {
     jvm:methodVisit("var_ins", [LSTORE, lhsOpIndex]);
 }
 
+function visitMulIns(bir:BinaryOp binaryIns) {
+    bir:VarRef lhsOp = binaryIns.lhsOp;
+    visitBinaryRhsAndLhsLoad(binaryIns);
+    //io:println("DIV ins : " + io:sprintf("%s", lhsOp));
+    int lhsOpIndex = getJVMIndexOfVarRef(lhsOp.variableDcl) but {() => 0};
+
+    jvm:methodVisit("ins", [LMUL]);
+    jvm:methodVisit("var_ins", [LSTORE, lhsOpIndex]);
+}
+
 function visitAndIns(bir:BinaryOp binaryIns) {
     // ILOAD
     // ICONST_1
@@ -586,9 +628,22 @@ function genCallTerm(bir:Call callIns) {
                     jvm:methodVisit("var_ins", [ALOAD, argIndex]);
                     methodDesc = methodDesc + "Ljava/lang/String;";
                 }
-                bir:BArrayType => {
-                    jvm:methodVisit("var_ins", [ALOAD, argIndex]);
-                    methodDesc = methodDesc + "[J";
+                bir:BArrayType arrType => {
+                    match arrType.eType {
+                        bir:BTypeInt => {
+                            jvm:methodVisit("var_ins", [ALOAD, argIndex]);
+                            methodDesc = methodDesc + "[J";
+                        }
+                        bir:BArrayType => {
+                            jvm:methodVisit("var_ins", [ALOAD, argIndex]);
+                            methodDesc = methodDesc + "[[J";
+                        }
+                        any => {
+                            error err = { message: "JVM generation is not supported for type " +
+                                            io:sprintf("%s", arrType.eType)};
+                            throw err;
+                        }
+                    }
                 }
                 any => {
                     error err = { message: "JVM generation is not supported for type " +
@@ -639,10 +694,24 @@ function genCallTerm(bir:Call callIns) {
             jvm:stringTypeVisit("checkcast", []);
             jvm:methodVisit("var_ins", [ASTORE, lhsLndex]);
         }
-        bir:BArrayType => {
-            jvm:longTypeVisit("type_cast_long_array", []);
-            jvm:longTypeVisit("type_cast_long_array", []);
-            jvm:methodVisit("var_ins", [ASTORE, lhsLndex]);
+        bir:BArrayType arrType => {
+            match arrType.eType {
+                bir:BTypeInt => {
+                    jvm:longTypeVisit("type_cast_long_array", []);
+                    jvm:longTypeVisit("type_cast_long_array", []);
+                    jvm:methodVisit("var_ins", [ASTORE, lhsLndex]);
+                }
+                bir:BArrayType => {
+                    jvm:longTypeVisit("type_cast_long_array_of_array", []);
+                    jvm:longTypeVisit("type_cast_long_array_of_array", []);
+                    jvm:methodVisit("var_ins", [ASTORE, lhsLndex]);
+                }
+                any => {
+                    error err = { message: "JVM generation is not supported for type " +
+                                    io:sprintf("%s", arrType.eType)};
+                    throw err;
+                }
+            }
         }
         bir:BTypeBoolean => {
             jvm:methodVisit("var_ins", [ISTORE, lhsLndex]);

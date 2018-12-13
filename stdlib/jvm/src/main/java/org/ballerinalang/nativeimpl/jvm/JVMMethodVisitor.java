@@ -85,12 +85,16 @@ public class JVMMethodVisitor extends BlockingNativeCallableUnit {
                 int operand = (int) args.get(1);
                 mv.visitIntInsn(opCode, operand);
                 break;
+            case MULTI_NEW_ARRAY_INS :
+                int dimension = (int) args.get(0);
+                mv.visitMultiANewArrayInsn("[[J", dimension);
+                break;
             default:
                 throw new UnsupportedOperationException();
         }
     }
 
     enum MethodVisitType {
-        CODE, MAX, END, VAR_INS, METHOD_INS, INS, LDC_INS, JUMP_INS, TYPE_INS, INT_INS;
+        CODE, MAX, END, VAR_INS, METHOD_INS, INS, LDC_INS, JUMP_INS, TYPE_INS, INT_INS, MULTI_NEW_ARRAY_INS;
     }
 }

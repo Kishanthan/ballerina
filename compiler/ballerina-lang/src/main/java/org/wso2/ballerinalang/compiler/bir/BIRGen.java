@@ -459,21 +459,21 @@ public class BIRGen extends BLangNodeVisitor {
 
         emit(new NewArray(initValues, arrayLiteral.type, toVarRef));
 
-        List<BLangExpression> exprs = arrayLiteral.exprs;
-        for (int i = 0; i < exprs.size(); i++) {
-            BLangExpression expr = exprs.get(i);
-            expr.accept(this);
-            BIROperand rhsOp1 = this.env.targetOperand;
-
-            BIRVariableDcl tempVarDcl2 = new BIRVariableDcl(symbolTable.intType,
-                                                            this.env.nextLocalVarId(names), VarKind.TEMP);
-            this.env.enclFunc.localVars.add(tempVarDcl2);
-            BIRVarRef toVarRef2 = new BIRVarRef(tempVarDcl2);
-            emit(new BIRNonTerminator.ConstantLoad(i, symbolTable.intType, toVarRef2));
-            this.env.targetOperand = toVarRef2;
-
-            emit(new BIRNonTerminator.ArrayStore(rhsOp1, toVarRef2, toVarRef));
-        }
+//        List<BLangExpression> exprs = arrayLiteral.exprs;
+//        for (int i = 0; i < exprs.size(); i++) {
+//            BLangExpression expr = exprs.get(i);
+//            expr.accept(this);
+//            BIROperand rhsOp1 = this.env.targetOperand;
+//
+//            BIRVariableDcl tempVarDcl2 = new BIRVariableDcl(symbolTable.intType,
+//                                                            this.env.nextLocalVarId(names), VarKind.TEMP);
+//            this.env.enclFunc.localVars.add(tempVarDcl2);
+//            BIRVarRef toVarRef2 = new BIRVarRef(tempVarDcl2);
+//            emit(new BIRNonTerminator.ConstantLoad(i, symbolTable.intType, toVarRef2));
+//            this.env.targetOperand = toVarRef2;
+//
+//            emit(new BIRNonTerminator.ArrayStore(rhsOp1, toVarRef2, toVarRef));
+//        }
 
         this.env.targetOperand = toVarRef;
     }
@@ -482,11 +482,18 @@ public class BIRGen extends BLangNodeVisitor {
         if (arrayIndexAccessExpr.lhsVar) {
             BIROperand rhsOp = this.env.targetOperand;
 
+            if (NodeKind.INDEX_BASED_ACCESS_EXPR == arrayIndexAccessExpr.expr.getKind()) {
+                BLangArrayAccessExpr expr = (BLangArrayAccessExpr) arrayIndexAccessExpr.expr;
+                expr.lhsVar = false;
+            }
+
+            arrayIndexAccessExpr.expr.accept(this);
+            BIRVarRef lhsOp = (BIRVarRef) this.env.targetOperand;
+
             arrayIndexAccessExpr.indexExpr.accept(this);
             BIROperand indexExpr = this.env.targetOperand;
 
-            BIRVarRef lhsOp = new BIRVarRef(this.env.symbolVarMap.get(arrayIndexAccessExpr.expr.symbol));
-
+//            BIRVarRef lhsOp = new BIRVarRef(this.env.symbolVarMap.get(arrayIndexAccessExpr.expr.symbol));
             emit(new BIRNonTerminator.ArrayStore(rhsOp, indexExpr, lhsOp));
             this.env.targetOperand = null;
         } else {
@@ -495,9 +502,12 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclFunc.localVars.add(tempVarDcl);
             BIRVarRef toVarRef = new BIRVarRef(tempVarDcl);
 
+            arrayIndexAccessExpr.expr.accept(this);
+            BIRVarRef fromVarRef = (BIRVarRef) this.env.targetOperand;
+
             arrayIndexAccessExpr.indexExpr.accept(this);
             BIROperand indexExpr = this.env.targetOperand;
-            BIRVarRef fromVarRef = new BIRVarRef(this.env.symbolVarMap.get(arrayIndexAccessExpr.expr.symbol));
+//            BIRVarRef fromVarRef = new BIRVarRef(this.env.symbolVarMap.get(arrayIndexAccessExpr.expr.symbol));
             emit(new ArrayAccess(fromVarRef, indexExpr, toVarRef));
             this.env.targetOperand = toVarRef;
         }
