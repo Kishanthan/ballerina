@@ -29,13 +29,13 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 class JVMCodeGenUtil {
 
     private ClassWriter classWriter;
+    private MethodVisitor methodVisitor;
     private Map<String, Label> labels = new HashMap<>();
 
     private JVMCodeGenUtil() {
         this.classWriter = new ClassWriter(COMPUTE_FRAMES);
     }
 
-    private MethodVisitor methodVisitor;
 
     private static JVMCodeGenUtil jvmCodeGenUtil = new JVMCodeGenUtil();
 
@@ -47,6 +47,10 @@ class JVMCodeGenUtil {
         return classWriter;
     }
 
+    void setClassWriter(ClassWriter classWriter) {
+        this.classWriter = classWriter;
+    }
+
     MethodVisitor getMethodVisitor() {
         return methodVisitor;
     }
@@ -55,7 +59,7 @@ class JVMCodeGenUtil {
         this.methodVisitor = methodVisitor;
     }
 
-    void addLebel(String labelId, Label label) {
+    void addLabel(String labelId, Label label) {
         labels.put(labelId, label);
     }
 
@@ -64,5 +68,10 @@ class JVMCodeGenUtil {
             labels.put(labelId, new Label());
         }
         return labels.get(labelId);
+    }
+
+    void clean() {
+        classWriter = new ClassWriter(COMPUTE_FRAMES);
+        labels = new HashMap<>();
     }
 }

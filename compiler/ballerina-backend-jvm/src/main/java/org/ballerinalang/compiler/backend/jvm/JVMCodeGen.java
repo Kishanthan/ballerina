@@ -20,6 +20,7 @@ package org.ballerinalang.compiler.backend.jvm;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
@@ -36,17 +37,12 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
@@ -59,10 +55,11 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 public class JVMCodeGen {
     private static PrintStream out = System.out;
     private static final String EXEC_RESOURCE_FILE_NAME = "compiler_backend_jvm.balx";
-    private static final String DEFAULT_CLASS_FILE_NAME = "DEFAULT_CLASS.class";
+    private String CLASS_FILE_NAME = "DEFAULT.class";
 
 
     public void genJVMExecutable(Path projectPath, String progPath, String targetPath) {
+        CLASS_FILE_NAME = progPath.substring(0, progPath.indexOf("."));
         BLangPackage bLangPackage = compileProgram(projectPath, progPath);
         if (bLangPackage.diagCollector.hasErrors()) {
             throw new BLangCompilerException("compilation contains errors");
@@ -77,22 +74,21 @@ public class JVMCodeGen {
         generateJVMClassFile(bir, targetPath);
     }
 
-    private static void generateJVMClassFile(BIRNode.BIRPackage bir, String targetPath) {
+    private void generateJVMClassFile(BIRNode.BIRPackage bir, String targetPath) {
         URI resURI = getExecResourceURIFromThisJar();
 
         byte[] resBytes = readExecResource(resURI);
 
         ProgramFile programFile = loadProgramFile(resBytes);
 
-        Path osTempDirPath = Paths.get(System.getProperty("java.io.tmpdir"));
-
         Path outputPath = Paths.get(targetPath);
 
-        Path classFileOutputPath = outputPath.resolve(DEFAULT_CLASS_FILE_NAME);
+        Path classFileOutputPath = outputPath.resolve(CLASS_FILE_NAME.concat(".class"));
 
-        BValue[] args = new BValue[1];
+        BValue[] args = new BValue[2];
         BIRBinaryWriter binaryWriter = new BIRBinaryWriter(bir);
         args[0] = new BByteArray(binaryWriter.serialize());
+        args[1] = new BString(CLASS_FILE_NAME);
 
         // Generate the class file
         try {
@@ -109,7 +105,7 @@ public class JVMCodeGen {
         }
     }
 
-    private static BLangPackage compileProgram(Path projectPath, String progPath) {
+    private BLangPackage compileProgram(Path projectPath, String progPath) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, projectPath.toString());
@@ -121,36 +117,32 @@ public class JVMCodeGen {
         return compiler.build(progPath);
     }
 
-    private static URI getExecResourceURIFromThisJar() {
+    private URI getExecResourceURIFromThisJar() {
         URI resURI;
         try {
-        URL resourceURL = new URL("file:///Users/kishanthan/WSO2/clones/ballerina-lang/compiler/ballerina-backend-jvm/target/compiler_backend_jvm.balx");
-
-//        URL resourceURL = JVMCodeGen.class.getClassLoader().getResource("META-INF/ballerina/" +
-//                EXEC_RESOURCE_FILE_NAME);
-        if (resourceURL == null) {
-            throw new BLangCompilerException("missing embedded executable resource: " + EXEC_RESOURCE_FILE_NAME);
-        }
+            URL resourceURL = JVMCodeGen.class.getClassLoader().getResource("META-INF/ballerina/" +
+                    EXEC_RESOURCE_FILE_NAME);
+            if (resourceURL == null) {
+                throw new BLangCompilerException("missing embedded executable resource: " + EXEC_RESOURCE_FILE_NAME);
+            }
             resURI = resourceURL.toURI();
-        } catch (URISyntaxException | MalformedURLException e) {
+        } catch (URISyntaxException e) {
             throw new BLangCompilerException("failed to load embedded executable resource: ", e);
         }
         return resURI;
     }
 
-    private static byte[] readExecResource(URI resURI) {
+    private byte[] readExecResource(URI resURI) {
         byte[] resBytes;
-        Map<String, String> env = new HashMap<>();
-        env.put("create", "true");
         try {
-            resBytes = Files.readAllBytes(Paths.get("/Users/kishanthan/WSO2/clones/ballerina-lang/compiler/ballerina-backend-jvm/target/compiler_backend_jvm.balx"));
+            resBytes = Files.readAllBytes(Paths.get(resURI));
         } catch (IOException e) {
             throw new BLangCompilerException("failed to load embedded executable resource: ", e);
         }
         return resBytes;
     }
 
-    private static ProgramFile loadProgramFile(byte[] resBytes) {
+    private ProgramFile loadProgramFile(byte[] resBytes) {
         try (ByteArrayInputStream byteAIS = new ByteArrayInputStream(resBytes)) {
             ProgramFileReader programFileReader = new ProgramFileReader();
             return programFileReader.readProgram(byteAIS);

@@ -599,6 +599,8 @@ public class BIRGen extends BLangNodeVisitor {
                 return InstructionKind.LESS_EQUAL;
             case AND:
                 return InstructionKind.AND;
+            case OR:
+                return InstructionKind.OR;
             default:
                 throw new IllegalStateException("unsupported binary operation: " + opKind.value());
         }

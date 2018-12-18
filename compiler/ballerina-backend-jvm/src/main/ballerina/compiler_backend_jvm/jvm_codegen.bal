@@ -8,6 +8,7 @@ int returnVarRefIndex;
 string currentFuncName;
 string currentBBName;
 int arrayInitLengthIndex = -1;
+string className = "DEFAULT";
 
 bir:Function currentFunc = {};
 
@@ -15,7 +16,8 @@ public function main(string... args) {
     //do nothing
 }
 
-function genJVMClassFile(byte[] birBinary) returns byte[] {
+function genJVMClassFile(byte[] birBinary, string progName) returns byte[] {
+    className = progName;
     io:ByteChannel byteChannel = io:createMemoryChannel(birBinary);
     bir:ChannelReader reader = new(byteChannel);
     checkValidBirChannel(reader);
@@ -28,15 +30,15 @@ function genJVMClassFile(byte[] birBinary) returns byte[] {
 }
 
 function generateJVMClass(bir:Package pkg) returns byte[] {
-    defineClass(pkg.org, pkg.name, pkg.versionValue);
+    defineClass(pkg);
     generateMethods(pkg.functions);
 
     jvm:classVisit("end", []);
     return jvm:getClassFileContent();
 }
 
-function defineClass(bir:Name orgName, bir:Name pkgName, bir:Name ver) {
-    jvm:classVisit("init", ["DEFAULT_CLASS"]);
+function defineClass(bir:Package pkg) {
+    jvm:classVisit("init", [className]);
 }
 
 function generateMethods(bir:Function[] funcs) {
@@ -241,8 +243,14 @@ function visitNewArrayIns(bir:NewArray newArrayIns) {
                     //MULTIANEWARRAY [[J 2
 
                     // todo array length is hardcoded - fix me
-                    jvm:methodVisit("ins", [ICONST_4]);
-                    jvm:methodVisit("ins", [ICONST_4]);
+                    //jvm:methodVisit("ins", [ICONST_4]);
+                    //jvm:methodVisit("ins", [ICONST_4]);
+
+                    //jvm:methodVisit("int_ins", [BIPUSH, 8]);
+                    //jvm:methodVisit("int_ins", [BIPUSH, 8]);
+
+                    jvm:methodVisit("int_ins", [SIPUSH, 1000]);
+                    jvm:methodVisit("int_ins", [SIPUSH, 1000]);
                     jvm:methodVisit("multi_new_array_ins", [2]);
                 }
                 any => {
@@ -363,6 +371,7 @@ function visitBinaryOpIns(bir:BinaryOp binaryIns) {
         bir:DIV => visitDivIns(binaryIns);
         bir:MUL => visitMulIns(binaryIns);
         bir:AND => visitAndIns(binaryIns);
+        bir:OR => visitOrIns(binaryIns);
         bir:LESS_EQUAL => visitLessEqualIns(binaryIns);
         any => {
             error err = {message: "JVM generation is not supported for type : " + io:sprintf("%s", binaryIns.kind)};
@@ -561,6 +570,50 @@ function visitAndIns(bir:BinaryOp binaryIns) {
     jvm:methodVisit("var_ins", [ISTORE, lhsOpIndex]);
 }
 
+function visitOrIns(bir:BinaryOp binaryIns) {
+    // ILOAD
+    // ICONST_1
+    // IF_ICMPNE L0
+    // ILOAD
+    // ICONST_1
+    // IF_ICMPNE L0
+    // ICONST_1
+    // ISTORE
+
+    bir:VarRef lhsOp = binaryIns.lhsOp;
+
+    //io:println("OR ins : " + io:sprintf("%s", binaryIns));
+
+    string label1 = currentFuncName + currentBBName + io:sprintf("%s", lhsOp.variableDcl) + "01";
+    string label2 = currentFuncName + currentBBName + io:sprintf("%s", lhsOp.variableDcl) + "02";
+
+    jvm:labelVisit("create", [label1]);
+    jvm:labelVisit("create", [label2]);
+
+    int rhsOps1Index = getJVMIndexOfVarRef(binaryIns.rhsOp1.variableDcl) but {() => 0};
+    jvm:methodVisit("var_ins", [ILOAD, rhsOps1Index]);
+
+    jvm:methodVisit("ins", [ICONST_1]);
+    jvm:labelVisit("if_icmpeq", [label1]);
+
+    int rhsOps2Index = getJVMIndexOfVarRef(binaryIns.rhsOp2.variableDcl) but {() => 0};
+    jvm:methodVisit("var_ins", [ILOAD, rhsOps2Index]);
+
+    jvm:methodVisit("ins", [ICONST_1]);
+    jvm:labelVisit("if_icmpeq", [label1]);
+
+    jvm:methodVisit("ins", [ICONST_0]);
+    jvm:labelVisit("goto", [label2]);
+
+    jvm:labelVisit("visit", [label1]);
+    jvm:methodVisit("ins", [ICONST_1]);
+
+    jvm:labelVisit("visit", [label2]);
+
+    int lhsOpIndex = getJVMIndexOfVarRef(lhsOp.variableDcl) but {() => 0};
+    jvm:methodVisit("var_ins", [ISTORE, lhsOpIndex]);
+}
+
 function visitTerminator(bir:BasicBlock bb) {
     match bb.terminator {
         bir:GOTO gotoIns => genGoToTerm(gotoIns);
@@ -612,7 +665,7 @@ function genBranchTerm(bir:Branch branchIns) {
 function genCallTerm(bir:Call callIns) {
     //io:println("Call Ins : " + io:sprintf("%s", callIns));
     if (!isNativeCall(callIns)){
-        string jvmClass = "DEFAULT_CLASS"; //todo get the correct class name
+        string jvmClass = className; //todo get the correct class name
         string methodName = callIns.name.value;
         string methodDesc = "(";
         foreach arg in callIns.args {
@@ -633,6 +686,10 @@ function genCallTerm(bir:Call callIns) {
                         bir:BTypeInt => {
                             jvm:methodVisit("var_ins", [ALOAD, argIndex]);
                             methodDesc = methodDesc + "[J";
+                        }
+                        bir:BTypeString => {
+                            jvm:methodVisit("var_ins", [ALOAD, argIndex]);
+                            methodDesc = methodDesc + "[Ljava/lang/String;";
                         }
                         bir:BArrayType => {
                             jvm:methodVisit("var_ins", [ALOAD, argIndex]);

@@ -32,6 +32,7 @@ import static org.ballerinalang.model.types.TypeKind.ARRAY;
 import static org.ballerinalang.model.types.TypeKind.BYTE;
 import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.STRING;
+import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
@@ -54,6 +55,7 @@ public class JVMClassContent extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         ClassWriter classWriter = JVMCodeGenUtil.getInstance().getClassWriter();
         context.setReturnValues(new BByteArray(classWriter.toByteArray()));
+        JVMCodeGenUtil.getInstance().clean();
     }
 }
 

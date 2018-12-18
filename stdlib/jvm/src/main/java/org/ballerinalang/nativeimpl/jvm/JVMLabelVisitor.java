@@ -32,6 +32,7 @@ import static org.objectweb.asm.Opcodes.IFGT;
 import static org.objectweb.asm.Opcodes.IFLE;
 import static org.objectweb.asm.Opcodes.IFLT;
 import static org.objectweb.asm.Opcodes.IFNE;
+import static org.objectweb.asm.Opcodes.IF_ICMPEQ;
 import static org.objectweb.asm.Opcodes.IF_ICMPNE;
 
 /**
@@ -59,7 +60,7 @@ public class JVMLabelVisitor extends BlockingNativeCallableUnit {
             case CREATE:
                 String labelId = args.get(0);
                 Label label = new Label();
-                JVMCodeGenUtil.getInstance().addLebel(labelId, label);
+                JVMCodeGenUtil.getInstance().addLabel(labelId, label);
                 break;
             case GOTO:
                 labelId = args.get(0);
@@ -75,6 +76,11 @@ public class JVMLabelVisitor extends BlockingNativeCallableUnit {
                 labelId = args.get(0);
                 label = JVMCodeGenUtil.getInstance().getLabel(labelId);
                 mv.visitJumpInsn(IFLT, label);
+                break;
+            case IF_ICMPEQ:
+                labelId = args.get(0);
+                label = JVMCodeGenUtil.getInstance().getLabel(labelId);
+                mv.visitJumpInsn(IF_ICMPEQ, label);
                 break;
             case IF_ICMPNE:
                 labelId = args.get(0);
@@ -102,6 +108,6 @@ public class JVMLabelVisitor extends BlockingNativeCallableUnit {
     }
 
     enum LabelVisitType {
-        CREATE, GOTO, VISIT, COMPARE, GREATER_THAN_0, LESS_THAN_0, NOT_EQUAL_0, LESS_THAN_EQUAL_0, IF_ICMPNE;
+        CREATE, GOTO, VISIT, COMPARE, GREATER_THAN_0, LESS_THAN_0, NOT_EQUAL_0, LESS_THAN_EQUAL_0, IF_ICMPNE, IF_ICMPEQ;
     }
 }
