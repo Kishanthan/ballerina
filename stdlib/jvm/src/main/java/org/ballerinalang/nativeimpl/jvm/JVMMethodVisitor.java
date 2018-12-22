@@ -25,6 +25,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
+import java.util.Locale;
+
 import static org.ballerinalang.model.types.TypeKind.ARRAY;
 import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.STRING;
@@ -48,10 +50,10 @@ public class JVMMethodVisitor extends BlockingNativeCallableUnit {
 
         MethodVisitor mv = JVMCodeGenUtil.getInstance().getMethodVisitor();
 
-        String type = context.getStringArgument(0);
+        String type = context.getStringArgument(0).toUpperCase(Locale.ENGLISH);
         BIntArray args = (BIntArray) context.getRefArgument(0);
 
-        switch (MethodVisitType.valueOf(type.toUpperCase())) {
+        switch (MethodVisitType.valueOf(type)) {
             case CODE:
                 mv.visitCode();
                 break;

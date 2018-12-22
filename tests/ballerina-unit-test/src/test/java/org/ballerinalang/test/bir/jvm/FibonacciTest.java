@@ -25,8 +25,11 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.PrintStream;
 
 public class FibonacciTest extends BaseTest {
+
+    private static final PrintStream console = System.out;
 
     @Test
     public void fibonacciTest2() throws Exception {
@@ -35,7 +38,7 @@ public class FibonacciTest extends BaseTest {
 
         long fibFactor = 35;
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long.class};
         Object[] jvmArgs = new Object[]{fibFactor};
         Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
@@ -54,7 +57,7 @@ public class FibonacciTest extends BaseTest {
         String jvmTime = "";
         String bvmTime = "";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         CompileResult result = BCompileUtil.compile(projectDirPath + File.separator + programName);
 
         Class<?>[] jvmParamSignature = new Class[]{long.class};
@@ -74,13 +77,13 @@ public class FibonacciTest extends BaseTest {
 
             bvmTime = bvmTime.concat(String.valueOf((end - start) / 100)).concat(",");
 
-            System.out.println("Fib factor : " + fibFactor + ", Time : " + jvmTime);
-            System.out.println("Fib factor : " + fibFactor + ", Time : " + bvmTime);
+            console.println("Fib factor : " + fibFactor + ", Time : " + jvmTime);
+            console.println("Fib factor : " + fibFactor + ", Time : " + bvmTime);
 
             Assert.assertEquals(((BInteger) bvmResult[0]).intValue(), (long) jvmResult);
         }
 
-        System.out.println(jvmTime);
-        System.out.println(bvmTime);
+        console.println(jvmTime);
+        console.println(bvmTime);
     }
 }

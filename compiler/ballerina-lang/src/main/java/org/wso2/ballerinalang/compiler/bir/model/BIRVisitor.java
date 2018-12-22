@@ -21,6 +21,8 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ArrayAccess;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ArrayStore;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.BinaryOp;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ConstantLoad;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.Move;
@@ -31,8 +33,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIROperand.BIRVarRef;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Call;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
-
-import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.*;
 
 /**
  * A BIR node visitor.

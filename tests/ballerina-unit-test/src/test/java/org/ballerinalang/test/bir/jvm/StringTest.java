@@ -19,7 +19,6 @@ package org.ballerinalang.test.bir.jvm;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -30,12 +29,15 @@ import org.testng.annotations.Test;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class StringTest extends BaseTest {
+
+    private static final PrintStream console = System.out;
 
     @Test
     public void stringContainsTest() throws Exception {
@@ -46,7 +48,7 @@ public class StringTest extends BaseTest {
         String jvmTime = "";
         String bvmTime = "";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{String[].class, String.class};
 
         CompileResult result = BCompileUtil.compile(projectDirPath + File.separator + programName);
@@ -82,14 +84,14 @@ public class StringTest extends BaseTest {
 
             bvmTime = bvmTime.concat(String.valueOf((end - start) / 100)).concat(",");
 
-            System.out.println("Array size : " + size + ", JVM Time : " + jvmTime);
-            System.out.println("Array size : " + size + ", BVM Time : " + bvmTime);
+            console.println("Array size : " + size + ", JVM Time : " + jvmTime);
+            console.println("Array size : " + size + ", BVM Time : " + bvmTime);
 
             Assert.assertEquals(((BInteger) bvmResult[0]).intValue(), (long) jvmResult);
         }
 
-        System.out.println(jvmTime);
-        System.out.println(bvmTime);
+        console.println(jvmTime);
+        console.println(bvmTime);
     }
 
     @Test
@@ -112,7 +114,7 @@ public class StringTest extends BaseTest {
         String jvmTime = "";
         String bvmTime = "";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{String[].class, String.class};
 
         CompileResult result = BCompileUtil.compile(projectDirPath + File.separator + programName);
@@ -152,13 +154,13 @@ public class StringTest extends BaseTest {
 
             Assert.assertEquals(((BInteger) bvmResult[0]).intValue(), (long) jvmResult);
 
-            System.out.println("Array size : " + i * initialLength + ", JVM Time : " + jvmTime);
-            System.out.println("Array size : " + i * initialLength + ", BVM Time : " + bvmTime);
+            console.println("Array size : " + i * initialLength + ", JVM Time : " + jvmTime);
+            console.println("Array size : " + i * initialLength + ", BVM Time : " + bvmTime);
 
             array = largerArray;
         }
 
-        System.out.println(jvmTime);
-        System.out.println(bvmTime);
+        console.println(jvmTime);
+        console.println(bvmTime);
     }
 }

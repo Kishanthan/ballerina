@@ -26,6 +26,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
+import java.util.Locale;
+
 import static org.ballerinalang.model.types.TypeKind.ARRAY;
 import static org.ballerinalang.model.types.TypeKind.STRING;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
@@ -53,10 +55,10 @@ public class JVMClassVisitor extends BlockingNativeCallableUnit {
     public void execute(Context context) {
 
         ClassWriter cw = JVMCodeGenUtil.getInstance().getClassWriter();
-        String type = context.getStringArgument(0);
+        String type = context.getStringArgument(0).toUpperCase(Locale.ENGLISH);
         BStringArray args = (BStringArray) context.getRefArgument(0);
 
-        switch (CWVisitType.valueOf(type.toUpperCase())) {
+        switch (CWVisitType.valueOf(type)) {
             case INIT:
                 String jvmClassName = args.get(0);
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, jvmClassName, null, Type.getInternalName(Object.class), null);

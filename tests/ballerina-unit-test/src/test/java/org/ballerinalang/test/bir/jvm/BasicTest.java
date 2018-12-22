@@ -32,7 +32,7 @@ public class BasicTest extends BaseTest {
         String programName = "basic0.bal";
         String functionName = "foo";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{};
         Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, new Object[]{});
 
@@ -48,7 +48,7 @@ public class BasicTest extends BaseTest {
         String programName = "basic1.bal";
         String functionName = "foo";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long.class};
         Object[] jvmArgs = new Object[]{12};
         Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
@@ -65,7 +65,7 @@ public class BasicTest extends BaseTest {
         String programName = "basic2.bal";
         String functionName = "foo";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long.class};
         Object[] jvmArgs = new Object[]{12};
         Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
@@ -82,7 +82,7 @@ public class BasicTest extends BaseTest {
         String programName = "basic3.bal";
         String functionName = "foo";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long.class};
         Object[] jvmArgs = new Object[]{12};
         Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
@@ -99,7 +99,7 @@ public class BasicTest extends BaseTest {
         String programName = "basic4.bal";
         String functionName = "foo";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long.class};
         Object[] jvmArgs = new Object[]{12};
         Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
@@ -116,7 +116,7 @@ public class BasicTest extends BaseTest {
         String programName = "basic5.bal";
         String functionName = "foo";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long.class};
         Object[] jvmArgs = new Object[]{12};
         Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
@@ -133,7 +133,7 @@ public class BasicTest extends BaseTest {
         String programName = "basic6.bal";
         String functionName = "foo";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long.class};
         Object[] jvmArgs = new Object[]{12};
         Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
@@ -150,7 +150,7 @@ public class BasicTest extends BaseTest {
         String programName = "basic7.bal";
         String functionName = "foo";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long.class};
         Object[] jvmArgs = new Object[]{12};
         Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
@@ -167,7 +167,7 @@ public class BasicTest extends BaseTest {
         String programName = "basic8.bal";
         String functionName = "foo";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long[].class};
         Object[] jvmArgs = new Object[]{new long[]{1, 2, 3, 4, 5, 6, 7, 8, 9}};
         Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
@@ -184,7 +184,7 @@ public class BasicTest extends BaseTest {
         String programName = "basic9.bal";
         String functionName = "foo";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long[].class};
         Object[] jvmArgs = new Object[]{new long[]{1, 2, 3, 4, 5, 6, 7, 8, 9}};
         Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
@@ -201,7 +201,7 @@ public class BasicTest extends BaseTest {
         String programName = "basic10.bal";
         String functionName = "foo";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long[].class};
         long[] in = new long[]{1, 2, 3, 4, 5, 6, 7, 8, 9};
         Object[] jvmArgs = new Object[]{in};
@@ -216,7 +216,7 @@ public class BasicTest extends BaseTest {
         String programName = "basic11.bal";
         String functionName = "foo";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long.class, long.class};
         Object[] jvmArgs = new Object[]{2, 3};
         Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
@@ -232,7 +232,7 @@ public class BasicTest extends BaseTest {
         String programName = "basic12.bal";
         String functionName = "foo";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long[].class};
         Object[] jvmArgs = new Object[]{new long[]{1, 2, 3, 4, 5, 6, 7, 8, 9}};
         Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
@@ -245,7 +245,7 @@ public class BasicTest extends BaseTest {
         String programName = "basic13.bal";
         String functionName = "foo";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long.class, String.class};
         Object[] jvmArgs = new Object[]{34, "Hello"};
         Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
@@ -262,7 +262,7 @@ public class BasicTest extends BaseTest {
         String programName = "basic16.bal";
         String functionName = "foo";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long.class};
         Object[] jvmArgs = new Object[]{12};
         Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
@@ -279,7 +279,7 @@ public class BasicTest extends BaseTest {
         String programName = "basic17.bal";
         String functionName = "foo";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long.class};
         Object[] jvmArgs = new Object[]{12};
         Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
@@ -296,7 +296,7 @@ public class BasicTest extends BaseTest {
         String programName = "basic18.bal";
         String functionName = "foo";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long.class};
         Object[] jvmArgs = new Object[]{12};
         Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
@@ -313,7 +313,7 @@ public class BasicTest extends BaseTest {
         String programName = "basic19.bal";
         String functionName = "foo";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long.class};
         Object[] jvmArgs = new Object[]{12};
         Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
@@ -330,7 +330,7 @@ public class BasicTest extends BaseTest {
         String programName = "basic22.bal";
         String functionName = "foo";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long.class};
         Object[] jvmArgs = new Object[]{12};
         Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);

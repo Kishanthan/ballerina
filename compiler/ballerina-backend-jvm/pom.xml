@@ -153,6 +153,7 @@
     </build>
 
     <properties>
+        <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <ballerina.source.directory>${basedir}/src/main/</ballerina.source.directory>
     </properties>
 

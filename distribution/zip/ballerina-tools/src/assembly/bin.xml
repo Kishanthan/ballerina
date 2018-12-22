@@ -157,6 +157,10 @@
                 <include>org.bytedeco.javacpp-presets:llvm:jar</include>
                 <include>org.bytedeco:javacpp:jar</include>
 
+                <include>org.ballerinalang:ballerina-jvm:jar</include>
+                <include>org.ballerinalang:ballerina-backend-jvm:jar</include>
+                <include>org.ow2.asm:asm:jar</include>
+
                 <include>org.ballerinalang:ballerina-cli-utils:jar</include>
                 <include>org.ballerinalang:testerina-core:jar</include>
                 <include>org.ballerinalang:swagger-to-ballerina-generator:jar</include>

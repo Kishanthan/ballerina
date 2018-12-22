@@ -22,15 +22,17 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BIntArray;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.Random;
 
 public class MatrixTest extends BaseTest {
+
+    private static final PrintStream console = System.out;
 
     @Test
     public void matrixMultiplyTest2() throws Exception {
@@ -43,7 +45,7 @@ public class MatrixTest extends BaseTest {
         long[][] a = new long[][]{{1, 2, 3, 4}, {3, 4, 5, 6}, {6, 7, 8, 9}, {1, 2, 3, 4}};
         long[][] b = new long[][]{{1, 2, 3, 4}, {3, 4, 5, 6}, {6, 7, 8, 9}, {1, 2, 3, 4}};
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long[][].class, long[][].class};
 
         CompileResult result = BCompileUtil.compile(projectDirPath + File.separator + programName);
@@ -62,8 +64,8 @@ public class MatrixTest extends BaseTest {
 
         bvmTime = bvmTime.concat(String.valueOf(end - start)).concat(",");
 
-        System.out.println(jvmTime);
-        System.out.println(bvmTime);
+        console.println(jvmTime);
+        console.println(bvmTime);
     }
 
     @Test
@@ -82,7 +84,7 @@ public class MatrixTest extends BaseTest {
                 {1, 2, 3, 4, 1, 2, 3, 4}, {1, 2, 3, 4, 1, 2, 3, 4}, {3, 4, 5, 6, 3, 4, 5, 6}, {6, 7, 8, 9, 6, 7, 8, 9},
                 {1, 2, 3, 4, 1, 2, 3, 4}};
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long[][].class, long[][].class};
 
         CompileResult result = BCompileUtil.compile(projectDirPath + File.separator + programName);
@@ -101,8 +103,8 @@ public class MatrixTest extends BaseTest {
 
         bvmTime = bvmTime.concat(String.valueOf(end - start)).concat(",");
 
-        System.out.println(jvmTime);
-        System.out.println(bvmTime);
+        console.println(jvmTime);
+        console.println(bvmTime);
     }
 
     @Test
@@ -113,7 +115,7 @@ public class MatrixTest extends BaseTest {
 
         CompileResult result = BCompileUtil.compile(projectDirPath + File.separator + programNameBVM);
 
-        codeGen.genJVMExecutable(projectDirPath, programNameJVM, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programNameJVM, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long[][].class, long[][].class};
 
         String jvmTime = "";
@@ -153,11 +155,11 @@ public class MatrixTest extends BaseTest {
             end = System.currentTimeMillis();
             bvmTime = bvmTime.concat(String.valueOf((end - start) / 100)).concat(",");
 
-            System.out.println("JVM : matrix size " + size + " time : " + jvmTime);
-            System.out.println("BVM : matrix size " + size + " time : " + bvmTime);
+            console.println("JVM : matrix size " + size + " time : " + jvmTime);
+            console.println("BVM : matrix size " + size + " time : " + bvmTime);
         }
 
-        System.out.println(jvmTime);
-        System.out.println(bvmTime);
+        console.println(jvmTime);
+        console.println(bvmTime);
     }
 }

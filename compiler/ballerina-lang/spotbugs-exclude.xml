@@ -68,6 +68,9 @@
         <Package name="org.wso2.ballerinalang.util" />
     </Match>
     <Match>
+        <Package name="org.wso2.ballerinalang.compiler.bir" />
+    </Match>
+    <Match>
         <Package name="org.ballerinalang.model" />
     </Match>
     <Match>

@@ -35,7 +35,7 @@ public abstract class BaseTest {
 
     private static Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
     static Path targetDir = Paths.get("target");
-    JVMCodeGen codeGen = new JVMCodeGen();
+    JVMCodeGen codeGen = JVMCodeGen.getInstance();
     Path projectDirPath = resourceDir.resolve("test-src/bir/jvm/");
     private URLClassLoader urlClassLoader;
 
@@ -49,7 +49,8 @@ public abstract class BaseTest {
         }
     }
 
-    Object invokeJVM(String programName, String functionName, Class<?>[] paramSignature, Object[] args) throws Exception {
+    Object invokeJVM(String programName, String functionName, Class<?>[] paramSignature, Object[] args)
+            throws Exception {
         Class clazz = urlClassLoader.loadClass(programName.substring(0, programName.indexOf(".")));
         Method method = clazz.getDeclaredMethod(functionName, paramSignature);
         return method.invoke(null, args);

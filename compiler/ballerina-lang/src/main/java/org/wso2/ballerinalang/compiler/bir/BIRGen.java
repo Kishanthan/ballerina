@@ -82,7 +82,7 @@ public class BIRGen extends BLangNodeVisitor {
             new CompilerContext.Key<>();
     private final SymbolTable symbolTable;
 
-    private final static String JVM_ARRAY_LENGTH = "arrayLength";
+    private static final String JVM_ARRAY_LENGTH = "arrayLength";
 
     private BIRGenEnv env;
     private Names names;

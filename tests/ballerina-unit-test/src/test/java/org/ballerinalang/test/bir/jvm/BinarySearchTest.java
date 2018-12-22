@@ -25,9 +25,12 @@ import org.ballerinalang.model.values.BValue;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.Random;
 
 public class BinarySearchTest extends BaseTest {
+
+    private static final PrintStream console = System.out;
 
     @Test
     public void binarySearchTest1() throws Exception {
@@ -37,7 +40,7 @@ public class BinarySearchTest extends BaseTest {
         String jvmTime = "";
         String bvmTime = "";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long[].class, long.class};
 
         CompileResult result = BCompileUtil.compile(projectDirPath + File.separator + programName);
@@ -74,14 +77,14 @@ public class BinarySearchTest extends BaseTest {
 
             bvmTime = bvmTime.concat(String.valueOf(end - start)).concat(",");
 
-            System.out.println("Array size : " + size + ", JVM Time : " + jvmTime);
-            System.out.println("Array size : " + size + ", BVM Time : " + bvmTime);
+            console.println("Array size : " + size + ", JVM Time : " + jvmTime);
+            console.println("Array size : " + size + ", BVM Time : " + bvmTime);
 
-            System.out.println("Index : BVM - " + ((BInteger)bvmResult[0]).intValue() + " JVM - " + jvmResult);
+            console.println("Index : BVM - " + ((BInteger) bvmResult[0]).intValue() + " JVM - " + jvmResult);
         }
 
-        System.out.println(jvmTime);
-        System.out.println(bvmTime);
+        console.println(jvmTime);
+        console.println(bvmTime);
     }
 
     @Test
@@ -92,7 +95,7 @@ public class BinarySearchTest extends BaseTest {
         String jvmTime = "";
         String bvmTime = "";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long[].class};
 
         CompileResult result = BCompileUtil.compile(projectDirPath + File.separator + programName);
@@ -124,11 +127,11 @@ public class BinarySearchTest extends BaseTest {
 
             bvmTime = bvmTime.concat(String.valueOf((end - start) / 100)).concat(",");
 
-            System.out.println("Array size : " + size + ", JVM Time : " + jvmTime);
-            System.out.println("Array size : " + size + ", BVM Time : " + bvmTime);
+            console.println("Array size : " + size + ", JVM Time : " + jvmTime);
+            console.println("Array size : " + size + ", BVM Time : " + bvmTime);
         }
 
-        System.out.println(jvmTime);
-        System.out.println(bvmTime);
+        console.println(jvmTime);
+        console.println(bvmTime);
     }
 }

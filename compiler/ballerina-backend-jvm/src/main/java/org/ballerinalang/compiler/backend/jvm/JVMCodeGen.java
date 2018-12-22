@@ -40,9 +40,13 @@ import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
@@ -55,11 +59,17 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 public class JVMCodeGen {
     private static PrintStream out = System.out;
     private static final String EXEC_RESOURCE_FILE_NAME = "compiler_backend_jvm.balx";
-    private String CLASS_FILE_NAME = "DEFAULT.class";
+    private String classFileName = "DEFAULT.class";
+    private static JVMCodeGen jvmCodeGen = new JVMCodeGen();
 
+    private JVMCodeGen() {}
 
-    public void genJVMExecutable(Path projectPath, String progPath, String targetPath) {
-        CLASS_FILE_NAME = progPath.substring(0, progPath.indexOf("."));
+    public static JVMCodeGen getInstance() {
+        return jvmCodeGen;
+    }
+
+    public void genJVMExecutable(Path projectPath, String progPath, Path outputPath) {
+        classFileName = progPath.substring(0, progPath.indexOf("."));
         BLangPackage bLangPackage = compileProgram(projectPath, progPath);
         if (bLangPackage.diagCollector.hasErrors()) {
             throw new BLangCompilerException("compilation contains errors");
@@ -71,24 +81,22 @@ public class JVMCodeGen {
         String birText = birEmitter.emit(bir);
         out.println(birText);
 
-        generateJVMClassFile(bir, targetPath);
+        generateJVMClassFile(bir, outputPath);
     }
 
-    private void generateJVMClassFile(BIRNode.BIRPackage bir, String targetPath) {
+    private void generateJVMClassFile(BIRNode.BIRPackage bir, Path outputPath) {
         URI resURI = getExecResourceURIFromThisJar();
 
         byte[] resBytes = readExecResource(resURI);
 
         ProgramFile programFile = loadProgramFile(resBytes);
 
-        Path outputPath = Paths.get(targetPath);
-
-        Path classFileOutputPath = outputPath.resolve(CLASS_FILE_NAME.concat(".class"));
+        Path classFileOutputPath = outputPath.resolve(classFileName.concat(".class"));
 
         BValue[] args = new BValue[2];
         BIRBinaryWriter binaryWriter = new BIRBinaryWriter(bir);
         args[0] = new BByteArray(binaryWriter.serialize());
-        args[1] = new BString(CLASS_FILE_NAME);
+        args[1] = new BString(classFileName);
 
         // Generate the class file
         try {
@@ -133,8 +141,17 @@ public class JVMCodeGen {
     }
 
     private byte[] readExecResource(URI resURI) {
+//        byte[] resBytes;
+//        try {
+//            resBytes = Files.readAllBytes(Paths.get(resURI));
+//        } catch (IOException e) {
+//            throw new BLangCompilerException("failed to load embedded executable resource: ", e);
+//        }
+//        return resBytes;
         byte[] resBytes;
-        try {
+        Map<String, String> env = new HashMap<>();
+        env.put("create", "true");
+        try (FileSystem ignored = FileSystems.newFileSystem(resURI, env)) {
             resBytes = Files.readAllBytes(Paths.get(resURI));
         } catch (IOException e) {
             throw new BLangCompilerException("failed to load embedded executable resource: ", e);

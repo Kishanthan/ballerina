@@ -20,15 +20,16 @@ package org.ballerinalang.test.bir.jvm;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BIntArray;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.Random;
 
 public class MergeSortTest extends BaseTest {
+
+    private static final PrintStream console = System.out;
 
     @Test
     public void mergeSortTest1() throws Exception {
@@ -38,7 +39,7 @@ public class MergeSortTest extends BaseTest {
         String jvmTime = "";
         String bvmTime = "";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long[].class};
 
         CompileResult result = BCompileUtil.compile(projectDirPath + File.separator + programName);
@@ -69,12 +70,12 @@ public class MergeSortTest extends BaseTest {
 
             bvmTime = bvmTime.concat(String.valueOf(end - start)).concat(",");
 
-            System.out.println("Array size : " + size + ", JVM Time : " + jvmTime);
-            System.out.println("Array size : " + size + ", BVM Time : " + bvmTime);
+            console.println("Array size : " + size + ", JVM Time : " + jvmTime);
+            console.println("Array size : " + size + ", BVM Time : " + bvmTime);
         }
 
-        System.out.println(jvmTime);
-        System.out.println(bvmTime);
+        console.println(jvmTime);
+        console.println(bvmTime);
     }
 
     @Test
@@ -85,7 +86,7 @@ public class MergeSortTest extends BaseTest {
         String jvmTime = "";
         String bvmTime = "";
 
-        codeGen.genJVMExecutable(projectDirPath, programName, targetDir.toAbsolutePath().toString());
+        codeGen.genJVMExecutable(projectDirPath, programName, targetDir);
         Class<?>[] jvmParamSignature = new Class[]{long[].class};
 
         CompileResult result = BCompileUtil.compile(projectDirPath + File.separator + programName);
@@ -116,11 +117,11 @@ public class MergeSortTest extends BaseTest {
 
             bvmTime = bvmTime.concat(String.valueOf((end - start) / 100)).concat(",");
 
-            System.out.println("Array size : " + size + ", JVM Time : " + jvmTime);
-            System.out.println("Array size : " + size + ", BVM Time : " + bvmTime);
+            console.println("Array size : " + size + ", JVM Time : " + jvmTime);
+            console.println("Array size : " + size + ", BVM Time : " + bvmTime);
         }
 
-        System.out.println(jvmTime);
-        System.out.println(bvmTime);
+        console.println(jvmTime);
+        console.println(bvmTime);
     }
 }
