@@ -17,6 +17,7 @@
  */
 package org.ballerinalang;
 
+import org.ballerinalang.jvm.MergeSort;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BIntArray;
@@ -89,9 +90,12 @@ public class MergeSortBenchmark extends BaseBenchmark {
     public void execMergeSort(String programName, String functionName) throws Exception {
         String jvmTime = "";
         String bvmTime = "";
+        String pureJVMTime = "";
 
         genJVMExecutable(programName);
         Class<?>[] jvmParamSignature = new Class[]{long[].class};
+
+        MergeSort mergeSort = new MergeSort();
 
         CompileResult result = BCompileUtil.compile(projectDirPath + File.separator + programName);
 
@@ -121,12 +125,20 @@ public class MergeSortBenchmark extends BaseBenchmark {
 
             bvmTime = bvmTime.concat(String.valueOf((end - start) / 100)).concat(",");
 
-            console.println("Array size : " + size + ", JVM Time : " + jvmTime);
-            console.println("Array size : " + size + ", BVM Time : " + bvmTime);
+            start = System.currentTimeMillis();
+            long[] pureJVMResult = mergeSort.exec(array);
+            end = System.currentTimeMillis();
+
+            pureJVMTime = pureJVMTime.concat(String.valueOf((end - start) / 100)).concat(",");
+
+            console.println("Array size : " + size + ", JVM Target Time : " + jvmTime);
+            console.println("Array size : " + size + ", BVM Target Time : " + bvmTime);
+            console.println("Array size : " + size + ", Pure JVM Time : " + pureJVMTime);
         }
 
         console.println(jvmTime);
         console.println(bvmTime);
+        console.println(pureJVMTime);
     }
 
     @Override
