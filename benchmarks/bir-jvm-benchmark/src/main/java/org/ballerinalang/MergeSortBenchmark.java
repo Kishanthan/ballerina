@@ -141,7 +141,6 @@ public class MergeSortBenchmark extends BaseBenchmark {
         console.println(pureJVMTime);
     }
 
-    @Override
     void execBenchmark(String programName, String functionName) throws Exception {
         execMergeSort(programName, functionName);
     }

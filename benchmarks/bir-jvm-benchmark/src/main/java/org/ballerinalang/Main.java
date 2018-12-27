@@ -23,16 +23,11 @@ package org.ballerinalang;
  */
 public class Main {
     public static void main(String[] args) throws Exception {
-        Main main = new Main();
         String benchmarkName = args[0];
         String programName = args[1];
         String functionName = args[2];
-        main.runBenchmark(Benchmark.valueOf(benchmarkName.toUpperCase()), programName, functionName);
-    }
-
-    private void runBenchmark(Benchmark benchmarkName, String programName, String functionName) throws Exception {
-
-        switch (benchmarkName) {
+        Benchmark benchmark = Benchmark.valueOf(benchmarkName.toUpperCase());
+        switch (benchmark) {
             case MERGESORT:
                 MergeSortBenchmark mergeSortBenchmark = new MergeSortBenchmark();
                 mergeSortBenchmark.execBenchmark(programName, functionName);
@@ -45,17 +40,24 @@ public class Main {
                 QuickSortBenchmark quickSortBenchmark = new QuickSortBenchmark();
                 quickSortBenchmark.execBenchmark(programName, functionName);
                 break;
-            case MATRIX_MUTIPLY:
+            case MATRIX_MULTIPLY:
                 MatrixMultiplyBenchmark matrixMultiplyBenchmark = new MatrixMultiplyBenchmark();
                 matrixMultiplyBenchmark.execBenchmark(programName, functionName);
                 break;
+            case BINARY_SEARCH:
+                BinarySearchBenchmark binarySearchBenchmark = new BinarySearchBenchmark();
+                binarySearchBenchmark.execBenchmark(programName, functionName);
+                break;
             case STRING_MATCHES:
-            case STRING_CONTAINS:
                 StringOperationBenchmark stringOperation = new StringOperationBenchmark();
-                stringOperation.execBenchmark(programName, functionName);
+                stringOperation.execStringMatchesBenchmark(programName, functionName);
+                break;
+            case STRING_CONTAINS:
+                stringOperation = new StringOperationBenchmark();
+                stringOperation.execStringContainsBenchmark(programName, functionName);
                 break;
             default:
-                throw new UnsupportedOperationException("Benchmark " + benchmarkName + " not supported");
+                throw new UnsupportedOperationException("Benchmark " + benchmark + " not supported");
         }
     }
 
@@ -64,7 +66,8 @@ public class Main {
         MERGESORT("mergesort"),
         QUICKSORT("quicksort"),
         FIBONACCI("fibonacci"),
-        MATRIX_MUTIPLY("matrix_mutliply"),
+        BINARY_SEARCH("binary_search"),
+        MATRIX_MULTIPLY("matrix_multiply"),
         STRING_MATCHES("string_matches"),
         STRING_CONTAINS("string_contains");
 

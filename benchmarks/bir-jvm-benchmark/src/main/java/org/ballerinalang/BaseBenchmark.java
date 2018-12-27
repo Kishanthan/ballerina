@@ -70,6 +70,4 @@ public abstract class BaseBenchmark {
     BValue[] invokeBVM(CompileResult result, String functionName, BValue[] bvmArgs) {
         return BRunUtil.invoke(result, functionName, bvmArgs);
     }
-
-    abstract void execBenchmark(String programName, String functionName) throws Exception;
 }

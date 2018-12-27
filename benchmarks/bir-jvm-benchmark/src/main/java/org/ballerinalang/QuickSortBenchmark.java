@@ -17,10 +17,12 @@
  */
 package org.ballerinalang;
 
+import org.ballerinalang.jvm.QuickSort;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BValue;
+import org.testng.Assert;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -89,14 +91,18 @@ public class QuickSortBenchmark extends BaseBenchmark {
     private void execQuickSort(String programName, String functionName) throws Exception {
         String jvmTime = "";
         String bvmTime = "";
+        String pureJVMTime = "";
 
         genJVMExecutable(programName);
+
+        QuickSort quickSort = new QuickSort();
+
         Class<?>[] jvmParamSignature = new Class[]{long[].class};
 
         CompileResult result = BCompileUtil.compile(projectDirPath + File.separator + programName);
 
-        int[] loops = new int[]{1000, 2000, 3000, 4000, 5000, 10000, 20000, 30000, 40000, 50000, 100000, 200000,
-                300000, 400000, 500000};
+        int[] loops = new int[]{1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 10000, 20000, 30000, 40000, 50000,
+                100000, 200000, 300000, 400000, 500000};
 
         for (int size : loops) {
             long[] array = new long[size];
@@ -109,7 +115,12 @@ public class QuickSortBenchmark extends BaseBenchmark {
 
             Object[] jvmArgs = new Object[]{array};
             long start = System.currentTimeMillis();
-            Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
+            Object jvmResult = null;
+            try {
+                jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
+            } catch (Exception e) {
+                console.println(e);
+            }
             long end = System.currentTimeMillis();
 
             jvmTime = jvmTime.concat(String.valueOf((end - start) / 100)).concat(",");
@@ -117,20 +128,38 @@ public class QuickSortBenchmark extends BaseBenchmark {
             BValue[] bvmArgs = new BValue[]{new BIntArray(array)};
 
             start = System.currentTimeMillis();
-            BValue[] bvmResult = invokeBVM(result, functionName, bvmArgs);
+            try {
+                BValue[] bvmResult = invokeBVM(result, functionName, bvmArgs);
+            } catch (Exception e) {
+                console.println(e);
+            }
             end = System.currentTimeMillis();
 
             bvmTime = bvmTime.concat(String.valueOf((end - start) / 100)).concat(",");
 
-            console.println("Array size : " + size + ", JVM Time : " + jvmTime);
-            console.println("Array size : " + size + ", BVM Time : " + bvmTime);
+            start = System.currentTimeMillis();
+            long[] pureJVMResult = new long[0];
+            try {
+                pureJVMResult = quickSort.exec(array);
+            } catch (Exception e) {
+                console.println(e);
+            }
+            end = System.currentTimeMillis();
+
+            pureJVMTime = pureJVMTime.concat(String.valueOf((end - start) / 100)).concat(",");
+
+            Assert.assertEquals((long[]) jvmResult, pureJVMResult);
+
+            console.println("Array size : " + size + ", JVM Target Time : " + jvmTime);
+            console.println("Array size : " + size + ", BVM Target Time : " + bvmTime);
+            console.println("Array size : " + size + ", Pure JVM Time : " + pureJVMTime);
         }
 
         console.println(jvmTime);
         console.println(bvmTime);
+        console.println(pureJVMTime);
     }
 
-    @Override
     void execBenchmark(String programName, String functionName) throws Exception {
         execQuickSort(programName, functionName);
     }

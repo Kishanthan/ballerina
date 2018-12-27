@@ -304,10 +304,4 @@ public class Basic extends BaseBenchmark {
 
         Assert.assertEquals(((BInteger) bvmResult[0]).intValue(), ((Long) jvmResult).longValue());
     }
-
-
-    @Override
-    void execBenchmark(String programName, String functionName) {
-
-    }
 }

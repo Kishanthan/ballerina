@@ -17,6 +17,7 @@
  */
 package org.ballerinalang;
 
+import org.ballerinalang.jvm.StringOperation;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
@@ -43,13 +44,17 @@ public class StringOperationBenchmark extends BaseBenchmark {
 
     public void stringContainsTest() throws Exception {
 
-        String programName = "string3.bal";
-        String functionName = "foo";
+        stringContains("string3.bal", "foo");
+    }
 
+    private void stringContains(String programName, String functionName) throws Exception {
         String jvmTime = "";
         String bvmTime = "";
+        String pureJVMTime = "";
 
         genJVMExecutable(programName);
+
+        StringOperation stringOperation = new StringOperation();
         Class<?>[] jvmParamSignature = new Class[]{String[].class, String.class};
 
         CompileResult result = BCompileUtil.compile(projectDirPath + File.separator + programName);
@@ -85,35 +90,45 @@ public class StringOperationBenchmark extends BaseBenchmark {
 
             bvmTime = bvmTime.concat(String.valueOf((end - start) / 100)).concat(",");
 
-            console.println("Array size : " + size + ", JVM Time : " + jvmTime);
-            console.println("Array size : " + size + ", BVM Time : " + bvmTime);
+            start = System.currentTimeMillis();
+            long pureJVMResult = stringOperation.execStringContains(array, textToFind);
+            end = System.currentTimeMillis();
+
+            pureJVMTime = pureJVMTime.concat(String.valueOf((end - start) / 100)).concat(",");
+
+            console.println("Array size : " + size + ", JVM Target Time : " + jvmTime);
+            console.println("Array size : " + size + ", BVM Target Time : " + bvmTime);
+            console.println("Array size : " + size + ", Pure JVM Time : " + pureJVMTime);
 
             Assert.assertEquals(((BInteger) bvmResult[0]).intValue(), (long) jvmResult);
+            Assert.assertEquals(pureJVMResult, (long) jvmResult);
         }
 
         console.println(jvmTime);
         console.println(bvmTime);
+        console.println(pureJVMTime);
     }
 
     public void stringMatchesTest1() throws Exception {
 
-        matchRegex("([a-zA-Z][a-zA-Z0-9]*)://([^ /]+)(/?[^ ]*)");
+        matchRegex("string4.bal", "foo", "([a-zA-Z][a-zA-Z0-9]*)://([^ /]+)(/?[^ ]*)");
     }
 
     public void stringMatchesTest2() throws Exception {
 
-        matchRegex("([a-zA-Z][a-zA-Z0-9]*)://([^ /]+)(/?[^ ]*)|([^ @]+)@([^ @]+)");
+        matchRegex("string4.bal", "foo", "([a-zA-Z][a-zA-Z0-9]*)://([^ /]+)(/?[^ ]*)|([^ @]+)@([^ @]+)");
     }
 
-    private void matchRegex(String regex) throws Exception {
-
-        String programName = "string4.bal";
-        String functionName = "foo";
+    private void matchRegex(String programName, String functionName, String regex) throws Exception {
 
         String jvmTime = "";
         String bvmTime = "";
+        String pureJVMTime = "";
 
         genJVMExecutable(programName);
+
+        StringOperation stringOperation = new StringOperation();
+
         Class<?>[] jvmParamSignature = new Class[]{String[].class, String.class};
 
         CompileResult result = BCompileUtil.compile(projectDirPath + File.separator + programName);
@@ -138,10 +153,17 @@ public class StringOperationBenchmark extends BaseBenchmark {
             Object[] jvmArgs = new Object[]{largerArray, regex};
 
             long start = System.currentTimeMillis();
-            Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
+            long pureJVMResult = stringOperation.execStringMatch(largerArray, regex);
             long end = System.currentTimeMillis();
+            pureJVMTime = pureJVMTime.concat(String.valueOf((end - start) / 10)).concat(",");
+            console.println("Array size : " + i * initialLength + ", Pure JVM Time : " + pureJVMTime);
+
+            start = System.currentTimeMillis();
+            Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
+            end = System.currentTimeMillis();
 
             jvmTime = jvmTime.concat(String.valueOf((end - start) / 10)).concat(",");
+            console.println("Array size : " + i * initialLength + ", JVM Time : " + jvmTime);
 
             BValue[] bvmArgs = new BValue[]{new BStringArray(largerArray), new BString(regex)};
 
@@ -150,21 +172,27 @@ public class StringOperationBenchmark extends BaseBenchmark {
             end = System.currentTimeMillis();
 
             bvmTime = bvmTime.concat(String.valueOf((end - start) / 10)).concat(",");
+            console.println("Array size : " + i * initialLength + ", BVM Time : " + bvmTime);
 
             Assert.assertEquals(((BInteger) bvmResult[0]).intValue(), (long) jvmResult);
-
-            console.println("Array size : " + i * initialLength + ", JVM Time : " + jvmTime);
-            console.println("Array size : " + i * initialLength + ", BVM Time : " + bvmTime);
+            Assert.assertEquals(pureJVMResult, (long) jvmResult);
 
             array = largerArray;
         }
 
         console.println(jvmTime);
         console.println(bvmTime);
+        console.println(pureJVMTime);
     }
 
-    @Override
-    void execBenchmark(String programName, String functionName) {
 
+    void execStringMatchesBenchmark(String programName, String functionName) throws Exception {
+        String regex = "([a-zA-Z][a-zA-Z0-9]*)://([^ /]+)(/?[^ ]*)";
+        matchRegex(programName, functionName, regex);
+    }
+
+
+    void execStringContainsBenchmark(String programName, String functionName) throws Exception {
+        stringContains(programName, functionName);
     }
 }

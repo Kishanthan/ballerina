@@ -104,7 +104,6 @@ public class FibonacciBenchmark extends BaseBenchmark {
         console.println(pureJVMTime);
     }
 
-    @Override
     void execBenchmark(String programName, String functionName) throws Exception {
         execFibonacci(programName, functionName);
     }

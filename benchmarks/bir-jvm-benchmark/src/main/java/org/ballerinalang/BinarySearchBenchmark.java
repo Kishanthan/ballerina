@@ -17,6 +17,7 @@
  */
 package org.ballerinalang;
 
+import org.ballerinalang.jvm.BinarySearch;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BIntArray;
@@ -99,38 +100,38 @@ public class BinarySearchBenchmark extends BaseBenchmark {
     private void execBinarySearch(String programName, String functionName) throws Exception {
         String jvmTime = "";
         String bvmTime = "";
+        String pureJVMTime = "";
 
         Class<?>[] jvmParamSignature = new Class[]{long[].class, long.class};
 
         genJVMExecutable(programName);
 
+        BinarySearch binarySearch = new BinarySearch();
+
         CompileResult result = BCompileUtil.compile(projectDirPath + File.separator + programName);
 
-        int[] loops = new int[]{1000, 5000, 10000, 50000, 100000, 200000, 300000, 400000, 500000, 1000000};
+        int[] loops = new int[]{1000, 5000, 10000, 50000, 100000, 200000, 300000, 400000, 500000, 1000000, 2000000,
+                3000000, 4000000, 5000000, 6000000, 7000000, 8000000, 9000000, 10000000};
 
         for (int size : loops) {
             long[] array = new long[size];
 
             Random generator = new Random();
 
-            long noToFind = 0;
-
             for (int i = 0; i < size; i++) {
                 array[i] = generator.nextLong();
-
-                if (i == (size - 1)) {
-                    noToFind = array[i];
-                }
             }
 
-            Object[] jvmArgs = new Object[]{array, noToFind};
+            long elementToFind = array[size - 1];
+
+            Object[] jvmArgs = new Object[]{array, elementToFind};
             long start = System.currentTimeMillis();
             Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
             long end = System.currentTimeMillis();
 
             jvmTime = jvmTime.concat(String.valueOf((end - start) / 100)).concat(",");
 
-            BValue[] bvmArgs = new BValue[]{new BIntArray(array), new BInteger(noToFind)};
+            BValue[] bvmArgs = new BValue[]{new BIntArray(array), new BInteger(elementToFind)};
 
             start = System.currentTimeMillis();
             BValue[] bvmResult = invokeBVM(result, functionName, bvmArgs);
@@ -138,17 +139,25 @@ public class BinarySearchBenchmark extends BaseBenchmark {
 
             bvmTime = bvmTime.concat(String.valueOf((end - start) / 100)).concat(",");
 
-            console.println("Array size : " + size + ", JVM Time : " + jvmTime);
-            console.println("Array size : " + size + ", BVM Time : " + bvmTime);
+            start = System.currentTimeMillis();
+            long pureJVMResult = binarySearch.exec(array, elementToFind);
+            end = System.currentTimeMillis();
 
-            console.println("Index : BVM - " + ((BInteger) bvmResult[0]).intValue() + " JVM - " + jvmResult);
+            pureJVMTime = pureJVMTime.concat(String.valueOf((end - start) / 100)).concat(",");
+
+            console.println("Array size : " + size + ", JVM Target Time : " + jvmTime);
+            console.println("Array size : " + size + ", BVM Target Time : " + bvmTime);
+            console.println("Array size : " + size + ", Pure JVM Time : " + pureJVMTime);
+
+            console.println("Index : BVM - " + ((BInteger) bvmResult[0]).intValue() + " JVM - " + jvmResult +
+                    " Pure JVM - " + pureJVMResult);
         }
 
         console.println(jvmTime);
-        console.println(bvmTime);
+        console.println(jvmTime);
+        console.println(pureJVMTime);
     }
 
-    @Override
     void execBenchmark(String programName, String functionName) throws Exception {
         execBinarySearch(programName, functionName);
     }

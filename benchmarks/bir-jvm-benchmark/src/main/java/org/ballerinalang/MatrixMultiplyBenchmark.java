@@ -17,6 +17,7 @@
  */
 package org.ballerinalang;
 
+import org.ballerinalang.jvm.MatrixMultiply;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BArrayType;
@@ -113,6 +114,8 @@ public class MatrixMultiplyBenchmark extends BaseBenchmark {
         String programNameBVM = "matMultiplyNBVM.bal";
         String functionName = "foo";
 
+        MatrixMultiply matrixMultiply = new MatrixMultiply();
+
         CompileResult result = BCompileUtil.compile(projectDirPath + File.separator + programNameBVM);
 
         genJVMExecutable(programNameJVM);
@@ -120,6 +123,7 @@ public class MatrixMultiplyBenchmark extends BaseBenchmark {
 
         String jvmTime = "";
         String bvmTime = "";
+        String pureJVMTime = "";
 
         Random generator = new Random();
 
@@ -155,15 +159,21 @@ public class MatrixMultiplyBenchmark extends BaseBenchmark {
             end = System.currentTimeMillis();
             bvmTime = bvmTime.concat(String.valueOf((end - start) / 100)).concat(",");
 
+            start = System.currentTimeMillis();
+            long[][] pureJVMResult = matrixMultiply.exec(a, b);
+            end = System.currentTimeMillis();
+            pureJVMTime = pureJVMTime.concat(String.valueOf((end - start) / 100)).concat(",");
+
             console.println("JVM : matrix size " + size + " time : " + jvmTime);
             console.println("BVM : matrix size " + size + " time : " + bvmTime);
+            console.println("Pure JVM : matrix size " + size + " time : " + pureJVMTime);
         }
 
         console.println(jvmTime);
         console.println(bvmTime);
+        console.println(pureJVMTime);
     }
 
-    @Override
     void execBenchmark(String programName, String functionName) throws Exception {
         matrixMultiplyTestN();
     }
