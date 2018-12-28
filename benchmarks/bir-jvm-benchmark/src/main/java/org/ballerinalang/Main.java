@@ -18,10 +18,13 @@
 
 package org.ballerinalang;
 
+import java.io.PrintStream;
+
 /**
  * Main executable class for bench mark suite.
  */
 public class Main {
+    private static final PrintStream console = System.out;
     public static void main(String[] args) throws Exception {
         String benchmarkName = args[0];
         String programName = args[1];
@@ -49,12 +52,58 @@ public class Main {
                 binarySearchBenchmark.execBenchmark(programName, functionName);
                 break;
             case STRING_MATCHES:
+                String regex = args[3];
                 StringOperationBenchmark stringOperation = new StringOperationBenchmark();
-                stringOperation.execStringMatchesBenchmark(programName, functionName);
+                stringOperation.execStringMatchesBenchmark(programName, functionName, regex);
                 break;
             case STRING_CONTAINS:
                 stringOperation = new StringOperationBenchmark();
                 stringOperation.execStringContainsBenchmark(programName, functionName);
+                break;
+            case ALL:
+                functionName = "foo";
+                mergeSortBenchmark = new MergeSortBenchmark();
+                try {
+                    mergeSortBenchmark.execBenchmark("mergeSortAvg.bal", functionName);
+                } catch (Throwable e) {
+                    console.println(e);
+                    //continue
+                }
+                fibonacciBenchmark = new FibonacciBenchmark();
+                try {
+                    fibonacciBenchmark.execBenchmark("fibonacci3.bal", functionName);
+                } catch (Throwable e) {
+                    console.println(e);
+                    //continue
+                }
+                matrixMultiplyBenchmark = new MatrixMultiplyBenchmark();
+                try {
+                    matrixMultiplyBenchmark.execBenchmark("mat.bal", functionName);
+                } catch (Throwable e) {
+                    console.println(e);
+                    //continue
+                }
+                stringOperation = new StringOperationBenchmark();
+                try {
+                    stringOperation.execStringMatchesBenchmark("string4.bal", functionName,
+                            "([a-zA-Z][a-zA-Z0-9]*)://([^ /]+)(/?[^ ]*)");
+                } catch (Throwable e) {
+                    console.println(e);
+                    //continue
+                }
+                try {
+                    stringOperation.execStringMatchesBenchmark("string4.bal", functionName,
+                            "([a-zA-Z][a-zA-Z0-9]*)://([^ /]+)(/?[^ ]*)|([^ @]+)@([^ @]+)");
+                } catch (Throwable e) {
+                    console.println(e);
+                    //continue
+                }
+                try {
+                    stringOperation.execStringContainsBenchmark("string3.bal", functionName);
+                } catch (Throwable e) {
+                    console.println(e);
+                    //continue
+                }
                 break;
             default:
                 throw new UnsupportedOperationException("Benchmark " + benchmark + " not supported");
@@ -69,7 +118,8 @@ public class Main {
         BINARY_SEARCH("binary_search"),
         MATRIX_MULTIPLY("matrix_multiply"),
         STRING_MATCHES("string_matches"),
-        STRING_CONTAINS("string_contains");
+        STRING_CONTAINS("string_contains"),
+        ALL("all");
 
         final String benchmarkName;
 

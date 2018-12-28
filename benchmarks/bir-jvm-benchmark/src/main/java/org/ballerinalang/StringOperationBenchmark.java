@@ -186,8 +186,7 @@ public class StringOperationBenchmark extends BaseBenchmark {
     }
 
 
-    void execStringMatchesBenchmark(String programName, String functionName) throws Exception {
-        String regex = "([a-zA-Z][a-zA-Z0-9]*)://([^ /]+)(/?[^ ]*)";
+    void execStringMatchesBenchmark(String programName, String functionName, String regex) throws Exception {
         matchRegex(programName, functionName, regex);
     }
 

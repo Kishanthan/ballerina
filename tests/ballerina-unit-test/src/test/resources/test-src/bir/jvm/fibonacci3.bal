@@ -1,11 +1,7 @@
 function foo(int n) returns int {
     int i = 0;
     int result = 0;
-    int limitVal = 100;
-
-    if (n < 30) {
-        limitVal = 1000;
-    }
+    int limitVal = 200;
 
     while (i < limitVal) {
         result = fib(n);
