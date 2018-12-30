@@ -101,7 +101,7 @@ public class QuickSortBenchmark extends BaseBenchmark {
 
         CompileResult result = BCompileUtil.compile(projectDirPath + File.separator + programName);
 
-        int[] loops = new int[]{1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 10000, 20000, 30000, 40000, 50000,
+        int[] loops = new int[]{1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 20000, 30000, 40000, 50000,
                 100000, 200000, 300000, 400000, 500000};
 
         for (int size : loops) {
@@ -138,12 +138,7 @@ public class QuickSortBenchmark extends BaseBenchmark {
             bvmTime = bvmTime.concat(String.valueOf((end - start) / 100)).concat(",");
 
             start = System.currentTimeMillis();
-            long[] pureJVMResult = new long[0];
-            try {
-                pureJVMResult = quickSort.exec(array);
-            } catch (Exception e) {
-                console.println(e);
-            }
+            long[] pureJVMResult = quickSort.exec(array);
             end = System.currentTimeMillis();
 
             pureJVMTime = pureJVMTime.concat(String.valueOf((end - start) / 100)).concat(",");

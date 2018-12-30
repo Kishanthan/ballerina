@@ -18,11 +18,16 @@
 
 package org.ballerinalang;
 
+import org.ballerinalang.jvm.Fibonacci;
+import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
+
+import java.io.File;
 
 /**
  * Basic verification on bir target functionality.
@@ -303,5 +308,28 @@ public class Basic extends BaseBenchmark {
         BValue[] bvmResult = invokeBVM(programName, functionName, bvmArgs);
 
         Assert.assertEquals(((BInteger) bvmResult[0]).intValue(), ((Long) jvmResult).longValue());
+    }
+
+    public void warmup() throws Exception {
+        String programName = "warmup.bal";
+        String functionName = "foo";
+
+        genJVMExecutable(programName);
+        CompileResult result = BCompileUtil.compile(projectDirPath + File.separator + programName);
+
+        Class<?>[] jvmParamSignature = new Class[]{long.class};
+
+        Fibonacci jvmFib = new Fibonacci();
+        int fibFactor = 35;
+        Object[] jvmArgs = new Object[]{fibFactor};
+        Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
+
+        BValue[] bvmArgs = new BValue[]{new BInteger(fibFactor)};
+        BValue[] bvmResult = invokeBVM(result, functionName, bvmArgs);
+
+        long pureJvmResult = jvmFib.invoke(fibFactor);
+
+        Assert.assertEquals(((BInteger) bvmResult[0]).intValue(), (long) jvmResult);
+        Assert.assertEquals(((BInteger) bvmResult[0]).intValue(), pureJvmResult);
     }
 }

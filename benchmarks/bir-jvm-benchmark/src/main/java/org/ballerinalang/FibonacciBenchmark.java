@@ -70,20 +70,20 @@ public class FibonacciBenchmark extends BaseBenchmark {
 
         Fibonacci jvmFib = new Fibonacci();
 
-        for (int fibFactor = 1; fibFactor <= 35; fibFactor++) {
+        for (int fibFactor = 1; fibFactor <= 40; fibFactor++) {
             Object[] jvmArgs = new Object[]{fibFactor};
             long start = System.currentTimeMillis();
             Object jvmResult = invokeJVM(programName, functionName, jvmParamSignature, jvmArgs);
             long end = System.currentTimeMillis();
 
-            jvmTargetTime = jvmTargetTime.concat(String.valueOf((end - start) / 200)).concat(",");
+            jvmTargetTime = jvmTargetTime.concat(String.valueOf((end - start) / 100)).concat(",");
 
             BValue[] bvmArgs = new BValue[]{new BInteger(fibFactor)};
             start = System.currentTimeMillis();
             BValue[] bvmResult = invokeBVM(result, functionName, bvmArgs);
             end = System.currentTimeMillis();
 
-            bvmTargetTime = bvmTargetTime.concat(String.valueOf((end - start) / 200)).concat(",");
+            bvmTargetTime = bvmTargetTime.concat(String.valueOf((end - start) / 100)).concat(",");
 
             start = System.currentTimeMillis();
             long pureJvmResult = jvmFib.invoke(fibFactor);

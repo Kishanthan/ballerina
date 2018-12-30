@@ -44,6 +44,9 @@ public class Main {
                 quickSortBenchmark.execBenchmark(programName, functionName);
                 break;
             case MATRIX_MULTIPLY:
+                Basic basicBenchmark = new Basic();
+                basicBenchmark.warmup();
+
                 MatrixMultiplyBenchmark matrixMultiplyBenchmark = new MatrixMultiplyBenchmark();
                 matrixMultiplyBenchmark.execBenchmark(programName, functionName);
                 break;
@@ -61,6 +64,11 @@ public class Main {
                 stringOperation.execStringContainsBenchmark(programName, functionName);
                 break;
             case ALL:
+                console.println("############################ START ############################");
+
+                basicBenchmark = new Basic();
+                basicBenchmark.warmup();
+
                 functionName = "foo";
                 mergeSortBenchmark = new MergeSortBenchmark();
                 try {
@@ -104,10 +112,22 @@ public class Main {
                     console.println(e);
                     //continue
                 }
+
+                try {
+                    quickSortBenchmark = new QuickSortBenchmark();
+                    quickSortBenchmark.execBenchmark("quickSortAvg.bal", functionName);
+                } catch (Throwable e) {
+                    console.println(e);
+                    //continue
+                }
+
+                console.println("############################ END ############################");
                 break;
             default:
                 throw new UnsupportedOperationException("Benchmark " + benchmark + " not supported");
         }
+
+        System.exit(0);
     }
 
     enum Benchmark {

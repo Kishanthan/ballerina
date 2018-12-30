@@ -1,7 +1,7 @@
 function foo(int[][] a, int[][] b) returns int[][] {
     int i = 0;
     int[][] result = [];
-    while (i < 100) {
+    while (i < 50) {
         result = matrixMultiply(a, b);
         i = i + 1;
     }

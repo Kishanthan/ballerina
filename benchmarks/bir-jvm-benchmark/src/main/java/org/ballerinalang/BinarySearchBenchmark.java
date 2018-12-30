@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.testng.Assert;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -110,8 +111,9 @@ public class BinarySearchBenchmark extends BaseBenchmark {
 
         CompileResult result = BCompileUtil.compile(projectDirPath + File.separator + programName);
 
-        int[] loops = new int[]{1000, 5000, 10000, 50000, 100000, 200000, 300000, 400000, 500000, 1000000, 2000000,
-                3000000, 4000000, 5000000, 6000000, 7000000, 8000000, 9000000, 10000000};
+        int[] loops = new int[]{1000, 5000, 10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000, 100000,
+                200000, 300000, 400000, 500000, 1000000, 2000000, 3000000, 4000000, 5000000, 6000000, 7000000, 8000000,
+                9000000, 10000000};
 
         for (int size : loops) {
             long[] array = new long[size];
@@ -151,6 +153,9 @@ public class BinarySearchBenchmark extends BaseBenchmark {
 
             console.println("Index : BVM - " + ((BInteger) bvmResult[0]).intValue() + " JVM - " + jvmResult +
                     " Pure JVM - " + pureJVMResult);
+
+            Assert.assertEquals((long) jvmResult, pureJVMResult);
+            Assert.assertEquals((long) jvmResult, ((BInteger) bvmResult[0]).intValue());
         }
 
         console.println(jvmTime);

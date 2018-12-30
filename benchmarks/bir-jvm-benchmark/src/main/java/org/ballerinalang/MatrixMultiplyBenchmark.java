@@ -127,7 +127,7 @@ public class MatrixMultiplyBenchmark extends BaseBenchmark {
 
         Random generator = new Random();
 
-        for (int size = 2; size < 200; size++) {
+        for (int size = 2; size < 1000; size++) {
             long[][] a = new long[size][size];
             long[][] b = new long[size][size];
 
@@ -143,7 +143,7 @@ public class MatrixMultiplyBenchmark extends BaseBenchmark {
             Object jvmResult = invokeJVM(programNameJVM, functionName, jvmParamSignature, jvmArgs);
             long end = System.currentTimeMillis();
 
-            jvmTime = jvmTime.concat(String.valueOf((end - start) / 100)).concat(",");
+            jvmTime = jvmTime.concat(String.valueOf((end - start) / 50)).concat(",");
 
             BRefValueArray intArrayOfArrayA = new BRefValueArray(new BArrayType(new BArrayType(BTypes.typeInt)));
             BRefValueArray intArrayOfArrayB = new BRefValueArray(new BArrayType(new BArrayType(BTypes.typeInt)));
@@ -157,12 +157,12 @@ public class MatrixMultiplyBenchmark extends BaseBenchmark {
             start = System.currentTimeMillis();
             BValue[] bvmResult = invokeBVM(result, functionName, bvmArgs);
             end = System.currentTimeMillis();
-            bvmTime = bvmTime.concat(String.valueOf((end - start) / 100)).concat(",");
+            bvmTime = bvmTime.concat(String.valueOf((end - start) / 50)).concat(",");
 
             start = System.currentTimeMillis();
             long[][] pureJVMResult = matrixMultiply.exec(a, b);
             end = System.currentTimeMillis();
-            pureJVMTime = pureJVMTime.concat(String.valueOf((end - start) / 100)).concat(",");
+            pureJVMTime = pureJVMTime.concat(String.valueOf((end - start) / 50)).concat(",");
 
             console.println("JVM : matrix size " + size + " time : " + jvmTime);
             console.println("BVM : matrix size " + size + " time : " + bvmTime);
