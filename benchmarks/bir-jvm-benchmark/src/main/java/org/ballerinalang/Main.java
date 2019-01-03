@@ -36,15 +36,24 @@ public class Main {
                 mergeSortBenchmark.execBenchmark(programName, functionName);
                 break;
             case FIBONACCI:
+                console.println("############################ START WARMUP ############################");
+                Basic basicBenchmark = new Basic();
+                basicBenchmark.warmup();
+
+                console.println("############################ END WARMUP ############################");
+
+                console.println("############################ START FIBONACCI ############################");
                 FibonacciBenchmark fibonacciBenchmark = new FibonacciBenchmark();
                 fibonacciBenchmark.execBenchmark(programName, functionName);
+
+                console.println("############################ END FIBONACCI ############################");
                 break;
             case QUICKSORT:
                 QuickSortBenchmark quickSortBenchmark = new QuickSortBenchmark();
                 quickSortBenchmark.execBenchmark(programName, functionName);
                 break;
             case MATRIX_MULTIPLY:
-                Basic basicBenchmark = new Basic();
+                basicBenchmark = new Basic();
                 basicBenchmark.warmup();
 
                 MatrixMultiplyBenchmark matrixMultiplyBenchmark = new MatrixMultiplyBenchmark();
