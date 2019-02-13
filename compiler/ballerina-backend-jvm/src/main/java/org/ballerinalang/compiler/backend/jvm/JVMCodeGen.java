@@ -23,7 +23,6 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.nativeimpl.jvm.BallerinaProgram;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
@@ -37,13 +36,11 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -51,10 +48,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.jar.Attributes;
-import java.util.jar.JarEntry;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
@@ -68,6 +61,8 @@ public class JVMCodeGen {
     private static final String EXEC_RESOURCE_FILE_NAME = "compiler_backend_jvm.balx";
     private String classFileName = "DEFAULT.class";
     private static JVMCodeGen jvmCodeGen = new JVMCodeGen();
+
+    private static PrintStream console = System.out;
 
     private JVMCodeGen() {}
 
@@ -87,12 +82,14 @@ public class JVMCodeGen {
         BIREmitter birEmitterjvm = new BIREmitter();
         String birText = birEmitterjvm.emit(bir);
 
+        console.println(birText);
+
         generateJVMClassFile(bir, outputPath);
     }
 
     private void generateJVMClassFile(BIRNode.BIRPackage bir, Path outputPath) {
 
-        final String functionName = "genJVMClassFile";
+        final String functionName = "generateJar";
 
         URI resURI = getExecResourceURIFromThisJar();
 
@@ -100,45 +97,21 @@ public class JVMCodeGen {
 
         ProgramFile programFile = loadProgramFile(resBytes);
 
-        Path classFileOutputPath = outputPath.resolve(classFileName.concat(".class"));
-
-        BValue[] args = new BValue[2];
+        BValue[] args = new BValue[3];
         BIRBinaryWriter binaryWriter = new BIRBinaryWriter(bir);
         args[0] = new BValueArray(binaryWriter.serialize());
         args[1] = new BString(classFileName);
+        args[2] = new BString(outputPath.toAbsolutePath().toString());
 
         // Generate the class file
         try {
             Debugger debugger = new Debugger(programFile);
             programFile.setDebugger(debugger);
             FunctionInfo functionInfo = programFile.getEntryPackage().getFunctionInfo(functionName);
-            BValue[] result = BVMExecutor.executeEntryFunction(programFile, functionInfo, args);
-            BValueArray bvmBytes = (BValueArray) result[0];
-            byte[] classBytes = bvmBytes.getBytes();
-            Files.write(classFileOutputPath, classBytes);
-            generateJar(outputPath, classBytes);
+            BVMExecutor.executeEntryFunction(programFile, functionInfo, args);
         } catch (Exception e) {
             throw new BLangCompilerException("jvm class file generation failed: " + e.getMessage(), e);
         }
-    }
-
-    private void generateJar(Path outputPath, byte[] bytes) throws FileNotFoundException, IOException {
-        Manifest manifest = new Manifest();
-        manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
-        JarOutputStream target = new JarOutputStream(
-                new FileOutputStream(outputPath.toString() + "/" + classFileName + ".jar"), manifest);
-
-        JarEntry servicesEntry = new JarEntry("META-INF/services/" + BallerinaProgram.class.getName());
-        String spiProviderName = classFileName;
-        target.putNextEntry(servicesEntry);
-        target.write(spiProviderName.getBytes(StandardCharsets.UTF_8));
-        target.closeEntry();
-
-        JarEntry entry = new JarEntry(classFileName);
-        target.putNextEntry(entry);
-        target.write(bytes);
-        target.closeEntry();
-        target.close();
     }
 
     private BLangPackage compileProgram(Path projectPath, String progPath) {

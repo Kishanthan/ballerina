@@ -15,8 +15,8 @@ public function main(string... args) {
     //do nothing
 }
 
-function genJVMClassFile(byte[] birBinary, string progName) returns byte[] {
-    className = progName;
+function generateJar(byte[] birBinary, string progName, string outputPath) {
+    className = progName; // todo get the class name from BIR
     io:ReadableByteChannel byteChannel = io:createReadableChannel(birBinary);
     bir:ChannelReader reader = new(byteChannel);
     checkValidBirChannel(reader);
@@ -25,10 +25,25 @@ function genJVMClassFile(byte[] birBinary, string progName) returns byte[] {
     bir:TypeParser typeParser = new (birReader);
     bir:PackageParser pkgParser = new(birReader, typeParser);
     bir:Package pkg = pkgParser.parsePackage();
-    return generateJVMClass(pkg);
+    byte[] classContent = generateJVMClassContent(pkg);
+
+    map<string> manifestAttributes = {};
+    string outputJarName = outputPath + "/" + className + ".jar";
+    jvm:JarFile jar = new(outputJarName, manifestAttributes);
+    jar.addJarEntry(className + ".class", classContent);
+
+    string spiName = "META-INF/services/org.ballerinalang.nativeimpl.jvm.BallerinaProgram";
+    jar.addJarEntry(spiName, className.toByteArray("UTF-8"));
+
+    var result = jar.create();
+
+    if (result is error) {
+        error err = error("JVM jar file generation failed");
+        panic err;
+    }
 }
 
-function generateJVMClass(bir:Package pkg) returns byte[] {
+function generateJVMClassContent(bir:Package pkg) returns byte[] {
     jvm:classWriterInit();
     jvm:classWriterVisit(className);
 
@@ -55,7 +70,7 @@ function generateMethods(bir:Function[] funcs) {
 function getMainFunc(bir:Function[] funcs) returns bir:Function? {
     bir:Function? userMainFunc = ();
     foreach var func in funcs {
-        if(func.name.value == "main") {
+        if (func.name.value == "main") {
             userMainFunc = untaint func;
             break;
         }
