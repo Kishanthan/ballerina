@@ -104,6 +104,14 @@ function testByteArrayOfArray() returns [int, int] {
     return [a, b];
 }
 
+function testByteArrayIteration(byte[] b) returns byte[] {
+    byte[] a = [];
+    foreach var i in b {
+        a[a.length()] = i;
+    }
+    return a;
+}
+
 function testByteBinaryOperation(byte a, byte b, byte c) returns [boolean, boolean] {
     boolean b1 = (a == b);
     boolean b2 = (a == c);
