@@ -29,6 +29,7 @@ You can use one of the following options to try out Ballerina.
 * [Ballerina by Example](https://ballerina.io/learn/by-example/) 
 * [Playground](https://play.ballerina.io/)
 
+
 ## Downloading and installing
 
 For instructions on downloading and installing, see [Installing Ballerina](https://ballerina.io/v1-2/learn/installing-ballerina/).
