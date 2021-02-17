@@ -6,7 +6,7 @@ on:
 jobs:
   publish-release:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/nballerina'
+    if: github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v2
 
